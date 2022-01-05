@@ -7,12 +7,16 @@
     LD A,L
     OR H
     JR Z,expect%%M
-    CALL enter
-    .cstr "`",msg1,"`\\N`Actual: `\\P\\N"
+
+    CALL printStr
+    .cstr msg1,"\r\nActual: "
+    CALL printdec
+
+    CALL printStr
+    .cstr "\r\nExpected: "
     LD HL,val1
-    PUSH HL
-    CALL enter
-    .cstr "`Expected: `."
+    CALL printdec
+
     HALT
     .cstr
 expect%%M:
@@ -24,4 +28,3 @@ expect%%M:
     .cstr code1
     expect code1,val1
 .endm
-
