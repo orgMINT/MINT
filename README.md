@@ -249,7 +249,6 @@ NOTE:
 | \\!    | STORE a byte to memory                      | val adr --    |
 | \\[    | begin a byte array definition               | --            |
 | \\@    | FETCH a byte from memory                    | -- val        |
-| \\+    | increments variable at address by an amount | val adr --    |
 
 ### System Variables
 
@@ -261,7 +260,6 @@ NOTE:
 | \\d    | start of user definitions            | -- adr |
 | \\h    | heap pointer variable                | -- adr |
 | \\i    | See: Loops and conditional execution | -- adr |
-| \\j    | See: Loops and conditional execution | -- adr |
 
 ### Miscellaneous
 

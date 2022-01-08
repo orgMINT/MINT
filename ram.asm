@@ -16,8 +16,8 @@ sysVars:
 vS0:        DS 2                ; a
 vBase16:    DS 2                ; b
 vTIBPtr:    DS 2                ; c
-vDefs:      DS 2                ; d
-vEdited:    DS 2                ; e
+vNS:        DS 2                ; d
+vLastDef:   DS 2                ; e
             DS 2                ; f
             DS 2                ; g
 vHeapPtr:   DS 2                ; h
@@ -65,8 +65,8 @@ vars:       DS 26 * 2
 ; DEFS Table - holds 26 addresses of user routines
 ; ****************************************************************
             .align $40
-            .org $-12
-            DS 12               ; vars for group 0 
-defs:       DS GRPSIZE * NUMGRPS
+            .org $-($80-26*2*2)
+            DS ($80-26*2*2)     ; vars for group 0 
+defs:       DS NSSIZE * NSNUM
 
 HEAP:         
