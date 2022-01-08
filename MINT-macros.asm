@@ -2,7 +2,7 @@ empty_:
         DB ";"
 
 backsp_:
-        DB "\\c@0=0=(1_\\c\\+`\b \b`);"
+        DB "\\c@0=0=(\\c@1-\\c!`\b \b`);"
 
 reedit_:
         DB "\\e\\@\\Z;"

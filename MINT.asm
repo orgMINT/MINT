@@ -407,33 +407,33 @@ opcodes:
 ; ***********************************************************************		
 ctrlCodes:
 altCodes:
-        DB     lsb(empty_)      ; NUL ^@
-        DB     lsb(empty_)      ; SOH ^A
-        DB     lsb(toggleBase_) ; STX ^B
-        DB     lsb(empty_)      ; ETX ^C
-        DB     lsb(empty_)      ; EOT ^D
-        DB     lsb(edit_)       ; ENQ ^E
-        DB     lsb(empty_)      ; ACK ^F
-        DB     lsb(empty_)      ; BEL ^G
-        DB     lsb(backsp_)     ; BS  ^H
-        DB     lsb(empty_)      ; TAB ^I
-        DB     lsb(reedit_)     ; LF  ^J
-        DB     lsb(empty_)      ; VT  ^K
-        DB     lsb(list_)       ; FF  ^L
-        DB     lsb(empty_)      ; CR  ^M
-        DB     lsb(empty_)      ; SO  ^N
-        DB     lsb(empty_)      ; SI  ^O
-        DB     lsb(printStack_) ; DLE ^P
-        DB     lsb(empty_)      ; DC1 ^Q
-        DB     lsb(empty_)      ; DC2 ^R
-        DB     lsb(empty_)      ; DC3 ^S
-        DB     lsb(empty_)      ; DC4 ^T
-        DB     lsb(empty_)      ; NAK ^U
-        DB     lsb(empty_)      ; SYN ^V
-        DB     lsb(empty_)      ; ETB ^W
-        DB     lsb(empty_)      ; CAN ^X
-        DB     lsb(empty_)      ; EM  ^Y
-        DB     lsb(empty_)      ; SUB ^Z
+        DB     lsb(empty_)      ; NUL ^@ 
+        DB     lsb(empty_)      ; SOH ^A  1
+        DB     lsb(toggleBase_) ; STX ^B  2
+        DB     lsb(empty_)      ; ETX ^C  3
+        DB     lsb(empty_)      ; EOT ^D  4
+        DB     lsb(edit_)       ; ENQ ^E  5
+        DB     lsb(empty_)      ; ACK ^F  6
+        DB     lsb(empty_)      ; BEL ^G  7 
+        DB     lsb(backsp_)     ; BS  ^H  8
+        DB     lsb(empty_)      ; TAB ^I  9
+        DB     lsb(reedit_)     ; LF  ^J 10
+        DB     lsb(empty_)      ; VT  ^K 11
+        DB     lsb(list_)       ; FF  ^L 12
+        DB     lsb(empty_)      ; CR  ^M 13
+        DB     lsb(empty_)      ; SO  ^N 14
+        DB     lsb(empty_)      ; SI  ^O 15
+        DB     lsb(printStack_) ; DLE ^P 16
+        DB     lsb(empty_)      ; DC1 ^Q 17
+        DB     lsb(empty_)      ; DC2 ^R 18
+        DB     lsb(empty_)      ; DC3 ^S 19
+        DB     lsb(empty_)      ; DC4 ^T 20
+        DB     lsb(empty_)      ; NAK ^U 21
+        DB     lsb(empty_)      ; SYN ^V 22
+        DB     lsb(empty_)      ; ETB ^W 23
+        DB     lsb(empty_)      ; CAN ^X 24
+        DB     lsb(empty_)      ; EM  ^Y 25
+        DB     lsb(empty_)      ; SUB ^Z 26
         DB     lsb(empty_)      ; ESC ^[
         DB     lsb(empty_)      ; FS  ^\
         DB     lsb(empty_)      ; GS  ^]
@@ -1226,8 +1226,7 @@ editDef2:
         CP ";"
         JR NZ,editDef1
 editDef3:        
-        LD HL,TIB
-        EX DE,HL
+        LD DE,TIB
         OR A
         SBC HL,DE
         LD (vTIBPtr),HL
