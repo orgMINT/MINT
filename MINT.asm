@@ -17,7 +17,7 @@
         FALSE       EQU 0
         EMPTY       EQU 0
 
-        NSNUM       EQU 4       ; namespaces 
+        NSNUM       EQU 5       ; namespaces 
         NSSIZE      EQU $80
 
 ; **************************************************************************
@@ -610,10 +610,6 @@ call_:
         LD D,(HL)
         JP go1
 
-hdot_:                          ; print hexadecimal
-        POP     HL
-        CALL printhex
-        JR   dot2
 dot_:       
         POP HL
         CALL printdec
@@ -621,6 +617,11 @@ dot2:
         LD A,' '           
         CALL putChar
         JP (IY)
+
+hdot_:                          ; print hexadecimal
+        POP     HL
+        CALL printhex
+        JR   dot2
 
 drop_:                          ; Discard the top member of the stack
         POP     HL
@@ -643,24 +644,25 @@ exit_:
         JP (HL)
         
 fetch_:                         ; Fetch the value from the address placed on the top of the stack      
-        POP     HL              
+        POP HL              
 fetch1:
-        LD      E,(HL)         
-        INC     HL             
-        LD      D,(HL)         
-        PUSH    DE              
-        JP      (IY)           
+        LD E,(HL)         
+        INC HL             
+        LD D,(HL)         
+        PUSH DE              
+        JP (IY)           
 
 
-nop_:       JP NEXT             ; hardwire white space to always go to NEXT (important for arrays)
+nop_:       
+        JP NEXT             ; hardwire white space to always go to NEXT (important for arrays)
 
 
 over_:  
-        POP     HL              ; Duplicate 2nd element of the stack
-        POP     DE
-        PUSH    DE
-        PUSH    HL
-        PUSH    DE              ; And push it to top of stack
+        POP HL              ; Duplicate 2nd element of the stack
+        POP DE
+        PUSH DE
+        PUSH HL
+        PUSH DE              ; And push it to top of stack
         JP (IY)        
     
 ret_:
@@ -668,21 +670,6 @@ ret_:
         LD BC,HL                
         JP (IY)             
 
-store_:                         ; Store the value at the address placed on the top of the stack
-        POP    HL               
-        POP    DE               
-        LD     (HL),E          
-        INC    HL              
-        LD     (HL),D          
-        JP     (IY)            
-                                  
-; $ swap                        ; a b -- b a Swap the top 2 elements of the stack
-swap_:        
-        POP HL
-        EX (SP),HL
-        PUSH HL
-        JP (IY)
-        
 ;  Left shift { is multiply by 2		
 shl_:   
         POP HL                  ; Duplicate the top member of the stack
@@ -699,42 +686,65 @@ shr1:
         PUSH HL
         JP (IY)                 ;   
 
-neg_:   LD HL, 0    		    ; NEGate the value on top of stack (2's complement)
-        POP DE                  ;    
-        JR SUB_2                ; use the SUBtract routine
-    
+store_:                         ; Store the value at the address placed on the top of the stack
+        POP HL               
+        POP DE               
+        LD (HL),E          
+        INC HL              
+        LD (HL),D          
+        JP (IY)            
+                                  
+; $ swap                        ; a b -- b a Swap the top 2 elements of the stack
+swap_:        
+        POP HL
+        EX (SP),HL
+        PUSH HL
+        JP (IY)
+        
 sub_:       				    ; Subtract the value 2nd on stack from top of stack 
         
-        POP     DE              ;    
-sub_1:  POP     HL              ;      Entry point for INVert
-sub_2:  AND     A               ;      Entry point for NEGate
-        SBC     HL,DE           ; 15t
-        PUSH    HL              ;    
-        JP      (IY)            ;   
+        POP DE              ;    
+        POP HL              ;      Entry point for INVert
+sub2:   
+        AND A               ;      Entry point for NEGate
+        SBC HL,DE           ; 15t
+        PUSH HL              ;    
+        JP (IY)            ;   
                                 ; 5  
-eq_:    POP      HL
-        POP      DE
-        AND      A              ; reset the carry flag
-        SBC      HL,DE          ; only equality sets HL=0 here
-        JR       Z, equal
-        LD       HL, 0
-        JR       less           ; HL = 1    
+neg_:   
+        LD HL, 0    		    ; NEGate the value on top of stack (2's complement)
+        POP DE                  ;    
+        JR sub2                 ; use the SUBtract routine
+    
+eq_:    
+        POP HL
+        POP DE
+        AND A              ; reset the carry flag
+        SBC HL,DE          ; only equality sets HL=0 here
+        JR Z, equal
+        LD HL, 0
+        JR less           ; HL = 1    
 
-gt_:    POP      DE
-        POP      HL
-        JR       cmp_
+gt_:    
+        POP DE
+        POP HL
+        JR cmp_
         
-lt_:    POP      HL
-        POP      DE
-cmp_:   AND      A              ; reset the carry flag
-        SBC      HL,DE          ; only equality sets HL=0 here
-		JR       Z,less         ; equality returns 0  KB 25/11/21
-        LD       HL, 0
-        JP       M,less
-equal:  INC      L              ; HL = 1    
+lt_:    
+        POP HL
+        POP DE
+        
+cmp_:   
+        AND A              ; reset the carry flag
+        SBC HL,DE          ; only equality sets HL=0 here
+		JR Z,less         ; equality returns 0  KB 25/11/21
+        LD HL, 0
+        JP M,less
+equal:  
+        INC L              ; HL = 1    
 less:     
-        PUSH     HL
-        JP       (IY) 
+        PUSH HL
+        JP (IY) 
         
 var_:
         LD A,(BC)
@@ -1121,9 +1131,6 @@ NSExit_:
         LD (vNS),HL
         JP (IY)
         
-NSEnter_:
-        JP NSEnter
-
 prompt_:
         CALL prompt
         JP (IY)
@@ -1191,9 +1198,35 @@ break1:
         ADD IX,DE
         JP begin1                   ; skip to end of loop        
 
-printStk_:
-        JR printStk
+NSEnter_:
+        INC BC
+NSEnter1:
+        LD A,(BC)                   ; read NS ASCII code
+        SUB "0"                     ; convert to number
+        INC BC
+        LD D,A                      ; multiply by 64
+        LD E,0
+        SRL D
+        RR E
+        SRL D
+        RR E
+        LD HL,(vNS)               ; 
+        call rpush
+        LD HL,DEFS
+        ADD HL,DE
+        LD (vNS),HL
+        JP (IY)                    
+
 editDef_:
+        JR editDef
+
+printStk_:
+printStk:                           ;=40
+        ; MINT: \a@2- \D1- ("@ \b@ \(,)(.) 2-) '             
+        call ENTER
+        .cstr "\\a@2-\\D1-(",$22,"@\\b@\\(,)(.)2-)'"             
+        JP (IY)
+
 ; **************************************************************************
 ; Page 6 primitive routines 
 ; **************************************************************************
@@ -1238,31 +1271,6 @@ writeChar:                          ;=5
         LD (HL),A
         INC HL
         JP putchar
-
-NSEnter:                            ;=31
-        INC BC
-NSEnter1:
-        LD A,(BC)                   ; read NS ASCII code
-        SUB "0"                     ; convert to number
-        INC BC
-        LD D,A                      ; multiply by 64
-        LD E,0
-        SRL D
-        RR E
-        SRL D
-        RR E
-        LD HL,(vNS)               ; 
-        call rpush
-        LD HL,DEFS
-        ADD HL,DE
-        LD (vNS),HL
-        JP (IY)                    
-
-printStk:                           ;=40
-        ; MINT: \a@2- \D1- ("@ \b@ \(,)(.) 2-) '             
-        call ENTER
-        .cstr "\\a@2-\\D1-(",$22,"@\\b@\\(,)(.)2-)'"             
-        JP (IY)
 
 ;*******************************************************************
 ; Page 5 primitive routines continued
