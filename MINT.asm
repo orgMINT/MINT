@@ -601,8 +601,6 @@ arrDef1:
         JP NEXT                 ; hardwired to NEXT
 
 call_:
-        LD HL,BC
-        CALL rpush              ; save Instruction Pointer
         LD A,(BC)
         CALL NSLookup
         LD E,(HL)
