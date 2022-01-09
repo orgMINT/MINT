@@ -213,19 +213,21 @@ Note: logical NOT can be achieved with 0=
 | \`     | print the literal string between \` and \`                | --          |
 | #      | the following number is in hexadecimal                    | a --        |
 
-### User Definitions
+### User Defined Commands
 
-| Symbol  | Description                | Effect |
-| ------- | -------------------------- | ------ |
-| ;       | end of user definition END |        |
-| :<CHAR> | define a new word DEF      |        |
-| ?<CHAR> | get the address of the def | -- adr |
-| \{      | enter group NUM            | num -- |
-| \}      | exit group                 | --     |
+| Symbol       | Description                                   | Effect |
+| ------------ | --------------------------------------------- | ------ |
+| <CHAR>       | execute a user defined command                | ? -- ? |
+| ;            | end of user definition END                    |        |
+| :<CHAR>      | define a new word DEF                         |        |
+| ?<CHAR>      | get the address of the def                    | -- adr |
+| \{<NUM>      | enter namespace NUM                           | --     |
+| \}           | exit namespace                                | --     |
+| \<NUM><CHAR> | execute a user defined command in a namespace | ? -- ? |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
-<NUM> is the group number. There are currently 5 groups numbered 0 - 4
+<NUM> is the namespace number. There are currently 5 namespaces numbered 0 - 4
 
 ### Loops and conditional execution
 
@@ -240,15 +242,15 @@ NOTE:
 
 ### Memory and Variable Operations
 
-| Symbol | Description                                 | Effect        |
-| ------ | ------------------------------------------- | ------------- |
-| !      | STORE a value to memory                     | val adr --    |
-| [      | begin an array definition                   | --            |
-| ]      | end an array definition                     | -- adr nwords |
-| @      | FETCH a value from memory                   | -- val        |
-| \\!    | STORE a byte to memory                      | val adr --    |
-| \\[    | begin a byte array definition               | --            |
-| \\@    | FETCH a byte from memory                    | -- val        |
+| Symbol | Description                   | Effect        |
+| ------ | ----------------------------- | ------------- |
+| !      | STORE a value to memory       | val adr --    |
+| [      | begin an array definition     | --            |
+| ]      | end an array definition       | -- adr nwords |
+| @      | FETCH a value from memory     | -- val        |
+| \\!    | STORE a byte to memory        | val adr --    |
+| \\[    | begin a byte array definition | --            |
+| \\@    | FETCH a byte from memory      | -- val        |
 
 ### System Variables
 
