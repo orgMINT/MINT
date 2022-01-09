@@ -15,8 +15,9 @@
         TIBSIZE     EQU $100
         TRUE        EQU 1
         FALSE       EQU 0
+        EMPTY       EQU 0
 
-        NSNUM       EQU 5       ; namespaces 
+        NSNUM       EQU 4       ; namespaces 
         NSSIZE      EQU $80
 
 ; **************************************************************************
@@ -53,14 +54,13 @@ initialize:
         LD BC,8 * 2
         LDIR
         
-        LD HL,DEFS
-        LD B,26                 ; initialise NS 0 only
-init1:
-        LD (HL),lsb(empty_)
-        INC HL
-        LD (HL),msb(empty_)
-        INC HL
-        DJNZ init1
+        LD HL,DEFS              ; init namespaces to 0
+        LD DE,HL
+        INC DE
+        LD (HL),0
+        LD BC,NSNUM*NSSIZE
+        LDIR
+
         RET
 
 etx:                                ;=12
@@ -407,38 +407,38 @@ opcodes:
 ; ***********************************************************************		
 ctrlCodes:
 altCodes:
-        DB     lsb(empty_)      ; NUL ^@ 
-        DB     lsb(empty_)      ; SOH ^A  1
+        DB     lsb(EMPTY)      ; NUL ^@ 
+        DB     lsb(EMPTY)      ; SOH ^A  1
         DB     lsb(toggleBase_) ; STX ^B  2
-        DB     lsb(empty_)      ; ETX ^C  3
-        DB     lsb(empty_)      ; EOT ^D  4
+        DB     lsb(EMPTY)      ; ETX ^C  3
+        DB     lsb(EMPTY)      ; EOT ^D  4
         DB     lsb(edit_)       ; ENQ ^E  5
-        DB     lsb(empty_)      ; ACK ^F  6
-        DB     lsb(empty_)      ; BEL ^G  7 
+        DB     lsb(EMPTY)      ; ACK ^F  6
+        DB     lsb(EMPTY)      ; BEL ^G  7 
         DB     lsb(backsp_)     ; BS  ^H  8
-        DB     lsb(empty_)      ; TAB ^I  9
+        DB     lsb(EMPTY)      ; TAB ^I  9
         DB     lsb(reedit_)     ; LF  ^J 10
-        DB     lsb(empty_)      ; VT  ^K 11
+        DB     lsb(EMPTY)      ; VT  ^K 11
         DB     lsb(list_)       ; FF  ^L 12
-        DB     lsb(empty_)      ; CR  ^M 13
-        DB     lsb(empty_)      ; SO  ^N 14
-        DB     lsb(empty_)      ; SI  ^O 15
+        DB     lsb(EMPTY)      ; CR  ^M 13
+        DB     lsb(EMPTY)      ; SO  ^N 14
+        DB     lsb(EMPTY)      ; SI  ^O 15
         DB     lsb(printStack_) ; DLE ^P 16
-        DB     lsb(empty_)      ; DC1 ^Q 17
-        DB     lsb(empty_)      ; DC2 ^R 18
-        DB     lsb(empty_)      ; DC3 ^S 19
-        DB     lsb(empty_)      ; DC4 ^T 20
-        DB     lsb(empty_)      ; NAK ^U 21
-        DB     lsb(empty_)      ; SYN ^V 22
-        DB     lsb(empty_)      ; ETB ^W 23
-        DB     lsb(empty_)      ; CAN ^X 24
-        DB     lsb(empty_)      ; EM  ^Y 25
-        DB     lsb(empty_)      ; SUB ^Z 26
-        DB     lsb(empty_)      ; ESC ^[
-        DB     lsb(empty_)      ; FS  ^\
-        DB     lsb(empty_)      ; GS  ^]
-        DB     lsb(empty_)      ; RS  ^^
-        DB     lsb(empty_)      ; US  ^_)
+        DB     lsb(EMPTY)      ; DC1 ^Q 17
+        DB     lsb(EMPTY)      ; DC2 ^R 18
+        DB     lsb(EMPTY)      ; DC3 ^S 19
+        DB     lsb(EMPTY)      ; DC4 ^T 20
+        DB     lsb(EMPTY)      ; NAK ^U 21
+        DB     lsb(EMPTY)      ; SYN ^V 22
+        DB     lsb(EMPTY)      ; ETB ^W 23
+        DB     lsb(EMPTY)      ; CAN ^X 24
+        DB     lsb(EMPTY)      ; EM  ^Y 25
+        DB     lsb(EMPTY)      ; SUB ^Z 26
+        DB     lsb(EMPTY)      ; ESC ^[
+        DB     lsb(EMPTY)      ; FS  ^\
+        DB     lsb(EMPTY)      ; GS  ^]
+        DB     lsb(EMPTY)      ; RS  ^^
+        DB     lsb(EMPTY)      ; US  ^_)
         DB     lsb(aNop_)       ; SP  ^`
         DB     lsb(cStore_)     ;    !            
         DB     lsb(aNop_)       ;    "
@@ -605,13 +605,10 @@ call_:
         CALL rpush              ; save Instruction Pointer
         LD A,(BC)
         CALL NSLookup
-        LD C,(HL)
+        LD E,(HL)
         INC HL
-        LD B,(HL)
-        DEC BC
-        JP (IY)                
-
-
+        LD D,(HL)
+        JP go1
 
 hdot_:                          ; print hexadecimal
         POP     HL
@@ -1091,10 +1088,16 @@ exec1:
         JP (HL)
 
 go_:
+        POP DE
+go1:
+        LD A,D
+        OR E
+        JR Z,go2
         LD HL,BC
         CALL rpush                  ; save Instruction Pointer
-        POP BC
+        LD BC,DE
         DEC BC
+go2:
         JP (IY)                     
 
 NSCall_:                            ;=25
@@ -1209,10 +1212,10 @@ editDef:                            ;=50 lookup up def based on number
         LD E,(HL)
         INC HL
         LD D,(HL)
-        LD A,(DE)
-        CP ";"
-        LD HL,TIB
+        LD A,D
+        OR E
         JR Z,editDef3
+        LD HL,TIB
         LD A,":"
         CALL writeChar
         EX AF,AF'
@@ -1225,11 +1228,11 @@ editDef2:
         CALL writeChar
         CP ";"
         JR NZ,editDef1
-editDef3:        
         LD DE,TIB
         OR A
         SBC HL,DE
         LD (vTIBPtr),HL
+editDef3:        
         JP (IY)
 writeChar:                          ;=5
         LD (HL),A
