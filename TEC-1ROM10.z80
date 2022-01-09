@@ -3,7 +3,7 @@
 .include "constants.asm"
 .include "IOSerial.asm"
 
-        jp   start
+    jp   start
 
 .include "MINT.asm"
 .include "ram.asm"
