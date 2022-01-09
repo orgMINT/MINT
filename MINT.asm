@@ -1214,8 +1214,8 @@ editDef:                            ;=50 lookup up def based on number
         LD D,(HL)
         LD A,D
         OR E
-        JR Z,editDef3
         LD HL,TIB
+        JR Z,editDef3
         LD A,":"
         CALL writeChar
         EX AF,AF'
@@ -1228,11 +1228,11 @@ editDef2:
         CALL writeChar
         CP ";"
         JR NZ,editDef1
+editDef3:        
         LD DE,TIB
         OR A
         SBC HL,DE
         LD (vTIBPtr),HL
-editDef3:        
         JP (IY)
 writeChar:                          ;=5
         LD (HL),A
