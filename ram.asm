@@ -56,17 +56,13 @@ INTVEC:     DS 2                ;
 NMIVEC:     DS 2                ; 
 GETCVEC:    DS 2                ;   
 PUTCVEC:    DS 2                ;   
-; ****************************************************************
-; VARS Table - holds 26 16-bit user variables
-; ****************************************************************
-vars:       DS 26 * 2
 
-; ****************************************************************
-; DEFS Table - holds 26 addresses of user routines
-; ****************************************************************
+; *************************************************************************
+; NS Table - Each space holds 26 user commands, 26 user vars, 12 bytes free
+; *************************************************************************
             .align $40
             .org $-($80-26*2*2)
-            DS ($80-26*2*2)     ; vars for group 0 
-defs:       DS NSSIZE * NSNUM
+            DS ($80-26*2*2)     ; 12 bytes free vars for NS 0 
+NS0:        DS NSSIZE * NSNUM
 
 HEAP:         

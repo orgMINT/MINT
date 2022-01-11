@@ -26,13 +26,6 @@
 
 		.ORG ROMSTART + $180		
 
-start:
-        LD SP,DSTACK
-        CALL initialize
-        CALL printStr
-        .cstr "MINT V1.0\r\n"
-        JR interpret
-
 ; ***********************************************************************
 ; Initial values for user mintVars		
 ; ***********************************************************************		
@@ -40,28 +33,11 @@ iSysVars:
         DW dStack               ; a vS0
         DW FALSE                ; b vBase16
         DW 0                    ; c vTIBPtr
-        DW DEFS                 ; d vNS
+        DW NS0                 ; d vNS
         DW 65                   ; e vLastDef "A"
         DW 0                    ; f 
         DW 0                    ; g 
         DW HEAP                 ; h vHeapPtr
-
-initialize:
-        LD IX,RSTACK
-        LD IY,NEXT			    ; IY provides a faster jump to NEXT
-        LD HL,iSysVars
-        LD DE,sysVars
-        LD BC,8 * 2
-        LDIR
-        
-        LD HL,DEFS              ; init namespaces to 0
-        LD DE,HL
-        INC DE
-        LD (HL),0
-        LD BC,NSNUM*NSSIZE
-        LDIR
-
-        RET
 
 etx:                                ;=12
         LD HL,-DSTACK
@@ -83,6 +59,12 @@ macro:                          ;=25
         .cstr "\\G"
         LD BC,(vTIBPtr)
         JR interpret2
+
+start:
+        LD SP,DSTACK
+        CALL initialize
+        CALL printStr
+        .cstr "MINT V1.0\r\n"
 
 interpret:
         call prompt
@@ -155,6 +137,23 @@ waitchar4:
         LD BC,TIB               ; Instructions stored on heap at address HERE
         DEC BC
         JP NEXT
+
+initialize:
+        LD IX,RSTACK
+        LD IY,NEXT			    ; IY provides a faster jump to NEXT
+        LD HL,iSysVars
+        LD DE,sysVars
+        LD BC,8 * 2
+        LDIR
+        
+        LD HL,NS0              ; init namespaces to 0
+        LD DE,HL
+        INC DE
+        LD (HL),0
+        LD BC,NSNUM*NSSIZE
+        LDIR
+
+        RET
 
 ; ********************************************************************************
 ;
@@ -1210,7 +1209,7 @@ NSEnter1:
         RR E
         LD HL,(vNS)               ; 
         call rpush
-        LD HL,DEFS
+        LD HL,NS0
         ADD HL,DE
         LD (vNS),HL
         JP (IY)                    
