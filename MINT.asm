@@ -22,13 +22,13 @@
 
 ; **************************************************************************
 ; Page 0  Initialisation
-; **************************************************************************		
+; **************************************************************************  
 
-		.ORG ROMSTART + $180		
+        .ORG ROMSTART + $180  
 
 ; ***********************************************************************
-; Initial values for user mintVars		
-; ***********************************************************************		
+; Initial values for user mintVars  
+; ***********************************************************************  
 iSysVars:
         DW dStack               ; a vS0
         DW FALSE                ; b vBase16
@@ -46,19 +46,6 @@ etx:                                ;=12
         LD SP,DSTACK
 etx1:
         JR interpret
-
-macro:                          ;=25
-        LD (vTIBPtr),BC
-        LD HL,ctrlCodes
-        ADD A,L
-        LD L,A
-        LD E,(HL)
-        LD D,msb(macros)
-        PUSH DE
-        call ENTER
-        .cstr "\\G"
-        LD BC,(vTIBPtr)
-        JR interpret2
 
 start:
         LD SP,DSTACK
@@ -104,8 +91,19 @@ waitchar:
         JR Z,waitchar4
         CP '\r'                 ; carriage return?
         JR Z,waitchar3
-        LD D,0
-        JR macro    
+        ; LD D,0
+macro:                          ;=25
+        LD (vTIBPtr),BC
+        LD HL,ctrlCodes
+        ADD A,L
+        LD L,A
+        LD E,(HL)
+        LD D,msb(macros)
+        PUSH DE
+        call ENTER
+        .cstr "\\G"
+        LD BC,(vTIBPtr)
+        JR interpret2
 
 waitchar1:
         LD HL,TIB
@@ -136,24 +134,6 @@ waitchar4:
         LD (vTIBPtr),BC
         LD BC,TIB               ; Instructions stored on heap at address HERE
         DEC BC
-        JP NEXT
-
-initialize:
-        LD IX,RSTACK
-        LD IY,NEXT			    ; IY provides a faster jump to NEXT
-        LD HL,iSysVars
-        LD DE,sysVars
-        LD BC,8 * 2
-        LDIR
-        
-        LD HL,NS0              ; init namespaces to 0
-        LD DE,HL
-        INC DE
-        LD (HL),0
-        LD BC,NSNUM*NSSIZE
-        LDIR
-
-        RET
 
 ; ********************************************************************************
 ;
@@ -200,6 +180,23 @@ compNEXT:                       ;=20
 compNext1:
         LD (vHeapPtr),HL    ; save heap ptr
         JR NEXT
+
+initialize:
+        LD IX,RSTACK
+        LD IY,NEXT       ; IY provides a faster jump to NEXT
+        LD HL,iSysVars
+        LD DE,sysVars
+        LD BC,8 * 2
+        LDIR
+        
+        LD HL,NS0              ; init namespaces to 0
+        LD DE,HL
+        INC DE
+        LD (HL),0
+        LD BC,NSNUM*NSSIZE
+        LDIR
+
+        RET
 
 ; **************************************************************************             
 ; calculate nesting value
@@ -269,8 +266,8 @@ macros:
         .align $100
 opcodes:
 ; ***********************************************************************
-; Initial values for user mintVars		
-; ***********************************************************************		
+; Initial values for user mintVars  
+; ***********************************************************************  
         DB    lsb(exit_)    ;   NUL 
         DB    lsb(nop_)     ;   SOH 
         DB    lsb(nop_)     ;   STX 
@@ -402,8 +399,8 @@ opcodes:
 
         
 ; ***********************************************************************
-; Alternate function codes		
-; ***********************************************************************		
+; Alternate function codes  
+; ***********************************************************************  
 ctrlCodes:
 altCodes:
         DB     lsb(EMPTY)      ; NUL ^@ 
@@ -533,10 +530,10 @@ altCodes:
         DB     lsb(aNop_)       ;    |            
         DB     lsb(NSExit_)     ;    }            
         DB     lsb(aNop_)       ;    ~           
-        DB     lsb(aNop_)       ;    BS		
+        DB     lsb(aNop_)       ;    BS  
 
 
-; **********************************************************************			 
+; **********************************************************************    
 ; Page 4 primitive routines 
 ; **********************************************************************
         .align $100
@@ -556,7 +553,7 @@ and1:
         JP      (IY)        ;   
         
                             ; 
-or_: 		 
+or_:    
         POP     DE             ; Bitwise OR the top 2 elements of the stack
         POP     HL
         LD      A,E
@@ -566,7 +563,7 @@ or_:
         OR      H
         JR and1
 
-xor_:		 
+xor_:   
         POP     DE              ; Bitwise XOR the top 2 elements of the stack
 xor1:
         POP     HL
@@ -577,7 +574,7 @@ xor1:
         XOR     H
         JR and1
 
-inv_:						    ; Bitwise INVert the top member of the stack
+inv_:                           ; Bitwise INVert the top member of the stack
         LD DE, $FFFF            ; by xoring with $FFFF
         JR xor1        
    
@@ -667,14 +664,14 @@ ret_:
         LD BC,HL                
         JP (IY)             
 
-;  Left shift { is multiply by 2		
+;  Left shift { is multiply by 2  
 shl_:   
         POP HL                  ; Duplicate the top member of the stack
         ADD HL,HL
         PUSH HL                 ; shift left fallthrough into add_     
         JP (IY)                 ;   
     
-;  Right shift } is a divide by 2		
+;  Right shift } is a divide by 2  
 shr_:    
         POP HL                  ; Get the top member of the stack
 shr1:
@@ -698,7 +695,7 @@ swap_:
         PUSH HL
         JP (IY)
         
-sub_:       				    ; Subtract the value 2nd on stack from top of stack 
+sub_:                           ; Subtract the value 2nd on stack from top of stack 
         
         POP DE              ;    
         POP HL              ;      Entry point for INVert
@@ -709,18 +706,18 @@ sub2:
         JP (IY)            ;   
                                 ; 5  
 neg_:   
-        LD HL, 0    		    ; NEGate the value on top of stack (2's complement)
+        LD HL, 0                ; NEGate the value on top of stack (2's complement)
         POP DE                  ;    
         JR sub2                 ; use the SUBtract routine
     
 eq_:    
         POP HL
         POP DE
-        AND A              ; reset the carry flag
-        SBC HL,DE          ; only equality sets HL=0 here
+        AND A                   ; reset the carry flag
+        SBC HL,DE               ; only equality sets HL=0 here
         JR Z, equal
         LD HL, 0
-        JR less           ; HL = 1    
+        JR less                 ; HL = 1    
 
 gt_:    
         POP DE
@@ -734,7 +731,7 @@ lt_:
 cmp_:   
         AND A              ; reset the carry flag
         SBC HL,DE          ; only equality sets HL=0 here
-		JR Z,less         ; equality returns 0  KB 25/11/21
+        JR Z,less          ; equality returns 0  KB 25/11/21
         LD HL, 0
         JP M,less
 equal:  
@@ -792,7 +789,7 @@ str2:
 ; *************************************
 ; Loop Handling Code
 ; *************************************
-        	                        ;=23                     
+                                 ;=23                     
 begin:                              ; Left parentesis begins a loop
         POP HL
         LD A,L                      ; zero?
@@ -825,7 +822,7 @@ begin3:
 ; ********************************************************************************
 ; Number Handling Routine - converts numeric ascii string to a 16-bit number in HL
 ; Read the first character. 
-;			
+;   
 ; Number characters ($30 to $39) are converted to digits by subtracting $30
 ; and then added into the L register. (HL forms a 16-bit accumulator)
 ; Fetch the next character, if it is a number, multiply contents of HL by 10
@@ -835,8 +832,8 @@ begin3:
 ; ********************************************************************************
          
 num:                                ;=23
-		LD HL,$0000				    ;     Clear HL to accept the number
-		LD A,(BC)				    ;     Get the character which is a numeral
+        LD HL,$0000                 ;     Clear HL to accept the number
+        LD A,(BC)                    ;     Get the character which is a numeral
         
 num1:                               ; corrected KB 24/11/21
 
@@ -844,8 +841,8 @@ num1:                               ; corrected KB 24/11/21
         ADD A,L                     ;       Add into bottom of HL
         LD  L,A                     ;   
         LD A,00                     ;       Clear A
-        ADC	A,H	                    ; Add with carry H-reg
-	    LD	H,A	                    ; Put result in H-reg
+        ADC A,H                     ; Add with carry H-reg
+        LD H,A                      ; Put result in H-reg
       
         INC BC                      ;       Increment IP
         LD A, (BC)                  ;       and get the next character
@@ -880,28 +877,28 @@ num2:
 
 ; 1382 cycles
 ; 35 bytes (reduced from 48)
-		
+  
 
 div:                                ;=24
         POP  DE                     ; get first value
         POP  HL                     ; get 2nd value
         PUSH BC                     ; Preserve the IP
         LD B,H                      ; BC = 2nd value
-        LD C,L		
-		
-        LD HL,0    	                ; Zero the remainder
-        LD A,16    	                ; Loop counter
+        LD C,L  
+  
+        LD HL,0                     ; Zero the remainder
+        LD A,16                     ; Loop counter
 
-div1:		                        ;shift the bits from BC (numerator) into HL (accumulator)
+div1:                               ;shift the bits from BC (numerator) into HL (accumulator)
         SLA C
         RL B
         ADC HL,HL
 
-        SBC HL,DE			        ;Check if remainder >= denominator (HL>=DE)
+        SBC HL,DE                   ;Check if remainder >= denominator (HL>=DE)
         JR C,div2
         INC C
         JR div3
-div2:		                        ; remainder is not >= denominator, so we have to add DE back to HL
+div2:                               ; remainder is not >= denominator, so we have to add DE back to HL
         ADD hl,de
 div3:
         DEC A
@@ -917,10 +914,10 @@ div4:
 
 
 hex:                                ;=26
-	    LD HL,0		    		    ;     Clear HL to accept the number
+        LD HL,0                     ;     Clear HL to accept the number
 hex1:
         INC BC
-        LD A,(BC)				    ;     Get the character which is a numeral
+        LD A,(BC)                   ;     Get the character which is a numeral
         BIT 6,A                     ;       is it uppercase alpha?
         JR Z, hex2                  ; no a decimal
         SUB 7                       ; sub 7  to make $A - $F
@@ -1032,12 +1029,12 @@ cArrDef_:                           ; define a byte array
         JP arrDef1
 
 cFetch_:
-        POP     HL          
-        LD      D,0            
-        LD      E,(HL)         
-        PUSH    DE              
+        POP HL          
+        LD D,0            
+        LD E,(HL)         
+        PUSH DE              
 anop_:
-        JP      (IY)           
+        JP (IY)           
                                 
 charCode_:
         INC BC
@@ -1052,7 +1049,7 @@ comment_:
         DEC BC
         JP   (IY) 
 
-cStore_:	  
+cStore_:   
         POP    HL               
         POP    DE               
         LD     (HL),E          
@@ -1310,9 +1307,9 @@ mul2:
         INC DE
         DEC A
         JR NZ,mul2
-		POP BC				        ; Restore the IP
-		PUSH HL                     ; Put the product on the stack - stack bug fixed 2/12/21
-		JP (IY)
+        POP BC                      ; Restore the IP
+        PUSH HL                     ; Put the product on the stack - stack bug fixed 2/12/21
+        JP (IY)
 
 ;*******************************************************************
 ; Subroutines
@@ -1367,9 +1364,9 @@ printdec:                           ;=36
         LD E,-10
         CALL printdec1
         LD E,-1
-printdec1:	    
+printdec1:     
         LD A,'0'-1
-printdec2:	    
+printdec2:     
         INC A
         ADD HL,DE
         JR C,printdec2
@@ -1386,21 +1383,21 @@ printhex:                           ;=11
         POP BC
         RET
 
-printhex2:		                    ;=20
-        LD	C,A
-		RRA 
-		RRA 
-		RRA 
-		RRA 
-	    CALL printhex3
-	    LD A,C
-printhex3:		
-        AND	0x0F
-		ADD	A,0x90
-		DAA
-		ADC	A,0x40
-		DAA
-		JP putchar
+printhex2:                      ;=20
+        LD C,A
+        RRA 
+        RRA 
+        RRA 
+        RRA 
+        CALL printhex3
+        LD A,C
+printhex3:  
+        AND 0x0F
+        ADD A,0x90
+        DAA
+        ADC A,0x40
+        DAA
+        JP putchar
 
 rpush:                              ;=11
         DEC IX                  
