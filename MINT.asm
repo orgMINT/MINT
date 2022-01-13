@@ -49,7 +49,7 @@ etx1:
 
 start:
         LD SP,DSTACK
-        CALL initialize
+        CALL init
         CALL printStr
         .cstr "MINT V1.0\r\n"
 
@@ -181,7 +181,7 @@ compNext1:
         LD (vHeapPtr),HL    ; save heap ptr
         JR NEXT
 
-initialize:
+init:
         LD IX,RSTACK
         LD IY,NEXT			    ; IY provides a faster jump to NEXT
         LD HL,iSysVars
@@ -196,8 +196,105 @@ initialize:
         LD BC,NSNUM*NSSIZE
         LDIR
 
-        CALL initOpcodes
+initOps:
+        LD HL, iOpcodes
+        LD DE, opcodes
+        LD BC, 256
 
+initOps1:
+        LD A,(HL)
+        INC HL
+        SLA A                     
+        RET Z
+        JR C, initOps2
+        SRL A
+        LD C,A
+        LD B,0
+        LDIR
+        JR initOps1
+        
+initOps2:        
+        SRL A
+        LD B,A
+        LD A,(HL)
+        INC HL
+initOps2a:
+        LD (DE),A
+        INC DE
+        DJNZ initOps2a
+        JR initOps1
+
+enter:                              ;=9
+        LD HL,BC
+        CALL rpush                  ; save Instruction Pointer
+        POP BC
+        DEC BC
+        JP (IY)                    
+
+NSLookup:
+        SUB "A"
+        LD E,0
+        JR NSLookup3        
+NSLookup2:
+        SUB "a"
+        LD E,26*2
+NSLookup3:
+        ADD A,A
+        ADD A,E
+        LD E,A
+        LD D,0
+        LD HL,(vNS)
+        ADD HL,DE
+        RET
+
+printdec:                           ;=36
+        LD DE,-10000
+        CALL printdec1
+        LD DE,-1000
+        CALL printdec1
+        LD DE,-100
+        CALL printdec1
+        LD E,-10
+        CALL printdec1
+        LD E,-1
+printdec1:	    
+        LD A,'0'-1
+printdec2:	    
+        INC A
+        ADD HL,DE
+        JR C,printdec2
+        SBC HL,DE
+        JP putchar
+
+printStr:                           ;=14
+        EX (SP),HL
+        JR printStr2
+
+printStr1:
+        CALL putchar
+        INC HL
+
+printStr2:
+        LD A,(HL)
+        OR A
+        JR NZ,printStr1
+        INC HL
+        EX (SP),HL
+        RET
+
+rpush:                              ;=11
+        DEC IX                  
+        LD (IX+0),H
+        DEC IX
+        LD (IX+0),L
+        RET
+
+rpop:                               ;=11
+        LD L,(IX+0)         
+        INC IX              
+        LD H,(IX+0)
+        INC IX                  
+rpop2:
         RET
 
 ; **************************************************************************             
@@ -261,279 +358,6 @@ macros:
 
 .include "MINT-macros.asm"
 
-
-; **************************************************************************
-; Page 2  Jump Tables
-; **************************************************************************
-        .align $100
-iOpcodes:
-; ***********************************************************************
-; Initial values for user mintVars		
-; ***********************************************************************		
-        DB    lsb(exit_)    ;   NUL 
-        DB    lsb(nop_)     ;   SOH 
-        DB    lsb(nop_)     ;   STX 
-        DB    lsb(etx_)     ;   ETX 
-        DB    lsb(nop_)     ;   EOT 
-        DB    lsb(nop_)     ;   ENQ 
-        DB    lsb(nop_)     ;   ACK 
-        DB    lsb(nop_)     ;   BEL 
-        DB    lsb(nop_)     ;   BS  
-        DB    lsb(nop_)     ;   TAB 
-        DB    lsb(nop_)     ;   LF  
-        DB    lsb(nop_)     ;   VT  
-        DB    lsb(nop_)     ;   FF  
-        DB    lsb(nop_)     ;   CR  
-        DB    lsb(nop_)     ;   SO  
-        DB    lsb(nop_)     ;   SI  
-        DB    lsb(nop_)     ;   DLE 
-        DB    lsb(nop_)     ;   DC1 
-        DB    lsb(nop_)     ;   DC2 
-        DB    lsb(nop_)     ;   DC3 
-        DB    lsb(nop_)     ;   DC4 
-        DB    lsb(nop_)     ;   NAK 
-        DB    lsb(nop_)     ;   SYN 
-        DB    lsb(nop_)     ;   ETB 
-        DB    lsb(nop_)     ;   CAN 
-        DB    lsb(nop_)     ;   EM  
-        DB    lsb(nop_)     ;   SUB 
-        DB    lsb(nop_)     ;   ESC 
-        DB    lsb(nop_)     ;   FS  
-        DB    lsb(nop_)     ;   GS  
-        DB    lsb(nop_)     ;   RS  
-        DB    lsb(nop_)     ;   US  
-        DB    lsb(nop_)     ;   SP
-        DB    lsb(store_)   ;   !            
-        DB    lsb(dup_)     ;   "
-        DB    lsb(hex_)    ;    #
-        DB    lsb(swap_)   ;    $            
-        DB    lsb(over_)   ;    %            
-        DB    lsb(and_)    ;    &
-        DB    lsb(drop_)   ;    '
-        DB    lsb(begin_)  ;    (        
-        DB    lsb(again_)  ;    )
-        DB    lsb(mul_)    ;    *            
-        DB    lsb(add_)    ;    +
-        DB    lsb(hdot_)   ;    ,            
-        DB    lsb(sub_)    ;    -
-        DB    lsb(dot_)    ;    .
-        DB    lsb(div_)    ;    /
-        DB    lsb(num_)    ;    0            
-        DB    lsb(num_)    ;    1        
-        DB    lsb(num_)    ;    2            
-        DB    lsb(num_)    ;    3
-        DB    lsb(num_)    ;    4            
-        DB    lsb(num_)    ;    5            
-        DB    lsb(num_)    ;    6            
-        DB    lsb(num_)    ;    7
-        DB    lsb(num_)    ;    8            
-        DB    lsb(num_)    ;    9        
-        DB    lsb(def_)    ;    :        
-        DB    lsb(ret_)    ;    ;
-        DB    lsb(lt_)     ;    <
-        DB    lsb(eq_)     ;    =            
-        DB    lsb(gt_)     ;    >            
-        DB    lsb(getRef_) ;    ?
-        DB    lsb(fetch_)  ;    @    
-        DB    lsb(call_)   ;    A    
-        DB    lsb(call_)   ;    B
-        DB    lsb(call_)   ;    C
-        DB    lsb(call_)   ;    D    
-        DB    lsb(call_)   ;    E
-        DB    lsb(call_)   ;    F
-        DB    lsb(call_)   ;    G
-        DB    lsb(call_)   ;    H
-        DB    lsb(call_)   ;    I
-        DB    lsb(call_)   ;    J
-        DB    lsb(call_)   ;    K
-        DB    lsb(call_)   ;    L
-        DB    lsb(call_)   ;    M
-        DB    lsb(call_)   ;    N
-        DB    lsb(call_)   ;    O
-        DB    lsb(call_)   ;    P
-        DB    lsb(call_)   ;    Q
-        DB    lsb(call_)   ;    R
-        DB    lsb(call_)   ;    S
-        DB    lsb(call_)   ;    T
-        DB    lsb(call_)   ;    U
-        DB    lsb(call_)   ;    V
-        DB    lsb(call_)   ;    W
-        DB    lsb(call_)   ;    X
-        DB    lsb(call_)   ;    Y
-        DB    lsb(call_)   ;    Z
-        DB    lsb(arrDef_) ;    [
-        DB    lsb(alt_)    ;    \
-        DB    lsb(arrEnd_) ;    ]
-        DB    lsb(xor_)    ;    ^
-        DB    lsb(neg_)    ;    _
-        DB    lsb(str_)    ;    `            
-        DB    lsb(var_)    ;    a
-        DB    lsb(var_)    ;    b
-        DB    lsb(var_)    ;    c
-        DB    lsb(var_)    ;    d
-        DB    lsb(var_)    ;    e
-        DB    lsb(var_)    ;    f
-        DB    lsb(var_)    ;    g
-        DB    lsb(var_)    ;    h
-        DB    lsb(var_)    ;    i            
-        DB    lsb(var_)    ;    j
-        DB    lsb(var_)    ;    k
-        DB    lsb(var_)    ;    l
-        DB    lsb(var_)    ;    m
-        DB    lsb(var_)    ;    n
-        DB    lsb(var_)    ;    o
-        DB    lsb(var_)    ;    p
-        DB    lsb(var_)    ;    q            
-        DB    lsb(var_)    ;    r
-        DB    lsb(var_)    ;    s    
-        DB    lsb(var_)    ;    t
-        DB    lsb(var_)    ;    u
-        DB    lsb(var_)    ;    v
-        DB    lsb(var_)    ;    w
-        DB    lsb(var_)    ;    x
-        DB    lsb(var_)    ;    y
-        DB    lsb(var_)    ;    z
-        DB    lsb(shl_)    ;    {
-        DB    lsb(or_)     ;    |            
-        DB    lsb(shr_)    ;    }            
-        DB    lsb(inv_)    ;    ~            
-        DB    lsb(nop_)    ;    backspace
-
-        
-; ***********************************************************************
-; Alternate function codes		
-; ***********************************************************************		
-ictrlCodes:
-ialtCodes:
-        DB     lsb(EMPTY)      ; NUL ^@ 
-        DB     lsb(EMPTY)      ; SOH ^A  1
-        DB     lsb(toggleBase_) ; STX ^B  2
-        DB     lsb(EMPTY)      ; ETX ^C  3
-        DB     lsb(EMPTY)      ; EOT ^D  4
-        DB     lsb(edit_)       ; ENQ ^E  5
-        DB     lsb(EMPTY)      ; ACK ^F  6
-        DB     lsb(EMPTY)      ; BEL ^G  7 
-        DB     lsb(backsp_)     ; BS  ^H  8
-        DB     lsb(EMPTY)      ; TAB ^I  9
-        DB     lsb(reedit_)     ; LF  ^J 10
-        DB     lsb(EMPTY)      ; VT  ^K 11
-        DB     lsb(list_)       ; FF  ^L 12
-        DB     lsb(EMPTY)      ; CR  ^M 13
-        DB     lsb(EMPTY)      ; SO  ^N 14
-        DB     lsb(EMPTY)      ; SI  ^O 15
-        DB     lsb(printStack_) ; DLE ^P 16
-        DB     lsb(EMPTY)      ; DC1 ^Q 17
-        DB     lsb(EMPTY)      ; DC2 ^R 18
-        DB     lsb(EMPTY)      ; DC3 ^S 19
-        DB     lsb(EMPTY)      ; DC4 ^T 20
-        DB     lsb(EMPTY)      ; NAK ^U 21
-        DB     lsb(EMPTY)      ; SYN ^V 22
-        DB     lsb(EMPTY)      ; ETB ^W 23
-        DB     lsb(EMPTY)      ; CAN ^X 24
-        DB     lsb(EMPTY)      ; EM  ^Y 25
-        DB     lsb(EMPTY)      ; SUB ^Z 26
-        DB     lsb(EMPTY)      ; ESC ^[
-        DB     lsb(EMPTY)      ; FS  ^\
-        DB     lsb(EMPTY)      ; GS  ^]
-        DB     lsb(EMPTY)      ; RS  ^^
-        DB     lsb(EMPTY)      ; US  ^_)
-        DB     lsb(aNop_)       ; SP  ^`
-        DB     lsb(cStore_)     ;    !            
-        DB     lsb(aNop_)       ;    "
-        DB     lsb(aNop_)       ;    #
-        DB     lsb(aNop_)       ;    $  ( -- adr ) text input ptr           
-        DB     lsb(aNop_)       ;    %            
-        DB     lsb(aNop_)       ;    &
-        DB     lsb(aNop_)       ;    '
-        DB     lsb(ifte_)       ;    (  ( b -- )              
-        DB     lsb(aNop_)       ;    )
-        DB     lsb(aNop_)       ;    *            
-        DB     lsb(aNop_)       ;    +  
-        DB     lsb(aNop_)       ;    ,            
-        DB     lsb(aNop_)       ;    -  
-        DB     lsb(aNop_)       ;    .  
-        DB     lsb(aNop_)       ;    /
-        DB     lsb(NSCall_)     ;    0           
-        DB     lsb(NSCall_)     ;    1  
-        DB     lsb(NSCall_)     ;    2            
-        DB     lsb(NSCall_)     ;    3  
-        DB     lsb(NSCall_)     ;    4            
-        DB     lsb(aNop_)       ;    5            
-        DB     lsb(aNop_)       ;    6            
-        DB     lsb(aNop_)       ;    7
-        DB     lsb(aNop_)       ;    8            
-        DB     lsb(aNop_)       ;    9        
-        DB     lsb(aNop_)       ;    :  start defining a macro        
-        DB     lsb(aNop_)       ;    ;  
-        DB     lsb(aNop_)       ;    <
-        DB     lsb(aNop_)       ;    =            
-        DB     lsb(prompt_)     ;    >            
-        DB     lsb(aNop_)       ;    ?
-        DB     lsb(cFetch_)     ;    @      
-        DB     lsb(aNop_)       ;    A    
-        DB     lsb(break_)      ;    B
-        DB     lsb(nop_)        ;    C
-        DB     lsb(depth_)      ;    D  ( -- val ) depth of data stack  
-        DB     lsb(emit_)       ;    E   ( val -- ) emits a char to output
-        DB     lsb(aNop_)       ;    F
-        DB     lsb(go_)         ;    G   ( -- ? ) execute mint definition
-        DB     lsb(aNop_)       ;    H  
-        DB     lsb(inPort_)     ;    I  ( port -- val )   
-        DB     lsb(aNop_)       ;    J
-        DB     lsb(key_)        ;    K  ( -- val )  read a char from input
-        DB     lsb(aNop_)       ;    L  
-        DB     lsb(aNop_)       ;    M  
-        DB     lsb(newln_)      ;    N   ; prints a newline to output
-        DB     lsb(outPort_)    ;    O  ( val port -- )
-        DB     lsb(printStk_)   ;    P  ( -- ) non-destructively prints stack
-        DB     lsb(aNop_)       ;    Q  quits from Mint REPL
-        DB     lsb(rot_)        ;    R  ( a b c -- b c a )
-        DB     lsb(aNop_)       ;    S
-        DB     lsb(aNop_)       ;    T
-        DB     lsb(aNop_)       ;    U
-        DB     lsb(aNop_)       ;    V
-        DB     lsb(aNop_)       ;    W   ; ( b -- ) if false, skip to end of loop
-        DB     lsb(exec_)       ;    X
-        DB     lsb(aNop_)       ;    Y
-        DB     lsb(editDef_)    ;    Z
-        DB     lsb(cArrDef_)    ;    [
-        DB     lsb(comment_)    ;    \  comment text, skips reading until end of line
-        DB     lsb(aNop_)       ;    ]
-        DB     lsb(charCode_)   ;    ^
-        DB     lsb(aNop_)       ;    _ 
-        DB     lsb(aNop_)       ;    `            
-        DB     lsb(sysVar_)     ;    a  ; start of data stack variable
-        DB     lsb(sysVar_)     ;    b  ; base16 variable
-        DB     lsb(sysVar_)     ;    c  ; TIBPtr variable
-        DB     lsb(sysVar_)     ;    d  
-        DB     lsb(sysVar_)     ;    e  
-        DB     lsb(sysVar_)     ;    f
-        DB     lsb(sysVar_)     ;    g  
-        DB     lsb(sysVar_)     ;    h  ; heap ptr variable
-        DB     lsb(i_)          ;    i  ; returns index variable of current loop          
-        DB     lsb(sysVar_)          ;    j  ; returns index variable of outer loop
-        DB     lsb(sysVar_)     ;    k  
-        DB     lsb(sysVar_)     ;    l
-        DB     lsb(sysVar_)     ;    m  ( a b -- c ) return the minimum value
-        DB     lsb(sysVar_)     ;    n  
-        DB     lsb(sysVar_)     ;    o
-        DB     lsb(sysVar_)     ;    p  
-        DB     lsb(sysVar_)     ;    q           
-        DB     lsb(sysVar_)     ;    r
-        DB     lsb(sysVar_)     ;    s 
-        DB     lsb(sysVar_)     ;    t
-        DB     lsb(sysVar_)     ;    u
-        DB     lsb(sysVar_)     ;    v   
-        DB     lsb(sysVar_)     ;    w   
-        DB     lsb(sysVar_)     ;    x
-        DB     lsb(sysVar_)     ;    y
-        DB     lsb(sysVar_)     ;    z
-        DB     lsb(NSEnter_)    ;    {
-        DB     lsb(aNop_)       ;    |            
-        DB     lsb(NSExit_)     ;    }            
-        DB     lsb(aNop_)       ;    ~           
-        DB     lsb(aNop_)       ;    BS		
-
 .macro LITDAT,len
         DB len
 .endm
@@ -548,7 +372,7 @@ ialtCodes:
         DB 0
 .endm
 
-xiOpcodes:
+iOpcodes:
         LITDAT 4
         DB    lsb(exit_)    ;   NUL 
         DB    lsb(nop_)     ;   SOH 
@@ -556,35 +380,6 @@ xiOpcodes:
         DB    lsb(etx_)     ;   ETX 
 
         REPDAT 29, lsb(nop_)
-        DB    lsb(nop_)     ;   EOT 
-        DB    lsb(nop_)     ;   ENQ 
-        DB    lsb(nop_)     ;   ACK 
-        DB    lsb(nop_)     ;   BEL 
-        DB    lsb(nop_)     ;   BS  
-        DB    lsb(nop_)     ;   TAB 
-        DB    lsb(nop_)     ;   LF  
-        DB    lsb(nop_)     ;   VT  
-        DB    lsb(nop_)     ;   FF  
-        DB    lsb(nop_)     ;   CR  
-        DB    lsb(nop_)     ;   SO  
-        DB    lsb(nop_)     ;   SI  
-        DB    lsb(nop_)     ;   DLE 
-        DB    lsb(nop_)     ;   DC1 
-        DB    lsb(nop_)     ;   DC2 
-        DB    lsb(nop_)     ;   DC3 
-        DB    lsb(nop_)     ;   DC4 
-        DB    lsb(nop_)     ;   NAK 
-        DB    lsb(nop_)     ;   SYN 
-        DB    lsb(nop_)     ;   ETB 
-        DB    lsb(nop_)     ;   CAN 
-        DB    lsb(nop_)     ;   EM  
-        DB    lsb(nop_)     ;   SUB 
-        DB    lsb(nop_)     ;   ESC 
-        DB    lsb(nop_)     ;   FS  
-        DB    lsb(nop_)     ;   GS  
-        DB    lsb(nop_)     ;   RS  
-        DB    lsb(nop_)     ;   US  
-        DB    lsb(nop_)     ;   SP
 
         LITDAT 15
         DB    lsb(store_)   ;   !            
@@ -604,16 +399,6 @@ xiOpcodes:
         DB    lsb(div_)    ;    /
 
         REPDAT 10, lsb(num_)
-        DB    lsb(num_)    ;    0            
-        DB    lsb(num_)    ;    1        
-        DB    lsb(num_)    ;    2            
-        DB    lsb(num_)    ;    3
-        DB    lsb(num_)    ;    4            
-        DB    lsb(num_)    ;    5            
-        DB    lsb(num_)    ;    6            
-        DB    lsb(num_)    ;    7
-        DB    lsb(num_)    ;    8            
-        DB    lsb(num_)    ;    9        
 
         LITDAT 7
         DB    lsb(def_)    ;    :        
@@ -625,32 +410,6 @@ xiOpcodes:
         DB    lsb(fetch_)  ;    @    
 
         REPDAT 26, lsb(call_)
-        DB    lsb(call_)   ;    A    
-        DB    lsb(call_)   ;    B
-        DB    lsb(call_)   ;    C
-        DB    lsb(call_)   ;    D    
-        DB    lsb(call_)   ;    E
-        DB    lsb(call_)   ;    F
-        DB    lsb(call_)   ;    G
-        DB    lsb(call_)   ;    H
-        DB    lsb(call_)   ;    I
-        DB    lsb(call_)   ;    J
-        DB    lsb(call_)   ;    K
-        DB    lsb(call_)   ;    L
-        DB    lsb(call_)   ;    M
-        DB    lsb(call_)   ;    N
-        DB    lsb(call_)   ;    O
-        DB    lsb(call_)   ;    P
-        DB    lsb(call_)   ;    Q
-        DB    lsb(call_)   ;    R
-        DB    lsb(call_)   ;    S
-        DB    lsb(call_)   ;    T
-        DB    lsb(call_)   ;    U
-        DB    lsb(call_)   ;    V
-        DB    lsb(call_)   ;    W
-        DB    lsb(call_)   ;    X
-        DB    lsb(call_)   ;    Y
-        DB    lsb(call_)   ;    Z
 
         LITDAT 6
         DB    lsb(arrDef_) ;    [
@@ -661,32 +420,6 @@ xiOpcodes:
         DB    lsb(str_)    ;    `            
 
         REPDAT 26, lsb(var_)
-        DB    lsb(var_)    ;    a
-        DB    lsb(var_)    ;    b
-        DB    lsb(var_)    ;    c
-        DB    lsb(var_)    ;    d
-        DB    lsb(var_)    ;    e
-        DB    lsb(var_)    ;    f
-        DB    lsb(var_)    ;    g
-        DB    lsb(var_)    ;    h
-        DB    lsb(var_)    ;    i            
-        DB    lsb(var_)    ;    j
-        DB    lsb(var_)    ;    k
-        DB    lsb(var_)    ;    l
-        DB    lsb(var_)    ;    m
-        DB    lsb(var_)    ;    n
-        DB    lsb(var_)    ;    o
-        DB    lsb(var_)    ;    p
-        DB    lsb(var_)    ;    q            
-        DB    lsb(var_)    ;    r
-        DB    lsb(var_)    ;    s    
-        DB    lsb(var_)    ;    t
-        DB    lsb(var_)    ;    u
-        DB    lsb(var_)    ;    v
-        DB    lsb(var_)    ;    w
-        DB    lsb(var_)    ;    x
-        DB    lsb(var_)    ;    y
-        DB    lsb(var_)    ;    z
 
         LITDAT 5
         DB    lsb(shl_)    ;    {
@@ -715,63 +448,21 @@ xiOpcodes:
         DB     lsb(printStack_) ; DLE ^P 16
 
         REPDAT 15, lsb(EMPTY)
-        DB     lsb(EMPTY)      ; DC1 ^Q 17
-        DB     lsb(EMPTY)      ; DC2 ^R 18
-        DB     lsb(EMPTY)      ; DC3 ^S 19
-        DB     lsb(EMPTY)      ; DC4 ^T 20
-        DB     lsb(EMPTY)      ; NAK ^U 21
-        DB     lsb(EMPTY)      ; SYN ^V 22
-        DB     lsb(EMPTY)      ; ETB ^W 23
-        DB     lsb(EMPTY)      ; CAN ^X 24
-        DB     lsb(EMPTY)      ; EM  ^Y 25
-        DB     lsb(EMPTY)      ; SUB ^Z 26
-        DB     lsb(EMPTY)      ; ESC ^[
-        DB     lsb(EMPTY)      ; FS  ^\
-        DB     lsb(EMPTY)      ; GS  ^]
-        DB     lsb(EMPTY)      ; RS  ^^
-        DB     lsb(EMPTY)      ; US  ^_)
 
         LITDAT 2
         DB     lsb(aNop_)       ; SP  ^`
         DB     lsb(cStore_)     ;    !            
 
         REPDAT 6, lsb(aNop_)
-        DB     lsb(aNop_)       ;    "
-        DB     lsb(aNop_)       ;    #
-        DB     lsb(aNop_)       ;    $  ( -- adr ) text input ptr           
-        DB     lsb(aNop_)       ;    %            
-        DB     lsb(aNop_)       ;    &
-        DB     lsb(aNop_)       ;    '
 
         LITDAT 1
         DB     lsb(ifte_)       ;    (  ( b -- )              
 
         REPDAT 7, lsb(aNop_)
-        DB     lsb(aNop_)       ;    )
-        DB     lsb(aNop_)       ;    *            
-        DB     lsb(aNop_)       ;    +  
-        DB     lsb(aNop_)       ;    ,            
-        DB     lsb(aNop_)       ;    -  
-        DB     lsb(aNop_)       ;    .  
-        DB     lsb(aNop_)       ;    /
 
         REPDAT 5, lsb(NSCall_)
-        DB     lsb(NSCall_)     ;    0           
-        DB     lsb(NSCall_)     ;    1  
-        DB     lsb(NSCall_)     ;    2            
-        DB     lsb(NSCall_)     ;    3  
-        DB     lsb(NSCall_)     ;    4            
 
         REPDAT 9, lsb(aNop_)
-        DB     lsb(aNop_)       ;    5            
-        DB     lsb(aNop_)       ;    6            
-        DB     lsb(aNop_)       ;    7
-        DB     lsb(aNop_)       ;    8            
-        DB     lsb(aNop_)       ;    9        
-        DB     lsb(aNop_)       ;    :  start defining a macro        
-        DB     lsb(aNop_)       ;    ;  
-        DB     lsb(aNop_)       ;    <
-        DB     lsb(aNop_)       ;    =            
 
         LITDAT 21
         DB     lsb(prompt_)     ;    >            
@@ -797,11 +488,6 @@ xiOpcodes:
         DB     lsb(rot_)        ;    R  ( a b c -- b c a )
         
         REPDAT 5, lsb(aNop_)
-        DB     lsb(aNop_)       ;    S
-        DB     lsb(aNop_)       ;    T
-        DB     lsb(aNop_)       ;    U
-        DB     lsb(aNop_)       ;    V
-        DB     lsb(aNop_)       ;    W   ; ( b -- ) if false, skip to end of loop
 
         LITDAT 9
         DB     lsb(exec_)       ;    X
@@ -815,36 +501,11 @@ xiOpcodes:
         DB     lsb(aNop_)       ;    `            
 
         REPDAT 8, lsb(sysVar_)
-        DB     lsb(sysVar_)     ;    a  ; start of data stack variable
-        DB     lsb(sysVar_)     ;    b  ; base16 variable
-        DB     lsb(sysVar_)     ;    c  ; TIBPtr variable
-        DB     lsb(sysVar_)     ;    d  
-        DB     lsb(sysVar_)     ;    e  
-        DB     lsb(sysVar_)     ;    f
-        DB     lsb(sysVar_)     ;    g  
-        DB     lsb(sysVar_)     ;    h  ; heap ptr variable
 
         LITDAT 1
         DB     lsb(i_)          ;    i  ; returns index variable of current loop          
 
         REPDAT 17, lsb(sysVar_)
-        DB     lsb(sysVar_)          ;    j  ; returns index variable of outer loop
-        DB     lsb(sysVar_)     ;    k  
-        DB     lsb(sysVar_)     ;    l
-        DB     lsb(sysVar_)     ;    m  ( a b -- c ) return the minimum value
-        DB     lsb(sysVar_)     ;    n  
-        DB     lsb(sysVar_)     ;    o
-        DB     lsb(sysVar_)     ;    p  
-        DB     lsb(sysVar_)     ;    q           
-        DB     lsb(sysVar_)     ;    r
-        DB     lsb(sysVar_)     ;    s 
-        DB     lsb(sysVar_)     ;    t
-        DB     lsb(sysVar_)     ;    u
-        DB     lsb(sysVar_)     ;    v   
-        DB     lsb(sysVar_)     ;    w   
-        DB     lsb(sysVar_)     ;    x
-        DB     lsb(sysVar_)     ;    y
-        DB     lsb(sysVar_)     ;    z
 
         LITDAT 5
         DB     lsb(NSEnter_)    ;    {
@@ -854,7 +515,6 @@ xiOpcodes:
         DB     lsb(aNop_)       ;    BS		
         
         ENDDAT 
-
 
 ; **********************************************************************			 
 ; Page 4 primitive routines 
@@ -1638,64 +1298,6 @@ mul2:
 ; Subroutines
 ;*******************************************************************
 
-enter:                              ;=9
-        LD HL,BC
-        CALL rpush                  ; save Instruction Pointer
-        POP BC
-        DEC BC
-        JP (IY)                    
-
-NSLookup:
-        SUB "A"
-        LD E,0
-        JR NSLookup3        
-NSLookup2:
-        SUB "a"
-        LD E,26*2
-NSLookup3:
-        ADD A,A
-        ADD A,E
-        LD E,A
-        LD D,0
-        LD HL,(vNS)
-        ADD HL,DE
-        RET
-
-printStr:                           ;=14
-        EX (SP),HL
-        JR printStr2
-
-printStr1:
-        CALL putchar
-        INC HL
-
-printStr2:
-        LD A,(HL)
-        OR A
-        JR NZ,printStr1
-        INC HL
-        EX (SP),HL
-        RET
-
-printdec:                           ;=36
-        LD DE,-10000
-        CALL printdec1
-        LD DE,-1000
-        CALL printdec1
-        LD DE,-100
-        CALL printdec1
-        LD E,-10
-        CALL printdec1
-        LD E,-1
-printdec1:	    
-        LD A,'0'-1
-printdec2:	    
-        INC A
-        ADD HL,DE
-        JR C,printdec2
-        SBC HL,DE
-        JP putchar
-
 printhex:                           ;=11  
                                     ; Display HL as a 16-bit number in hex.
         PUSH BC                     ; preserve the IP
@@ -1705,7 +1307,6 @@ printhex:                           ;=11
         CALL printhex2
         POP BC
         RET
-
 printhex2:		                    ;=20
         LD	C,A
 		RRA 
@@ -1722,62 +1323,4 @@ printhex3:
 		DAA
 		JP putchar
 
-rpush:                              ;=11
-        DEC IX                  
-        LD (IX+0),H
-        DEC IX
-        LD (IX+0),L
-        RET
-
-rpop:                               ;=11
-        LD L,(IX+0)         
-        INC IX              
-        LD H,(IX+0)
-        INC IX                  
-rpop2:
-        RET
-       
-initOpcodes:
-        LD HL, iOpcodes
-        LD DE, opcodes
-        LD BC, 256
-
-initOpcodes1:
-        LD A,(HL)
-        LD (DE),A
-        INC HL
-        INC DE
-        DEC BC
-        LD A,B
-        OR C
-        JR NZ, initOpcodes1
-        RET
-
-initOps:
-        LD HL, xiOpcodes
-        LD DE, opcodes
-        LD BC, 256
-
-initOps1:
-        LD A,(HL)
-        INC HL
-        SLA A                     
-        RET Z
-        JR C, initOps2
-        SRL A
-        LD C,A
-        LD B,0
-        LDIR
-        JR initOps1
-        
-initOps2:        
-        SRL A
-        LD B,A
-        LD A,(HL)
-        INC HL
-initOps2a:
-        LD (DE),A
-        INC DE
-        DJNZ initOps2a
-        JR initOps1
 
