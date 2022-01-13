@@ -7,6 +7,13 @@ dStack:
             DS RSIZE
 rStack:        
 
+            .align $100
+opcodes:    
+            DS $80
+ctrlCodes:
+altCodes:
+            DS $80
+
 TIB:        DS TIBSIZE
 
             .align $100
@@ -57,9 +64,9 @@ NMIVEC:     DS 2                ;
 GETCVEC:    DS 2                ;   
 PUTCVEC:    DS 2                ;   
 
-; *************************************************************************
+; ****************************************************************
 ; NS Table - Each space holds 26 user commands, 26 user vars, 12 bytes free
-; *************************************************************************
+; ****************************************************************
             .align $40
             .org $-($80-26*2*2)
             DS ($80-26*2*2)     ; 12 bytes free vars for NS 0 
