@@ -6,17 +6,17 @@
 .endm
 
 .macro arrayDefs
-    DB  ":H 0\\R\\R ( $%@ 1+^ $ 2+)';"      ; arr len -- hash           hash array
+    DB  ":H 0~~ ( $%@ 1+^ $ 2+)';"      ; arr len -- hash           hash array
 
     DB  ":R \\f! ( $%@ \\f@\\G $ 2+) ' ;"   ; v0 arr len fun -- val     reduce array
 
-    DB  ":M \\f! \\h@\\R\\R "               ; arr len fun -- arr' len'  map array
+    DB  ":M \\f! \\h@~~ "               ; arr len fun -- arr' len'  map array
     DB      "(Q@"
     DB      "\\f@\\G W 2+"
     DB      ")" 
     DB  "' \\h@ % -};"
 
-    DB  ":F \\f! \\h@ \\R\\R "
+    DB  ":F \\f! \\h@ ~~ "
     DB      "(Q@Q " 
     DB      "\\f@\\G "
     DB      "\\(W)(') 2+ "

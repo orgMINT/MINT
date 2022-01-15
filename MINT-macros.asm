@@ -2,16 +2,16 @@ backsp_:
         DB "\\c@0=0=(\\c@1-\\c!`\b \b`);"
 
 reedit_:
-        DB "\\e\\@\\Z;"
+        DB "\\e\\@\\#5;"
 
 edit_:
-        .cstr "`?`\\K\\>\\Z;"
+        .cstr "`?`?\\>\\#5;"
 
 list_:
-        .cstr "\\N26(\\i@\\^A+\\Z\\c@0>(\\N))\\>;"
+        .cstr "\\$26(\\i@65+\\#5\\c@0>(\\$))\\>;"
 
 printStack_:
-        .cstr "`=> `\\P\\N\\>;"        
+        .cstr "\\#4\\>;"        
 
 toggleBase_:
         .cstr "\\b@0=\\b!;"

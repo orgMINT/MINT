@@ -13,12 +13,12 @@ buf2%%M:
 .endm
 
 LD SP,DSTACK
-CALL initialize
+CALL init
 ld HL,testGetCharImpl                       ; change getchar implmentation to use tbuf
 LD (GETCVEC),HL
 
 ; testInput {"1\\{:A1;\\}"}
-testInput {10}
+testInput "3 2 1 \\#3"
 JP interpret
 
 testGetCharImpl:

@@ -192,8 +192,7 @@ Note: logical NOT can be achieved with 0=
 | ------ | -------------------------------------------------------------------- | -------------- |
 | '      | drop the top member of the stack DROP                                | a a -- a       |
 | "      | duplicate the top member of the stack DUP                            | a -- a a       |
-| \\D    | returns the depth of the stack                                       | -- n           |
-| \\R    | rotate the top 2 members of the stack ROT                            | a b c -- b c a |
+| ~      | rotate the top 2 members of the stack ROT                            | a b c -- b c a |
 | %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a   |
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
 
@@ -201,28 +200,27 @@ Note: logical NOT can be achieved with 0=
 
 | Symbol | Description                                               | Effect      |
 | ------ | --------------------------------------------------------- | ----------- |
-| ,      | print the number on the stack as a hexadecimal            | a --        |
+| ?      | read a char from input                                    | -- val      |
 | .      | print the top member of the stack as a decimal number DOT | a --        |
-| \\E    | emits a char to output                                    | val --      |
-| \\I    | input from a I/O port                                     | port -- val |
-| \\K    | read a char from input                                    | -- val      |
-| \\N    | prints a CRLF to output                                   | --          |
-| \\O    | output to an I/O port                                     | val port -- |
-| \\P    | non-destructively prints stack                            | --          |
-| \\Z    | print definition by number                                | n --        |
+| ,      | print the number on the stack as a hexadecimal            | a --        |
 | \`     | print the literal string between \` and \`                | --          |
+| \\.    | print a null terminated string                            | adr --      |
+| \\,    | prints a character to output                              | val --      |
+| \\^    | prints a CRLF to output                                   | --          |
+| \\I    | input from a I/O port                                     | port -- val |
+| \\O    | output to an I/O port                                     | val port -- |
 | #      | the following number is in hexadecimal                    | a --        |
 
 ### User Definitions
 
-| Symbol  | Description                | Effect |
-| ------- | -------------------------- | ------ |
-| ;       | end of user definition END |        |
-| :<CHAR> | define a new word DEF      |        |
-| ?<CHAR> | get the address of the def | -- adr |
-| \{<NUM> | enter namespace NUM            | -- |
-| \}      | exit namespace                 | --     |
-| \<NUM><CHAR> | execute a command in a namespace                 | --     |
+| Symbol       | Description                      | Effect |
+| ------------ | -------------------------------- | ------ |
+| ;            | end of user definition END       |        |
+| :<CHAR>      | define a new word DEF            |        |
+| \?<CHAR>     | get the address of the def       | -- adr |
+| \{<NUM>      | enter namespace NUM              | --     |
+| \}           | exit namespace                   | --     |
+| \<NUM><CHAR> | execute a command in a namespace | --     |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -235,32 +233,31 @@ NOTE:
 | (      | BEGIN a loop or conditionally executed code block | n --   |
 | )      | END a loop or conditionally executed code block   | --     |
 | \\(    | beginIFTE \\(`true`)(`false`)                     | b --   |
-| \\B    | if true break out of loop                         | b --   |
-| \\i    | loop counter variable                             | -- adr |
-| \\j    | outer loop counter variable                       | -- adr |
+| \\\_   | if true break out of loop                         | b --   |
+| \\=    | loop counter variable                             | -- adr |
 
 ### Memory and Variable Operations
 
-| Symbol | Description                                 | Effect        |
-| ------ | ------------------------------------------- | ------------- |
-| !      | STORE a value to memory                     | val adr --    |
-| [      | begin an array definition                   | --            |
-| ]      | end an array definition                     | -- adr nwords |
-| @      | FETCH a value from memory                   | -- val        |
-| \\!    | STORE a byte to memory                      | val adr --    |
-| \\[    | begin a byte array definition               | --            |
-| \\@    | FETCH a byte from memory                    | -- val        |
+| Symbol | Description                   | Effect        |
+| ------ | ----------------------------- | ------------- |
+| !      | STORE a value to memory       | val adr --    |
+| [      | begin an array definition     | --            |
+| ]      | end an array definition       | -- adr nwords |
+| @      | FETCH a value from memory     | -- val        |
+| \\!    | STORE a byte to memory        | val adr --    |
+| \\[    | begin a byte array definition | --            |
+| \\`    | begin a string definition     | -- adr        |
+| \\@    | FETCH a byte from memory      | -- val        |
 
 ### System Variables
 
-| Symbol | Description                          | Effect |
-| ------ | ------------------------------------ | ------ |
-| \\a    | data stack start variable            | -- adr |
-| \\b    | base16 flag variable                 | -- adr |
-| \\c    | text input buffer pointer variable   | -- adr |
-| \\d    | start of user definitions            | -- adr |
-| \\h    | heap pointer variable                | -- adr |
-| \\i    | See: Loops and conditional execution | -- adr |
+| Symbol | Description                        | Effect |
+| ------ | ---------------------------------- | ------ |
+| \\a    | data stack start variable          | -- adr |
+| \\b    | base16 flag variable               | -- adr |
+| \\c    | text input buffer pointer variable | -- adr |
+| \\d    | start of user definitions          | -- adr |
+| \\h    | heap pointer variable              | -- adr |
 
 ### Miscellaneous
 
@@ -268,7 +265,6 @@ NOTE:
 | ------ | --------------------------------------------- | -------- |
 | \\\\   | comment text, skips reading until end of line | --       |
 | \\G    | execute mint code at address                  | adr -- ? |
-| \\Q    | quits from Mint interpreter                   | --       |
 | \\X    | execute machine code at address               | adr -- ? |
 
 ### Control keys
