@@ -206,7 +206,7 @@ Note: logical NOT can be achieved with 0=
 | \`     | print the literal string between \` and \`                | --          |
 | \\.    | print a null terminated string                            | adr --      |
 | \\,    | prints a character to output                              | val --      |
-| \\^    | prints a CRLF to output                                   | --          |
+| \\$    | prints a CRLF to output                                   | --          |
 | \\I    | input from a I/O port                                     | port -- val |
 | \\O    | output to an I/O port                                     | val port -- |
 | #      | the following number is in hexadecimal                    | a --        |
@@ -264,8 +264,19 @@ NOTE:
 | Symbol | Description                                   | Effect   |
 | ------ | --------------------------------------------- | -------- |
 | \\\\   | comment text, skips reading until end of line | --       |
-| \\G    | execute mint code at address                  | adr -- ? |
-| \\X    | execute machine code at address               | adr -- ? |
+| \\^    | execute mint code at address                  | adr -- ? |
+
+### Utility commands
+
+| Symbol | Description                     | Effect      |
+| ------ | ------------------------------- | ----------- |
+| \\#0   | output to an I/O port           | val port -- |
+| \\#1   | input from a I/O port           | port -- val |
+| \\#2   | execute machine code at address | adr -- ?    |
+| \\#3   | stack depth                     | -- val      |
+| \\#4   | print stack                     | --          |
+| \\#5   | edit command                    | val --      |
+| \\#6   | print prompt                    | --          |
 
 ### Control keys
 
