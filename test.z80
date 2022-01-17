@@ -62,6 +62,7 @@ testsStart:
     test ":A100;A", 100
     test ":Aa!; 3A a@", 3
     test ":Aa!;:Ba@;4AB", 4
+    test "\\:2; \\^", 2
     test "[]$ '", 0
     test "[3]$ '", 1
     test "[3]'@", 3

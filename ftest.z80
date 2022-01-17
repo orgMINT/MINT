@@ -71,6 +71,7 @@
     tester ":A100;A", "100"
     tester ":Aa!; 3A a@", "3"
     tester ":Aa!;:Ba@;4AB", "4"
+    tester "\\:2; \\^", "2"
     tester "[]$ '", "0"
     tester "[3]$ '", "1"
     tester "[3]'@", "3"

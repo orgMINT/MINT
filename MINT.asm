@@ -158,10 +158,11 @@ iOpcodes:
         DB     lsb(aNop_)       ;af    /                
 
         REPDAT 5, lsb(NSRef_)
-        REPDAT 7, lsb(aNop_)
-
-        LITDAT 5
-        DB     lsb(inPort_)     ;be    <  ( port -- val )
+        REPDAT 5, lsb(aNop_)
+        LITDAT 7
+        DB     lsb(anonDef_)    ;ba    :                
+        DB     lsb(aNop_)       ;bb    ;                
+        DB     lsb(inPort_)     ;bc    <  ( port -- val )
         DB     lsb(loopidx_)    ;bd    =  ( -- adr) returns address of index variable  
         DB     lsb(outPort_)    ;be    >  ( val port -- )
         DB     lsb(getRef_)     ;bf    ?
@@ -445,20 +446,30 @@ printdec2:
         SBC HL,DE
         JP putchar
 
-rpush:                              ;=11
-        DEC IX                  
-        LD (IX+0),H
-        DEC IX
-        LD (IX+0),L
+printhex:                           ;=31  
+                                    ; Display HL as a 16-bit number in hex.
+        PUSH BC                     ; preserve the IP
+        LD A,H
+        CALL printhex2
+        LD A,L
+        CALL printhex2
+        POP BC
         RET
-
-rpop:                               ;=11
-        LD L,(IX+0)         
-        INC IX              
-        LD H,(IX+0)
-        INC IX                  
-rpop2:
-        RET
+printhex2:		                    
+        LD	C,A
+		RRA 
+		RRA 
+		RRA 
+		RRA 
+	    CALL printhex3
+	    LD A,C
+printhex3:		
+        AND	0x0F
+		ADD	A,0x90
+		DAA
+		ADC	A,0x40
+		DAA
+		JP putchar
 
 ; **************************************************************************             
 ; calculate nesting value
@@ -503,16 +514,6 @@ nesting4:
         DEC E
         RET 
         
-prompt:                             ;=9
-        call printStr
-        .cstr "\r\n> "
-        RET
-
-crlf:                               ;=7
-        call printStr
-        .cstr "\r\n"
-        RET
-
 ; **********************************************************************			 
 ; Page 4 primitive routines 
 ; **********************************************************************
@@ -925,25 +926,41 @@ arrEnd2:
 ; The remainder of the characters are then skipped until after a semicolon  
 ; is found.
 ; ***************************************************************************
-         
-                                    ;=44
+; def:                                ; Create a colon definition
+;         INC BC
+;         LD  A,(BC)                  ; Get the next character
+;         LD (vLastDef),A
+;         INC BC
+;         CALL NSLookup
+;         LD DE,(vHeapPtr)            ; start of defintion
+;         LD (HL),E                   ; Save low byte of address in CFA
+;         INC HL              
+;         LD (HL),D                   ; Save high byte of address in CFA+1
+; def1:                               ; Skip to end of definition   
+;         LD A,(BC)                   ; Get the next character
+;         INC BC                      ; Point to next character
+;         LD (DE),A
+;         INC DE
+;         CP ";"                      ; Is it a semicolon 
+;         JR Z, def2                  ; end the definition
+;         JR  def1                    ; get the next element
+
+; def2:    
+;         DEC BC
+; def3:
+;         LD (vHeapPtr),DE            ; bump heap ptr to after definiton
+;         JP (IY)       
+
 def:                                ; Create a colon definition
         INC BC
         LD  A,(BC)                  ; Get the next character
-        CP "@"                      ; is it anonymous?
-        JR NZ,def0
-        LD DE,(vHeapPtr)            ; start of defintion
-        PUSH DE                     ; return adress of definition
-        JR def1
-def0:        
         LD (vLastDef),A
-        INC BC
         CALL NSLookup
         LD DE,(vHeapPtr)            ; start of defintion
         LD (HL),E                   ; Save low byte of address in CFA
         INC HL              
         LD (HL),D                   ; Save high byte of address in CFA+1
-
+        INC BC
 def1:                               ; Skip to end of definition   
         LD A,(BC)                   ; Get the next character
         INC BC                      ; Point to next character
@@ -952,13 +969,12 @@ def1:                               ; Skip to end of definition
         CP ";"                      ; Is it a semicolon 
         JR Z, def2                  ; end the definition
         JR  def1                    ; get the next element
-
 def2:    
         DEC BC
 def3:
         LD (vHeapPtr),DE            ; bump heap ptr to after definiton
         JP (IY)       
-        
+
 again:                              ;=51
         LD E,(IX+0)                 ; peek loop var
         LD D,(IX+1)                 
@@ -1006,6 +1022,12 @@ altVar_:
         PUSH HL
 anop_:
         JP (IY)                    
+
+anonDef_:                           ;= 7        
+        INC BC
+        LD DE,(vHeapPtr)            ; start of defintion
+        PUSH DE
+        JP def1
 
 break_:
         POP HL
@@ -1185,15 +1207,12 @@ util:                           ;= 11
         LD L,(HL)
         LD H,msb(utilCode)
         JP (HL)
-
 utilTable:
         DB lsb(exec_)       ;0    ( adr -- )
-        DB lsb(exec_)       ;1    ( -- )   
-        DB lsb(exec_)       ;2    ( -- )
+        DB lsb(prompt_)     ;1    ( -- )   
+        DB lsb(editDef_)    ;2    ( -- )
         DB lsb(depth_)      ;3    ( -- val ) depth of data stack  
         DB lsb(printStk_)   ;4    ( -- ) non-destructively prints stack
-        DB lsb(editDef_)    ;5    
-        DB lsb(prompt_)     ;6  display prompt "\r\n>"     
 
 
 ; **************************************************************************
@@ -1319,6 +1338,31 @@ num2:
 ;*******************************************************************
 ; Subroutines
 ;*******************************************************************
+prompt:                             ;=9
+        call printStr
+        .cstr "\r\n> "
+        RET
+
+crlf:                               ;=7
+        call printStr
+        .cstr "\r\n"
+        RET
+
+rpush:                              ;=11
+        DEC IX                  
+        LD (IX+0),H
+        DEC IX
+        LD (IX+0),L
+        RET
+
+rpop:                               ;=11
+        LD L,(IX+0)         
+        INC IX              
+        LD H,(IX+0)
+        INC IX                  
+rpop2:
+        RET
+
 editDef:                            ;=50 lookup up def based on number
         POP HL                      ; pop ret address
         EX (SP),HL                  ; swap with TOS                  
@@ -1355,29 +1399,4 @@ writeChar:                          ;=5
         LD (HL),A
         INC HL
         JP putchar
-
-printhex:                           ;=11  
-                                    ; Display HL as a 16-bit number in hex.
-        PUSH BC                     ; preserve the IP
-        LD A,H
-        CALL printhex2
-        LD A,L
-        CALL printhex2
-        POP BC
-        RET
-printhex2:		                    
-        LD	C,A
-		RRA 
-		RRA 
-		RRA 
-		RRA 
-	    CALL printhex3
-	    LD A,C
-printhex3:		
-        AND	0x0F
-		ADD	A,0x90
-		DAA
-		ADC	A,0x40
-		DAA
-		JP putchar
 
