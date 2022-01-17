@@ -211,17 +211,16 @@ Note: logical NOT can be achieved with 0=
 | \\<    | input from a I/O port                                     | port -- val |
 | #      | the following number is in hexadecimal                    | a --        |
 
-### User Commands
+### User Definitions
 
-| Symbol        | Description                      | Effect |
-| ------------- | -------------------------------- | ------ |
-| ;             | end of command defintion         |        |
-| :<CHAR>       | define a new command             |        |
-| \\:           | define an anonymous command      |        |
-| \\?<CHAR>     | get the address of the def       | -- adr |
-| \\{<NUM>      | enter namespace NUM              | --     |
-| \\}           | exit namespace                   | --     |
-| \\<NUM><CHAR> | execute a command in a namespace | --     |
+| Symbol       | Description                      | Effect |
+| ------------ | -------------------------------- | ------ |
+| ;            | end of user definition END       |        |
+| :<CHAR>      | define a new word DEF            |        |
+| \?<CHAR>     | get the address of the def       | -- adr |
+| \{<NUM>      | enter namespace NUM              | --     |
+| \}           | exit namespace                   | --     |
+| \<NUM><CHAR> | execute a command in a namespace | --     |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -269,13 +268,15 @@ NOTE:
 
 ### Utility commands
 
-| Symbol | Description                     | Effect   |
-| ------ | ------------------------------- | -------- |
-| \\#0   | execute machine code at address | adr -- ? |
-| \\#1   | print prompt                    | --       |
-| \\#2   | edit command                    | val --   |
-| \\#3   | stack depth                     | -- val   |
-| \\#4   | print stack                     | --       |
+| Symbol | Description                     | Effect      |
+| ------ | ------------------------------- | ----------- |
+| \\#0   | execute machine code at address | adr -- ?    |
+| \\#1   | reserved                        | --          |
+| \\#2   | reserved                        | --          |
+| \\#3   | stack depth                     | -- val      |
+| \\#4   | print stack                     | --          |
+| \\#5   | edit command                    | val --      |
+| \\#6   | print prompt                    | --          |
 
 ### Control keys
 
