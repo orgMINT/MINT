@@ -16,11 +16,9 @@
 
 testsStart:
 
-    test "\\:10;\\G", 10
-
-    CALL printStr
-    .cstr "Done!!\r\n"
-    HALT
+    ; CALL printStr
+    ; .cstr "Done!!\r\n"
+    ; HALT
 
     test "1", 1
     test "0", 0

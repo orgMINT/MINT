@@ -207,8 +207,8 @@ Note: logical NOT can be achieved with 0=
 | \\.    | print a null terminated string                            | adr --      |
 | \\,    | prints a character to output                              | val --      |
 | \\$    | prints a CRLF to output                                   | --          |
-| \\I    | input from a I/O port                                     | port -- val |
-| \\O    | output to an I/O port                                     | val port -- |
+| \\>    | output to an I/O port                                     | val port -- |
+| \\<    | input from a I/O port                                     | port -- val |
 | #      | the following number is in hexadecimal                    | a --        |
 
 ### User Definitions
@@ -270,9 +270,9 @@ NOTE:
 
 | Symbol | Description                     | Effect      |
 | ------ | ------------------------------- | ----------- |
-| \\#0   | output to an I/O port           | val port -- |
-| \\#1   | input from a I/O port           | port -- val |
-| \\#2   | execute machine code at address | adr -- ?    |
+| \\#0   | execute machine code at address | adr -- ?    |
+| \\#1   | reserved                        | --          |
+| \\#2   | reserved                        | --          |
 | \\#3   | stack depth                     | -- val      |
 | \\#4   | print stack                     | --          |
 | \\#5   | edit command                    | val --      |

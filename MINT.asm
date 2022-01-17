@@ -158,11 +158,12 @@ iOpcodes:
         DB     lsb(aNop_)       ;af    /                
 
         REPDAT 5, lsb(NSRef_)
-        REPDAT 8, lsb(aNop_)
+        REPDAT 7, lsb(aNop_)
 
-        LITDAT 4
-        DB     lsb(loopidx_)          ;bd    =  ( -- adr) returns address of index variable  
-        DB     lsb(aNop_)       ;be    >            
+        LITDAT 5
+        DB     lsb(inPort_)     ;be    <  ( port -- val )
+        DB     lsb(loopidx_)    ;bd    =  ( -- adr) returns address of index variable  
+        DB     lsb(outPort_)    ;be    >  ( val port -- )
         DB     lsb(getRef_)     ;bf    ?
         DB     lsb(cFetch_)     ;c0    @      
 
@@ -1081,6 +1082,16 @@ ifte1:
         CALL rpush
         JP (IY)
 
+inPort_:
+        POP HL
+        LD A,C
+        LD C,L
+        IN L,(C)
+        LD H,0
+        LD C,A
+        PUSH HL
+        JP (IY)        
+
 loopidx_:
         PUSH IX
         JP (IY)
@@ -1127,7 +1138,15 @@ NSEnter1:
         LD (vNS),HL
         JP (IY)                    
 
-        
+outPort_:
+        POP HL
+        LD E,C
+        LD C,L
+        POP HL
+        OUT (C),L
+        LD C,E
+        JP (IY)        
+
 prnStr_:
 prnStr:
         POP HL
@@ -1168,9 +1187,9 @@ util:                           ;= 11
         JP (HL)
 
 utilTable:
-        DB lsb(outPort_)    ;0    ( val port -- )
-        DB lsb(inPort_)     ;1    ( port -- val )   
-        DB lsb(exec_)       ;2    
+        DB lsb(exec_)       ;0    ( adr -- )
+        DB lsb(exec_)       ;1    ( -- )   
+        DB lsb(exec_)       ;2    ( -- )
         DB lsb(depth_)      ;3    ( -- val ) depth of data stack  
         DB lsb(printStk_)   ;4    ( -- ) non-destructively prints stack
         DB lsb(editDef_)    ;5    
@@ -1216,25 +1235,6 @@ printStk:                           ;=40
 editDef_:
         call editDef
         JP (IY)
-
-inPort_:
-        POP HL
-        LD A,C
-        LD C,L
-        IN L,(C)
-        LD H,0
-        LD C,A
-        PUSH HL
-        JP (IY)        
-
-outPort_:
-        POP HL
-        LD E,C
-        LD C,L
-        POP HL
-        OUT (C),L
-        LD C,E
-        JP (IY)        
 
 prompt_:
         CALL prompt
