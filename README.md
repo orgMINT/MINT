@@ -182,7 +182,6 @@ Mint is a bytecode interpreter - this means that all of its instructions are 1 b
 | \|     | 16-bit bitwise OR            | a b -- c |
 | &      | 16-bit bitwise AND           | a b -- c |
 | ^      | 16-bit bitwise XOR           | a b -- c |
-| ~      | 16-bit bitwise inversion INV | a -- b   |
 
 Note: logical NOT can be achieved with 0=
 
