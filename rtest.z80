@@ -18,7 +18,7 @@ ld HL,testGetCharImpl                       ; change getchar implmentation to us
 LD (GETCVEC),HL
 
 ; testInput "3 2 1 \\#3"
-testInput {":A1;\n",10}
+testInput {"\\#1"}
 JP interpret
 
 testGetCharImpl:

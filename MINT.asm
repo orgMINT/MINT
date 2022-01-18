@@ -46,7 +46,24 @@
 ; **************************************************************************
 macros:
 
-.include "MINT-macros.asm"
+backsp_:
+        DB "\\c@0=0=(\\c@1-\\c!`\b \b`);"
+
+reedit_:
+        DB "\\e\\@\\#2;"
+
+edit_:
+        .cstr "`?`?\\#1\\#2;"
+
+list_:
+        .cstr "\\$26(\\i@65+\\#2\\c@0>(\\$))\\#1;"
+
+printStack_:
+        .cstr "\\#4\\#1;"        
+
+toggleBase_:
+        .cstr "\\b@0=\\b!;"
+
 
 ; ***********************************************************************
 ; Initial values for user mintVars		
@@ -1013,6 +1030,7 @@ again3:
         .align $100
 page6:
 
+
 altVar_:
         LD A,(BC)
         SUB "a" - ((altVars - mintVars)/2) 
@@ -1070,6 +1088,32 @@ emit_:
         LD A,L
         CALL putchar
         JP (IY)
+
+exec_:
+        CALL exec1
+        JP (IY)
+exec1:
+        POP HL
+        EX (SP),HL
+        JP (HL)
+
+depth_:
+        LD HL,0
+        ADD HL,SP
+        EX DE,HL
+        LD HL,DSTACK
+        OR A
+        SBC HL,DE
+        JP shr1
+
+editDef_:
+        call editDef
+        JP (IY)
+
+prompt_:
+        CALL prompt
+        JP (IY)
+
 
 getRef_:
 getRef:                             ;=8
@@ -1142,6 +1186,7 @@ newln_:
         JP (IY)        
 
 NSEnter_:
+NSEnter:
         INC BC
 NSEnter1:
         LD A,(BC)                   ; read NS ASCII code
@@ -1175,8 +1220,40 @@ prnStr:
         CALL putStr
         JP (IY)
 
-
 strDef_:
+        JR strDef
+        
+printStk_:
+        JR printStk
+
+utilTable:
+        DB lsb(exec_)       ;0    ( adr -- )
+        DB lsb(prompt_)     ;1    ( -- )   
+        DB lsb(editDef_)    ;2    ( -- )
+        DB lsb(depth_)      ;3    ( -- val ) depth of data stack  
+        DB lsb(printStk_)   ;4    ( -- ) non-destructively prints stack
+
+util_:
+util:                           ;= 13
+        INC BC
+        LD A,(BC)
+        SUB "0"
+        LD L,lsb(utilTable)     ; H already contains msb(page6)
+        ADD A,L
+        LD L,A
+        LD L,(HL)               ; H already contains msb(page6)
+        JP (HL)
+; **************************************************************************
+; Page 6 primitive routines 
+; **************************************************************************
+        ; falls through
+
+printStk:                           ;=40
+        ; MINT: \a@2- \#3 1- ("@ \b@ \(,)(.) 2-) '             
+        call ENTER
+        .cstr "`=> `\\a@2-\\#3 1-(",$22,"@\\b@\\(,)(.)2-)'\\$"             
+        JP (IY)
+
 strDef:                         ;= 21
         LD DE,(vHeapPtr)        ; HL = heap ptr
         PUSH DE                 ; save start of string 
@@ -1194,70 +1271,6 @@ strDef2:
         LD (DE),A
         INC DE
         JP def3
-
-util_:
-util:                           ;= 11
-        INC BC
-        LD A,(BC)
-        SUB "0"
-        LD HL,utilTable
-        LD E,A
-        LD D,0
-        ADD HL,DE
-        LD L,(HL)
-        LD H,msb(utilCode)
-        JP (HL)
-utilTable:
-        DB lsb(exec_)       ;0    ( adr -- )
-        DB lsb(prompt_)     ;1    ( -- )   
-        DB lsb(editDef_)    ;2    ( -- )
-        DB lsb(depth_)      ;3    ( -- val ) depth of data stack  
-        DB lsb(printStk_)   ;4    ( -- ) non-destructively prints stack
-
-
-; **************************************************************************
-; Page 6 primitive routines 
-; **************************************************************************
-        ; falls through
-
-        .align $100
-; **************************************************************************
-; Utility routines 
-; **************************************************************************
-
-utilCode:
-
-exec_:
-        CALL exec1
-        JP (IY)
-exec1:
-        POP HL
-        EX (SP),HL
-        JP (HL)
-
-depth_:
-        LD HL,0
-        ADD HL,SP
-        EX DE,HL
-        LD HL,DSTACK
-        OR A
-        SBC HL,DE
-        JP shr1
-
-printStk_:
-printStk:                           ;=40
-        ; MINT: \a@2- \#3 1- ("@ \b@ \(,)(.) 2-) '             
-        call ENTER
-        .cstr "`=> `\\a@2-\\#3 1-(",$22,"@\\b@\\(,)(.)2-)'\\$"             
-        JP (IY)
-
-editDef_:
-        call editDef
-        JP (IY)
-
-prompt_:
-        CALL prompt
-        JP (IY)
 
 ;*******************************************************************
 ; Page 5 primitive routines continued

@@ -177,11 +177,11 @@ Mint is a bytecode interpreter - this means that all of its instructions are 1 b
 
 ### Logical Operators
 
-| Symbol | Description                  | Effect   |
-| ------ | ---------------------------- | -------- |
-| \|     | 16-bit bitwise OR            | a b -- c |
-| &      | 16-bit bitwise AND           | a b -- c |
-| ^      | 16-bit bitwise XOR           | a b -- c |
+| Symbol | Description        | Effect   |
+| ------ | ------------------ | -------- |
+| \|     | 16-bit bitwise OR  | a b -- c |
+| &      | 16-bit bitwise AND | a b -- c |
+| ^      | 16-bit bitwise XOR | a b -- c |
 
 Note: logical NOT can be achieved with 0=
 
@@ -212,14 +212,14 @@ Note: logical NOT can be achieved with 0=
 
 ### User Definitions
 
-| Symbol       | Description                      | Effect |
-| ------------ | -------------------------------- | ------ |
-| ;            | end of user definition END       |        |
-| :<CHAR>      | define a new word DEF            |        |
-| \?<CHAR>     | get the address of the def       | -- adr |
-| \{<NUM>      | enter namespace NUM              | --     |
-| \}           | exit namespace                   | --     |
-| \<NUM><CHAR> | execute a command in a namespace | --     |
+| Symbol        | Description                      | Effect |
+| ------------- | -------------------------------- | ------ |
+| ;             | end of user definition END       |        |
+| :<CHAR>       | define a new word DEF            |        |
+| \\?<CHAR>     | get the address of the def       | -- adr |
+| \\{<NUM>      | enter namespace NUM              | --     |
+| \\}           | exit namespace                   | --     |
+| \\<NUM><CHAR> | execute a command in a namespace | --     |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -267,15 +267,13 @@ NOTE:
 
 ### Utility commands
 
-| Symbol | Description                     | Effect      |
-| ------ | ------------------------------- | ----------- |
-| \\#0   | execute machine code at address | adr -- ?    |
-| \\#1   | reserved                        | --          |
-| \\#2   | reserved                        | --          |
-| \\#3   | stack depth                     | -- val      |
-| \\#4   | print stack                     | --          |
-| \\#5   | edit command                    | val --      |
-| \\#6   | print prompt                    | --          |
+| Symbol | Description                     | Effect   |
+| ------ | ------------------------------- | -------- |
+| \\#0   | execute machine code at address | adr -- ? |
+| \\#1   | print prompt                    | --       |
+| \\#2   | edit command                    | val --   |
+| \\#3   | stack depth                     | -- val   |
+| \\#4   | print stack                     | --       |
 
 ### Control keys
 
