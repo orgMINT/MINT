@@ -2,7 +2,7 @@
 
 ### Removed or renamed
 
-| Symbol | Description                               | Effect         |         |
+| Symbol | Description                               | Effect         |         |          |
 | ------ | ----------------------------------------- | -------------- | ------- | -------- |
 | \\j    | outer loop counter variable               | -- adr         | removed |          |
 | \\Q    | quits from Mint interpreter               | --             | removed |          |
@@ -23,52 +23,52 @@
 
 ### Stack Operations
 
-| Symbol | Description                               | Effect         |                    |
-| ------ | ----------------------------------------- | -------------- | ------------------ |
-| ~      | rotate the top 2 members of the stack ROT | a b c -- b c a | new name (was \\R) |
+| Symbol | Description                               | Effect         |          |
+| ------ | ----------------------------------------- | -------------- | -------- | ------- |
+| ~      | rotate the top 2 members of the stack ROT | a b c -- b c a | new name | was \\R |
 
 ### Input & Output Operations
 
-| Symbol | Description                    | Effect      |                    |
-| ------ | ------------------------------ | ----------- | ------------------ |
-| \\.    | print a null terminated string | adr --      | added              |
-| \\$    | prints a CRLF to output        | --          | new name (was \\N) |
-| \\,    | prints a character to output   | val --      | new name (was \\E) |
-| \\>    | output to an I/O port          | val port -- | new name (was \\O) |
-| \\<    | input from a I/O port          | port -- val | new name (was \\I) |
-| ?      | read a char from input         | -- val      | new name (was \\K) |
+| Symbol | Description                    | Effect      |          |         |
+| ------ | ------------------------------ | ----------- | -------- | ------- |
+| \\.    | print a null terminated string | adr --      | added    |         |
+| \\$    | prints a CRLF to output        | --          | new name | was \\N |
+| \\,    | prints a character to output   | val --      | new name | was \\E |
+| \\>    | output to an I/O port          | val port -- | new name | was \\O |
+| \\<    | input from a I/O port          | port -- val | new name | was \\I |
+| ?      | read a char from input         | -- val      | new name | was \\K |
 
 ### Miscellaneous
 
-| Symbol | Description                  | Effect   |                    |
-| ------ | ---------------------------- | -------- | ------------------ |
-| \\^    | execute mint code at address | adr -- ? | new name (was \\X) |
+| Symbol | Description                  | Effect   |          |         |
+| ------ | ---------------------------- | -------- | -------- | ------- |
+| \\^    | execute mint code at address | adr -- ? | new name | was \\X |
 
 ### Utility commands
 
-| Symbol | Description                     | Effect   |                    |
-| ------ | ------------------------------- | -------- | ------------------ |
-| \\#0   | execute machine code at address | adr -- ? | new name (was \\X) |
-| \\#1   | push to return stack            | val --   | added              |
-| \\#2   | pop from return stack           | -- val   | added              |
-| \\#3   | depth of stack                  | -- val   | new name (was \\D) |
-| \\#4   | print stack                     | --       | new name (was \\P) |
-| \\#5   | print prompt                    | --       | new name (was \\>) |
-| \\#6   | edit command                    | val --   | new name (was \\Z) |
+| Symbol | Description                     | Effect   |          |         |
+| ------ | ------------------------------- | -------- | -------- | ------- |
+| \\#0   | execute machine code at address | adr -- ? | new name | was \\X |
+| \\#1   | push to return stack            | val --   | added    |
+| \\#2   | pop from return stack           | -- val   | added    |
+| \\#3   | depth of stack                  | -- val   | new name | was \\D |
+| \\#4   | print stack                     | --       | new name | was \\P |
+| \\#5   | print prompt                    | --       | new name | was \\> |
+| \\#6   | edit command                    | val --   | new name | was \\Z |
 
 ### User Definitions
 
-| Symbol    | Description                     | Effect |                  |
-| --------- | ------------------------------- | ------ | ---------------- |
-| \\:       | define an anonynous command DEF |        | added            |
-| \\?<CHAR> | get the address of the def      | -- adr | new name (was ?) |
+| Symbol    | Description                     | Effect |          |       |
+| --------- | ------------------------------- | ------ | -------- | ----- |
+| \\:       | define an anonynous command DEF |        | added    |
+| \\?<CHAR> | get the address of the def      | -- adr | new name | was ? |
 
 ### Loops and conditional execution
 
-| Symbol | Description               | Effect |                    |
-| ------ | ------------------------- | ------ | ------------------ |
-| \\\_   | if true break out of loop | b --   | new name (was \\B) |
-| \\=    | loop counter variable     | -- adr | new name (was \\i) |
+| Symbol | Description               | Effect |          |         |
+| ------ | ------------------------- | ------ | -------- | ------- |
+| \\\_   | if true break out of loop | b --   | new name | was \\B |
+| \\=    | loop counter variable     | -- adr | new name | was \\i |
 
 ### Memory and Variable Operations
 
