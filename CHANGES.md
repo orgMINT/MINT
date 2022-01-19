@@ -58,10 +58,10 @@
 
 ### User Definitions
 
-| Symbol    | Description                     | Effect |          |       |
-| --------- | ------------------------------- | ------ | -------- | ----- |
-| \\:       | define an anonynous command DEF |        | added    |
-| \\?<CHAR> | get the address of the def      | -- adr | new name | was ? |
+| Symbol    | Description                 | Effect |          |       |
+| --------- | --------------------------- | ------ | -------- | ----- |
+| \\:       | define an anonymous command | -- adr |          |       |
+| \\?<CHAR> | get the address of the def  | -- adr | new name | was ? |
 
 ### Loops and conditional execution
 

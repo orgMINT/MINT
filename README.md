@@ -216,7 +216,7 @@ Note: logical NOT can be achieved with 0=
 | ------------- | -------------------------------- | ------ |
 | ;             | end of user definition END       |        |
 | :<CHAR>       | define a new command DEF         |        |
-| \\:           | define an anonynous command DEF  |        |
+| \\:           | define an anonymous command      | -- adr |
 | \\?<CHAR>     | get the address of the def       | -- adr |
 | \\{<NUM>      | enter namespace NUM              | --     |
 | \\}           | exit namespace                   | --     |
