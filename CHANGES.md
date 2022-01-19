@@ -1,17 +1,12 @@
 # Changes in v1.1
 
-### Removed
-
-| Symbol | Description                  | Effect |         |
-| ------ | ---------------------------- | ------ | ------- |
-| \\j    | outer loop counter variable  | -- adr | removed |
-| \\Q    | quits from Mint interpreter  | --     | removed |
-| \~     | 16-bit bitwise inversion INV | a -- b | removed |
-
-### renamed (now )
+### Removed or renamed
 
 | Symbol | Description                               | Effect         |                    |
 | ------ | ----------------------------------------- | -------------- | ------------------ |
+| \\j    | outer loop counter variable               | -- adr         | removed            |
+| \\Q    | quits from Mint interpreter               | --             | removed            |
+| \~     | 16-bit bitwise inversion INV              | a -- b         | removed            |
 | \\B    | if true break out of loop                 | b --           | renamed (now \\\_) |
 | \\D    | depth of the stack                        | -- n           | renamed (now \\#3) |
 | \\E    | prints a character to output              | val --         | renamed (now \\,)  |
