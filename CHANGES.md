@@ -2,29 +2,29 @@
 
 ### Removed
 
-| Symbol  | Description                      | Effect |         |
-| ------- | -------------------------------- | ------ | ------- |
-| ~~\\j~~ | ~~outer loop counter variable~~  | -- adr | removed |
-| ~~\\Q~~ | ~~quits from Mint interpreter~~  | --     | removed |
-| \~      | ~~16-bit bitwise inversion INV~~ | a -- b | removed |
+| Symbol | Description                  | Effect |         |
+| ------ | ---------------------------- | ------ | ------- |
+| \\j    | outer loop counter variable  | -- adr | removed |
+| \\Q    | quits from Mint interpreter  | --     | removed |
+| \~     | 16-bit bitwise inversion INV | a -- b | removed |
 
 ### renamed (now )
 
-| Symbol  | Description                                   | Effect         |                    |
-| ------- | --------------------------------------------- | -------------- | ------------------ |
-| ~~\\B~~ | ~~if true break out of loop~~                 | b --           | renamed (now \\\_) |
-| ~~\\D~~ | ~~depth of the stack~~                        | -- n           | renamed (now \\#3) |
-| ~~\\E~~ | ~~prints a character to output~~              | val --         | renamed (now \\,)  |
-| ~~\\G~~ | ~~execute mint code at address~~              | adr -- ?       | renamed (now \\^)  |
-| ~~\\I~~ | ~~input from a I/O port~~                     | port -- val    | renamed (now \\<)  |
-| ~~\\i~~ | ~~loop counter variable~~                     | -- adr         | renamed (now \\=)  |
-| ~~\\K~~ | ~~read a char from input~~                    | -- val         | renamed (now ?)    |
-| ~~\\N~~ | ~~prints a CRLF to output~~                   | --             | renamed (now \\$)  |
-| ~~\\O~~ | ~~output to an I/O port~~                     | val port --    | renamed (now \\>)  |
-| ~~\\P~~ | ~~non-destructively prints stack~~            | --             | renamed (now \\#4) |
-| ~~\\R~~ | ~~rotate the top 2 members of the stack ROT~~ | a b c -- b c a | renamed (now ~)    |
-| ~~\\X~~ | ~~execute machine code at address~~           | adr -- ?       | renamed (now \\#0) |
-| ~~\\Z~~ | ~~edit command~~                              | n --           | renamed (now \\#6) |
+| Symbol | Description                               | Effect         |                    |
+| ------ | ----------------------------------------- | -------------- | ------------------ |
+| \\B    | if true break out of loop                 | b --           | renamed (now \\\_) |
+| \\D    | depth of the stack                        | -- n           | renamed (now \\#3) |
+| \\E    | prints a character to output              | val --         | renamed (now \\,)  |
+| \\G    | execute mint code at address              | adr -- ?       | renamed (now \\^)  |
+| \\I    | input from a I/O port                     | port -- val    | renamed (now \\<)  |
+| \\i    | loop counter variable                     | -- adr         | renamed (now \\=)  |
+| \\K    | read a char from input                    | -- val         | renamed (now ?)    |
+| \\N    | prints a CRLF to output                   | --             | renamed (now \\$)  |
+| \\O    | output to an I/O port                     | val port --    | renamed (now \\>)  |
+| \\P    | non-destructively prints stack            | --             | renamed (now \\#4) |
+| \\R    | rotate the top 2 members of the stack ROT | a b c -- b c a | renamed (now ~)    |
+| \\X    | execute machine code at address           | adr -- ?       | renamed (now \\#0) |
+| \\Z    | edit command                              | n --           | renamed (now \\#6) |
 
 ### Stack Operations
 
