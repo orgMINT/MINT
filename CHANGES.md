@@ -23,7 +23,7 @@
 
 ### Stack Operations
 
-| Symbol | Description                               | Effect         |          |
+| Symbol | Description                               | Effect         |          |         |
 | ------ | ----------------------------------------- | -------------- | -------- | ------- |
 | ~      | rotate the top 2 members of the stack ROT | a b c -- b c a | new name | was \\R |
 
