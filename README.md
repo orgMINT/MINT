@@ -270,10 +270,12 @@ NOTE:
 | Symbol | Description                     | Effect   |
 | ------ | ------------------------------- | -------- |
 | \\#0   | execute machine code at address | adr -- ? |
-| \\#1   | print prompt                    | --       |
-| \\#2   | edit command                    | val --   |
+| \\#1   | push TOS on return stack        | val --   |
+| \\#2   | pop TOS off return stack        | -- val   |
 | \\#3   | stack depth                     | -- val   |
 | \\#4   | print stack                     | --       |
+| \\#5   | print prompt                    | --       |
+| \\#6   | edit command                    | val --   |
 
 ### Control keys
 

@@ -1,7 +1,7 @@
     .engine mycomputer
 
     .include "constants.asm"
-    .include "test.mac.asm"
+    .include "test.fast.mac.asm"
     
     .include "IOSerial.asm"
     

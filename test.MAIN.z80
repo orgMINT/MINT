@@ -18,8 +18,7 @@
     
     CALL enter
     utilDefs
-    arrayDefs
-    
+
     tester "1 2 3", "1 2 3"
     tester "1Q", "1 1"
     tester "25(\\i@ 2\\> 1 30(Q #40 | 1\\> { #3F & Q0=('1))') #40 1\\>", ""

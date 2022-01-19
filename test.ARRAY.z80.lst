@@ -1,5 +1,4 @@
 0000                          .ENGINE   mycomputer   
-0000                             ; 
 0000                TEC_1:    EQU   1   
 0000                RC2014:   EQU   0   
 0000                EXTENDED:   EQU   0   
@@ -516,47 +515,47 @@
 00C3                          ENDIF      
 00C3                             ; 
 00C3                             ; 
-00C3                             ; 
-00C3   C3 6E 02               JP   start   
-00C6                             ; 
-00C6                             ; *************************************************************************
-00C6                             ; 
-00C6                             ;       MINT Minimal Interpreter for the Z80
-00C6                             ; 
-00C6                             ;       Ken Boak, John Hardy and Craig Jones.
-00C6                             ; 
-00C6                             ;       GNU GENERAL PUBLIC LICENSE                   Version 3, 29 June 2007
-00C6                             ; 
-00C6                             ;       see the LICENSE file in this repo for more information
-00C6                             ; 
-00C6                             ; *****************************************************************************
-00C6                DSIZE:    EQU   $80   
-00C6                RSIZE:    EQU   $80   
-00C6                TIBSIZE:   EQU   $100   
-00C6                TRUE:     EQU   1   
-00C6                FALSE:    EQU   0   
-00C6                EMPTY:    EQU   0   
-00C6                NSNUM:    EQU   5   ; namespaces
-00C6                NSSIZE:   EQU   $80   
-00C6                .macro LITDAT,len
-00C6                             ; 
-00C6                 DB len
-00C6                .endm
-00C6                 
-00C6                .macro REPDAT,len,data
-00C6                             ; 
-00C6                 DB (len | $80)
-00C6                 DB data
-00C6                .endm
-00C6                 
-00C6                .macro ENDDAT,
-00C6                             ; 
-00C6                 DB 0
-00C6                .endm
-00C6                 
-00C6                             ; **************************************************************************
-00C6                             ; Page 0  Initialisation
-00C6                             ; **************************************************************************		
+00C3   31 00 0A               LD   SP,DSTACK   
+00C6   CD 10 03               CALL   init   
+00C9   C3 00 40               JP   testsStart   
+00CC                             ; *************************************************************************
+00CC                             ; 
+00CC                             ;       MINT Minimal Interpreter for the Z80
+00CC                             ; 
+00CC                             ;       Ken Boak, John Hardy and Craig Jones.
+00CC                             ; 
+00CC                             ;       GNU GENERAL PUBLIC LICENSE                   Version 3, 29 June 2007
+00CC                             ; 
+00CC                             ;       see the LICENSE file in this repo for more information
+00CC                             ; 
+00CC                             ; *****************************************************************************
+00CC                DSIZE:    EQU   $80   
+00CC                RSIZE:    EQU   $80   
+00CC                TIBSIZE:   EQU   $100   
+00CC                TRUE:     EQU   1   
+00CC                FALSE:    EQU   0   
+00CC                EMPTY:    EQU   0   
+00CC                NSNUM:    EQU   5   ; namespaces
+00CC                NSSIZE:   EQU   $80   
+00CC                .macro LITDAT,len
+00CC                             ; 
+00CC                 DB len
+00CC                .endm
+00CC                 
+00CC                .macro REPDAT,len,data
+00CC                             ; 
+00CC                 DB (len | $80)
+00CC                 DB data
+00CC                .endm
+00CC                 
+00CC                .macro ENDDAT,
+00CC                             ; 
+00CC                 DB 0
+00CC                .endm
+00CC                 
+00CC                             ; **************************************************************************
+00CC                             ; Page 0  Initialisation
+00CC                             ; **************************************************************************		
 0180                          .ORG   ROMSTART + $180   
 0180                             ; **************************************************************************
 0180                             ; Macros must be written in Mint and end with ;
@@ -1867,6 +1866,111 @@
 0BC0                NS0:      DS   NSSIZE * NSNUM   
 0E40                NS1:      EQU   NS0 + NSSIZE   
 0E40                HEAP:        
+0E40                .macro UTILDEFS,
+0E40                             ; 
+0E40                 DB ":Q ",$22,";"                        ; ( n -- n n ) a convenient way to access "
+0E40                 DB ":W \\h@! 2\\h@+ \\h!;"              ; ( n -- ) compiles a word to heap
+0E40                 DB ":K \\#3\\t@- 0$ ($1+^);"            ; ( x1...xn num -- hash )
+0E40                 DB ":H 0~~ ( $%@ 1+^ $ 2+)';"           ; arr len -- hash           hash array
+0E40                 DB ":Z `[ `(Q @.2+)`]` ' ;"             ; arr len --                print array
+0E40                .endm
+0E40                 
+0E40                .macro ARRAYDEFS,
+0E40                             ; 
+0E40                 DB ":R \\f! $\\a! $\\v! (\\v@ %@ \\f@\\^ \\v! 2+) ' \\v@;"   ; v0 arr len fun -- val     reduce array
+0E40                 DB ":R \\f!~\\v! (\\v@ %@ \\f@\\^ \\v! 2+) ' \\v@;"   ; v0 arr len fun -- val     reduce array
+0E40                 DB ":R \\f! ( $%@ \\f@\\^ $ 2+) ' ;"    ; v0 arr len fun -- val     reduce array
+0E40                 DB ":M \\f! \\h@~~ "                    ; arr len fun -- arr' len'  map array
+0E40                 DB     "(Q@"
+0E40                 DB     "\\f@\\^ W 2+"
+0E40                 DB     ")"
+0E40                 DB "' \\h@ % -};"
+0E40                 DB ":F \\f! \\h@ ~~ "
+0E40                 DB     "(Q@Q "
+0E40                 DB     "\\f@\\^ "
+0E40                 DB     "\\(W)(') 2+ "
+0E40                 DB     ")"
+0E40                 DB " '  \\h@ % -};"
+0E40                .endm
+0E40                 
+0E40                .macro TESTER,test1,expect1
+0E40                             ; 
+0E40                 DB "`.`\\#3\\t!"
+0E40                 DB " ",test1," "
+0E40                 DB "K\\#3\\t!"                          ; ( -- hash1 )
+0E40                 DB " ",expect1," "
+0E40                 DB "K=0=(\\$`fail: ",test1," expected: "
+0E40                 DB expect1,"`\\$\\$",0,")"
+0E40                .endm
+0E40                 
+4000                          .ORG   $4000   
+4000                TESTSSTART:      
+4000   CD 54 03               CALL   enter   
+4003                          ;*Macro unroll:  utilDefs
+4003   3A 51 20 22 3B         DB   ":Q ",$22,";"   
+4008   3A 57 20 5C 68 40 21 20 32 5C 68 40 2B 20 5C 68 21 3B DB   ":W \\h@! 2\\h@+ \\h!;"   
+401A   3A 4B 20 5C 23 33 5C 74 40 2D 20 30 24 20 28 24 31 2B 5E 29 3B DB   ":K \\#3\\t@- 0$ ($1+^);"   
+402F   3A 48 20 30 7E 7E 20 28 20 24 25 40 20 31 2B 5E 20 24 20 32 2B 29 27 3B DB   ":H 0~~ ( $%@ 1+^ $ 2+)';"   
+4047   3A 5A 20 60 5B 20 60 28 51 20 40 2E 32 2B 29 60 5D 60 20 27 20 3B DB   ":Z `[ `(Q @.2+)`]` ' ;"   
+405D                          ;*Macro unroll:  arrayDefs
+405D   3A 52 20 5C 66 21 20 24 5C 61 21 20 24 5C 76 21 20 28 5C 76 40 20 25 40 20 5C 66 40 5C 5E 20 5C 76 21 20 32 2B 29 20 27 20 5C 76 40 3B DB   ":R \\f! $\\a! $\\v! (\\v@ %@ \\f@\\^ \\v! 2+) ' \\v@;"   
+408A   3A 52 20 5C 66 21 7E 5C 76 21 20 28 5C 76 40 20 25 40 20 5C 66 40 5C 5E 20 5C 76 21 20 32 2B 29 20 27 20 5C 76 40 3B DB   ":R \\f!~\\v! (\\v@ %@ \\f@\\^ \\v! 2+) ' \\v@;"   
+40B1   3A 52 20 5C 66 21 20 28 20 24 25 40 20 5C 66 40 5C 5E 20 24 20 32 2B 29 20 27 20 3B DB   ":R \\f! ( $%@ \\f@\\^ $ 2+) ' ;"   
+40CD   3A 4D 20 5C 66 21 20 5C 68 40 7E 7E 20 DB   ":M \\f! \\h@~~ "   
+40DA   28 51 40               DB   "(Q@"   
+40DD   5C 66 40 5C 5E 20 57 20 32 2B DB   "\\f@\\^ W 2+"   
+40E7   29                     DB   ")"   
+40E8   27 20 5C 68 40 20 25 20 2D 7D 3B DB   "' \\h@ % -};"   
+40F3   3A 46 20 5C 66 21 20 5C 68 40 20 7E 7E 20 DB   ":F \\f! \\h@ ~~ "   
+4101   28 51 40 51 20         DB   "(Q@Q "   
+4106   5C 66 40 5C 5E 20      DB   "\\f@\\^ "   
+410C   5C 28 57 29 28 27 29 20 32 2B 20 DB   "\\(W)(') 2+ "   
+4117   29                     DB   ")"   
+4118   20 27 20 20 5C 68 40 20 25 20 2D 7D 3B DB   " '  \\h@ % -};"   
+4125                          ;*Macro unroll:  tester "[1 2 3 4 5 6] \\:2/$ '; F H", "[1 3 5] H"
+4125   60 2E 60 5C 23 33 5C 74 21 DB   "`.`\\#3\\t!"   
+412E   20 5B 31 20 32 20 33 20 34 20 35 20 36 5D 20 5C 3A 32 2F 24 20 27 3B 20 46 20 48 20 DB   " ","[1 2 3 4 5 6] \\:2/$ '; F H"," "   
+414A   4B 5C 23 33 5C 74 21   DB   "K\\#3\\t!"   
+4151   20 5B 31 20 33 20 35 5D 20 48 20 DB   " ","[1 3 5] H"," "   
+415C   4B 3D 30 3D 28 5C 24 60 66 61 69 6C 3A 20 5B 31 20 32 20 33 20 34 20 35 20 36 5D 20 5C 3A 32 2F 24 20 27 3B 20 46 20 48 20 65 78 70 65 63 74 65 64 3A 20 DB   "K=0=(\\$`fail: ","[1 2 3 4 5 6] \\:2/$ '; F H"," expected: "   
+418F   5B 31 20 33 20 35 5D 20 48 60 5C 24 5C 24 00 29 DB   "[1 3 5] H","`\\$\\$",0,")"   
+419F                          ;*Macro unroll:  tester "0 [1 4 3 6 2] \\:'1+; R", "5"
+419F   60 2E 60 5C 23 33 5C 74 21 DB   "`.`\\#3\\t!"   
+41A8   20 30 20 5B 31 20 34 20 33 20 36 20 32 5D 20 5C 3A 27 31 2B 3B 20 52 20 DB   " ","0 [1 4 3 6 2] \\:'1+; R"," "   
+41C0   4B 5C 23 33 5C 74 21   DB   "K\\#3\\t!"   
+41C7   20 35 20               DB   " ","5"," "   
+41CA   4B 3D 30 3D 28 5C 24 60 66 61 69 6C 3A 20 30 20 5B 31 20 34 20 33 20 36 20 32 5D 20 5C 3A 27 31 2B 3B 20 52 20 65 78 70 65 63 74 65 64 3A 20 DB   "K=0=(\\$`fail: ","0 [1 4 3 6 2] \\:'1+; R"," expected: "   
+41F9   35 60 5C 24 5C 24 00 29 DB   "5","`\\$\\$",0,")"   
+4201                          ;*Macro unroll:  tester "0 [1 4 3 6 2] \\:+; R", "16"
+4201   60 2E 60 5C 23 33 5C 74 21 DB   "`.`\\#3\\t!"   
+420A   20 30 20 5B 31 20 34 20 33 20 36 20 32 5D 20 5C 3A 2B 3B 20 52 20 DB   " ","0 [1 4 3 6 2] \\:+; R"," "   
+4220   4B 5C 23 33 5C 74 21   DB   "K\\#3\\t!"   
+4227   20 31 36 20            DB   " ","16"," "   
+422B   4B 3D 30 3D 28 5C 24 60 66 61 69 6C 3A 20 30 20 5B 31 20 34 20 33 20 36 20 32 5D 20 5C 3A 2B 3B 20 52 20 65 78 70 65 63 74 65 64 3A 20 DB   "K=0=(\\$`fail: ","0 [1 4 3 6 2] \\:+; R"," expected: "   
+4258   31 36 60 5C 24 5C 24 00 29 DB   "16","`\\$\\$",0,")"   
+4261                          ;*Macro unroll:  tester "1 [1 4 3 6 2] \\:%%>\\(')($ '); R", "6"
+4261   60 2E 60 5C 23 33 5C 74 21 DB   "`.`\\#3\\t!"   
+426A   20 31 20 5B 31 20 34 20 33 20 36 20 32 5D 20 5C 3A 25 25 3E 5C 28 27 29 28 24 20 27 29 3B 20 52 20 DB   " ","1 [1 4 3 6 2] \\:%%>\\(')($ '); R"," "   
+428B   4B 5C 23 33 5C 74 21   DB   "K\\#3\\t!"   
+4292   20 36 20               DB   " ","6"," "   
+4295   4B 3D 30 3D 28 5C 24 60 66 61 69 6C 3A 20 31 20 5B 31 20 34 20 33 20 36 20 32 5D 20 5C 3A 25 25 3E 5C 28 27 29 28 24 20 27 29 3B 20 52 20 65 78 70 65 63 74 65 64 3A 20 DB   "K=0=(\\$`fail: ","1 [1 4 3 6 2] \\:%%>\\(')($ '); R"," expected: "   
+42CD   36 60 5C 24 5C 24 00 29 DB   "6","`\\$\\$",0,")"   
+42D5                          ;*Macro unroll:  tester "1 [1 4 3 6 2] \\:%%<\\(')($ '); R", "1"
+42D5   60 2E 60 5C 23 33 5C 74 21 DB   "`.`\\#3\\t!"   
+42DE   20 31 20 5B 31 20 34 20 33 20 36 20 32 5D 20 5C 3A 25 25 3C 5C 28 27 29 28 24 20 27 29 3B 20 52 20 DB   " ","1 [1 4 3 6 2] \\:%%<\\(')($ '); R"," "   
+42FF   4B 5C 23 33 5C 74 21   DB   "K\\#3\\t!"   
+4306   20 31 20               DB   " ","1"," "   
+4309   4B 3D 30 3D 28 5C 24 60 66 61 69 6C 3A 20 31 20 5B 31 20 34 20 33 20 36 20 32 5D 20 5C 3A 25 25 3C 5C 28 27 29 28 24 20 27 29 3B 20 52 20 65 78 70 65 63 74 65 64 3A 20 DB   "K=0=(\\$`fail: ","1 [1 4 3 6 2] \\:%%<\\(')($ '); R"," expected: "   
+4341   31 60 5C 24 5C 24 00 29 DB   "1","`\\$\\$",0,")"   
+4349                          ;*Macro unroll:  tester "[1 2 3] \\:{; M H", "[2 4 6] H"
+4349   60 2E 60 5C 23 33 5C 74 21 DB   "`.`\\#3\\t!"   
+4352   20 5B 31 20 32 20 33 5D 20 5C 3A 7B 3B 20 4D 20 48 20 DB   " ","[1 2 3] \\:{; M H"," "   
+4364   4B 5C 23 33 5C 74 21   DB   "K\\#3\\t!"   
+436B   20 5B 32 20 34 20 36 5D 20 48 20 DB   " ","[2 4 6] H"," "   
+4376   4B 3D 30 3D 28 5C 24 60 66 61 69 6C 3A 20 5B 31 20 32 20 33 5D 20 5C 3A 7B 3B 20 4D 20 48 20 65 78 70 65 63 74 65 64 3A 20 DB   "K=0=(\\$`fail: ","[1 2 3] \\:{; M H"," expected: "   
+439F   5B 32 20 34 20 36 5D 20 48 60 5C 24 5C 24 00 29 DB   "[2 4 6] H","`\\$\\$",0,")"   
+43AF   60 44 6F 6E 65 21 60 00 .CSTR   "`Done!`"   
+43B7   76                     HALT      
 
 
 TEC_1:              0001 DEFINED AT LINE 1 IN constants.asm
@@ -2005,7 +2109,6 @@ ETX:                0263 DEFINED AT LINE 214 IN MINT.asm
 ETX1:               026C DEFINED AT LINE 219 IN MINT.asm
                     > USED AT LINE 217 IN MINT.asm
 START:              026E DEFINED AT LINE 222 IN MINT.asm
-                    > USED AT LINE 6
 INTERPRET:          0283 DEFINED AT LINE 228 IN MINT.asm
                     > USED AT LINE 220 IN MINT.asm
 INTERPRET2:         028D DEFINED AT LINE 234 IN MINT.asm
@@ -2037,6 +2140,7 @@ COMPNEXT:           02FD DEFINED AT LINE 342 IN MINT.asm
 COMPNEXT1:          030B DEFINED AT LINE 352 IN MINT.asm
                     > USED AT LINE 349 IN MINT.asm
 INIT:               0310 DEFINED AT LINE 356 IN MINT.asm
+                    > USED AT LINE 7
                     > USED AT LINE 224 IN MINT.asm
 INITOPS:            0330 DEFINED AT LINE 371 IN MINT.asm
 INITOPS1:           0339 DEFINED AT LINE 376 IN MINT.asm
@@ -2050,6 +2154,7 @@ ENTER:              0354 DEFINED AT LINE 399 IN MINT.asm
                     > USED AT LINE 275 IN MINT.asm
                     > USED AT LINE 1173 IN MINT.asm
                     > USED AT LINE 1249 IN MINT.asm
+                    > USED AT LINE 20
 PRINTSTR:           035D DEFINED AT LINE 406 IN MINT.asm
                     > USED AT LINE 225 IN MINT.asm
                     > USED AT LINE 1371 IN MINT.asm
@@ -2338,6 +2443,7 @@ TIB:                0800 DEFINED AT LINE 3 IN ram.asm
 RSTACK:             0980 DEFINED AT LINE 6 IN ram.asm
                     > USED AT LINE 357 IN MINT.asm
 DSTACK:             0A00 DEFINED AT LINE 9 IN ram.asm
+                    > USED AT LINE 6
                     > USED AT LINE 72 IN MINT.asm
                     > USED AT LINE 215 IN MINT.asm
                     > USED AT LINE 218 IN MINT.asm
@@ -2427,3 +2533,5 @@ NS0:                0BC0 DEFINED AT LINE 74 IN ram.asm
 NS1:                0C40 DEFINED AT LINE 75 IN ram.asm
 HEAP:               0E40 DEFINED AT LINE 76 IN ram.asm
                     > USED AT LINE 79 IN MINT.asm
+TESTSSTART:         4000 DEFINED AT LINE 18
+                    > USED AT LINE 8

@@ -50,16 +50,16 @@ backsp_:
         DB "\\c@0=0=(\\c@1-\\c!`\b \b`);"
 
 reedit_:
-        DB "\\e\\@\\#2;"
+        DB "\\e\\@\\#6;"
 
 edit_:
-        .cstr "`?`?\\#1\\#2;"
+        .cstr "`?`?\\#5\\#6;"
 
 list_:
-        .cstr "\\$26(\\i@65+\\#2\\c@0>(\\$))\\#1;"
+        .cstr "\\$26(\\i@65+\\#6\\c@0>(\\$))\\#5;"
 
 printStack_:
-        .cstr "\\#4\\#1;"        
+        .cstr "\\#4\\#5;"        
 
 toggleBase_:
         .cstr "\\b@0=\\b!;"
@@ -1185,26 +1185,6 @@ newln_:
         call crlf
         JP (IY)        
 
-NSEnter_:
-NSEnter:
-        INC BC
-NSEnter1:
-        LD A,(BC)                   ; read NS ASCII code
-        SUB "0"                     ; convert to number
-        INC BC
-        LD D,A                      ; multiply by 64
-        LD E,0
-        SRL D
-        RR E
-        SRL D
-        RR E
-        LD HL,(vNS)               ; 
-        call rpush
-        LD HL,NS0
-        ADD HL,DE
-        LD (vNS),HL
-        JP (IY)                    
-
 outPort_:
         POP HL
         LD E,C
@@ -1223,15 +1203,28 @@ prnStr:
 strDef_:
         JR strDef
         
-printStk_:
-        JR printStk
+
+rpush_:
+        POP HL
+        CALL rpush
+        JP (IY)
+
+rpop_:
+        CALL rpop
+        PUSH HL
+        JP (IY)
+
+NSEnter_:
+        JR NSEnter
 
 utilTable:
         DB lsb(exec_)       ;0    ( adr -- )
-        DB lsb(prompt_)     ;1    ( -- )   
-        DB lsb(editDef_)    ;2    ( -- )
-        DB lsb(depth_)      ;3    ( -- val ) depth of data stack  
-        DB lsb(printStk_)   ;4    ( -- ) non-destructively prints stack
+        DB lsb(rpush_)      ;1    ( n -- )      push TOS onto return stack  
+        DB lsb(rpop_)       ;2    ( -- n )      pop TOS off return stack
+        DB lsb(depth_)      ;3    ( -- val )    depth of data stack  
+        DB lsb(printStk_)   ;4    ( -- )        non-destructively prints stack
+        DB lsb(prompt_)     ;5    ( -- )        print MINT prompt 
+        DB lsb(editDef_)    ;6    ( char -- )   edit command    
 
 util_:
 util:                           ;= 13
@@ -1243,11 +1236,14 @@ util:                           ;= 13
         LD L,A
         LD L,(HL)               ; H already contains msb(page6)
         JP (HL)
-; **************************************************************************
-; Page 6 primitive routines 
-; **************************************************************************
-        ; falls through
 
+printStk_:
+
+; **************************************************************************
+; Page 6 primitive routines continued  (page 7) 
+; **************************************************************************
+        ; falls through to following page
+        
 printStk:                           ;=40
         ; MINT: \a@2- \#3 1- ("@ \b@ \(,)(.) 2-) '             
         call ENTER
@@ -1271,6 +1267,26 @@ strDef2:
         LD (DE),A
         INC DE
         JP def3
+
+NSEnter:
+        INC BC
+NSEnter1:
+        LD A,(BC)                   ; read NS ASCII code
+        SUB "0"                     ; convert to number
+        INC BC
+        LD D,A                      ; multiply by 64
+        LD E,0
+        SRL D
+        RR E
+        SRL D
+        RR E
+        LD HL,(vNS)               ; 
+        call rpush
+        LD HL,NS0
+        ADD HL,DE
+        LD (vNS),HL
+        JP (IY)                    
+
 
 ;*******************************************************************
 ; Page 5 primitive routines continued
