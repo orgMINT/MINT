@@ -191,23 +191,23 @@ Note: logical NOT can be achieved with 0=
 | ------ | -------------------------------------------------------------------- | -------------- |
 | '      | drop the top member of the stack DROP                                | a a -- a       |
 | "      | duplicate the top member of the stack DUP                            | a -- a a       |
-| ~      | rotate the top 2 members of the stack ROT                            | a b c -- b c a |
 | %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a   |
+| ~      | rotate the top 2 members of the stack ROT                            | a b c -- b c a |
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
 
 ### Input & Output Operations
 
 | Symbol | Description                                               | Effect      |
 | ------ | --------------------------------------------------------- | ----------- |
+| ,      | print the number on the stack as a hexadecimal            | a --        |
 | ?      | read a char from input                                    | -- val      |
 | .      | print the top member of the stack as a decimal number DOT | a --        |
-| ,      | print the number on the stack as a hexadecimal            | a --        |
-| \`     | print the literal string between \` and \`                | --          |
-| \\.    | print a null terminated string                            | adr --      |
 | \\,    | prints a character to output                              | val --      |
-| \\$    | prints a CRLF to output                                   | --          |
-| \\>    | output to an I/O port                                     | val port -- |
+| \\.    | print a null terminated string                            | adr --      |
 | \\<    | input from a I/O port                                     | port -- val |
+| \\>    | output to an I/O port                                     | val port -- |
+| \\$    | prints a CRLF to output                                   | --          |
+| \`     | print the literal string between \` and \`                | --          |
 | #      | the following number is in hexadecimal                    | a --        |
 
 ### User Definitions
@@ -246,18 +246,8 @@ NOTE:
 | @      | FETCH a value from memory     | -- val        |
 | \\!    | STORE a byte to memory        | val adr --    |
 | \\[    | begin a byte array definition | --            |
-| \\`    | begin a string definition     | -- adr        |
 | \\@    | FETCH a byte from memory      | -- val        |
-
-### System Variables
-
-| Symbol | Description                        | Effect |
-| ------ | ---------------------------------- | ------ |
-| \\a    | data stack start variable          | -- adr |
-| \\b    | base16 flag variable               | -- adr |
-| \\c    | text input buffer pointer variable | -- adr |
-| \\d    | start of user definitions          | -- adr |
-| \\h    | heap pointer variable              | -- adr |
+| \\`    | begin a string definition     | -- adr        |
 
 ### Miscellaneous
 
@@ -288,3 +278,13 @@ NOTE:
 | ^J     | re-edit                         |
 | ^L     | list definitions                |
 | ^P     | print stack                     |
+
+### System Variables
+
+| Symbol | Description                        | Effect |
+| ------ | ---------------------------------- | ------ |
+| \\a    | data stack start variable          | -- adr |
+| \\b    | base16 flag variable               | -- adr |
+| \\c    | text input buffer pointer variable | -- adr |
+| \\d    | start of user definitions          | -- adr |
+| \\h    | heap pointer variable              | -- adr |
