@@ -210,17 +210,18 @@ Note: logical NOT can be achieved with 0=
 | \\<    | input from a I/O port                                     | port -- val |
 | #      | the following number is in hexadecimal                    | a --        |
 
-### User Definitions
+### User Defined Commands
 
-| Symbol        | Description                      | Effect |
-| ------------- | -------------------------------- | ------ |
-| ;             | end of user definition END       |        |
-| :<CHAR>       | define a new command DEF         |        |
-| \\:           | define an anonynous command DEF  |        |
-| \\?<CHAR>     | get the address of the def       | -- adr |
-| \\{<NUM>      | enter namespace NUM              | --     |
-| \\}           | exit namespace                   | --     |
-| \\<NUM><CHAR> | execute a command in a namespace | --     |
+| Symbol        | Description                      | Effect   |
+| ------------- | -------------------------------- | -------- |
+| ;             | end of user definition END       |          |
+| :<CHAR>       | define a new command DEF         |          |
+| \\:           | define an anonynous command DEF  |          |
+| \\?<CHAR>     | get the address of the def       | -- adr   |
+| \\{<NUM>      | enter namespace NUM              | --       |
+| \\}           | exit namespace                   | --       |
+| \\<NUM><CHAR> | execute a command in a namespace | --       |
+| \\^           | execute mint code at address     | adr -- ? |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -262,10 +263,9 @@ NOTE:
 
 ### Miscellaneous
 
-| Symbol | Description                                   | Effect   |
-| ------ | --------------------------------------------- | -------- |
-| \\\\   | comment text, skips reading until end of line | --       |
-| \\^    | execute mint code at address                  | adr -- ? |
+| Symbol | Description                                   | Effect |
+| ------ | --------------------------------------------- | ------ |
+| \\\\   | comment text, skips reading until end of line | --     |
 
 ### Utility commands
 
