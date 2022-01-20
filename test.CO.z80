@@ -1,0 +1,28 @@
+    .engine mycomputer
+
+    .include "constants.asm"
+    .include "IOSerial.asm"
+    
+    LD SP,DSTACK
+    CALL init
+    JP testsStart
+    
+    .include "MINT.asm"
+    .include "ram.asm"
+    .include "test.util.mac.asm"
+    .include "test.co.mac.asm"
+    .include "test.tester.mac.asm"
+    
+    .org $4000
+    
+    testsStart:
+    
+    CALL enter
+    utilDefs
+    coDefs
+    
+    tester "C", ""
+
+    .cstr "`Done!`"
+    HALT
+    
