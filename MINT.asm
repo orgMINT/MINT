@@ -180,7 +180,7 @@ iOpcodes:
         DB     lsb(anonDef_)    ;ba    :                
         DB     lsb(aNop_)       ;bb    ;                
         DB     lsb(inPort_)     ;bc    <  ( port -- val )
-        DB     lsb(aNop)        ;bd    =    
+        DB     lsb(aNop_)       ;bd    =    
         DB     lsb(outPort_)    ;be    >  ( val port -- )
         DB     lsb(getRef_)     ;bf    ?
         DB     lsb(cFetch_)     ;c0    @      
@@ -1169,28 +1169,12 @@ j_:                                 ;=9
         PUSH HL
         JP add_
         
-NSRef_:                             ;=25
-        LD IY,rpop2                 ; rewire NEXT to simply return
-        CALL NSEnter1               ; enter namespace return here on NEXT
-        LD A,(BC)
-        CALL NSLookup
-        JR NZ,NSRef2
-        PUSH HL
-        LD IY,NEXT                  ; restore NEXT
-        CALL enter                  ; enter MINT interpreter with TOS=command 
-        .cstr "@\\^"                ; execute and restore namespace
-        JR NSExit_
-NSRef2:                            ;=25
-        PUSH HL
-        LD IY,NEXT                  ; restore NEXT
-NSExit_:                            
-        call rpop
-        LD (vNS),HL
-        JP (IY)
-        
 newln_:
         call crlf
         JP (IY)        
+
+NSExit_:                            
+        JP NSExit                            
 
 outPort_:
         POP HL
@@ -1223,6 +1207,9 @@ rpop_:
 
 NSEnter_:
         JR NSEnter
+NSRef_:
+        JR NSRef
+
 
 utilTable:
         DB lsb(exec_)       ;0    ( adr -- )
@@ -1294,6 +1281,25 @@ NSEnter1:
         LD (vNS),HL
         JP (IY)                    
 
+NSRef:                             ;=25
+        LD IY,rpop2                 ; rewire NEXT to simply return
+        CALL NSEnter1               ; enter namespace return here on NEXT
+        LD A,(BC)
+        CALL NSLookup
+        JR NZ,NSRef2
+        PUSH HL
+        LD IY,NEXT                  ; restore NEXT
+        CALL enter                  ; enter MINT interpreter with TOS=command 
+        .cstr "@\\^"                ; execute and restore namespace
+        JR NSExit
+NSRef2:                            ;=25
+        PUSH HL
+        LD IY,NEXT                  ; restore NEXT
+NSExit:                            
+        call rpop
+        LD (vNS),HL
+        JP (IY)
+        
 
 ;*******************************************************************
 ; Page 5 primitive routines continued
