@@ -180,7 +180,7 @@ iOpcodes:
         DB     lsb(anonDef_)    ;ba    :                
         DB     lsb(aNop_)       ;bb    ;                
         DB     lsb(inPort_)     ;bc    <  ( port -- val )
-        DB     lsb(loopidx_)    ;bd    =  ( -- adr) returns address of index variable  
+        DB     lsb(aNop)        ;bd    =    
         DB     lsb(outPort_)    ;be    >  ( val port -- )
         DB     lsb(getRef_)     ;bf    ?
         DB     lsb(cFetch_)     ;c0    @      
@@ -198,9 +198,10 @@ iOpcodes:
         REPDAT 8, lsb(altVar_)  ;e1
 
         LITDAT 1
-        DB     lsb(loopidx_)          ;e9    i  ; returns index variable of current loop          
+        DB     lsb(i_)          ;e9    i  ; returns index variable of current loop          
+        DB     lsb(j_)          ;e9    j  ; returns index variable of outer loop          
 
-        REPDAT 17, lsb(altVar_)
+        REPDAT 16, lsb(altVar_)
 
         LITDAT 5
         DB     lsb(NSEnter_)    ;fb    {
@@ -1158,10 +1159,16 @@ inPort_:
         PUSH HL
         JP (IY)        
 
-loopidx_:
+i_:
         PUSH IX
         JP (IY)
 
+j_:                                 ;=9  
+        PUSH IX                     ;the address of j is 6 bytes more than i
+        LD HL,6
+        PUSH HL
+        JP add_
+        
 NSRef_:                             ;=25
         LD IY,rpop2                 ; rewire NEXT to simply return
         CALL NSEnter1               ; enter namespace return here on NEXT

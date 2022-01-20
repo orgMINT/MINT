@@ -12,7 +12,6 @@
 | \\E    | prints a character to output              | val --         | renamed | now \\,  |
 | \\G    | execute mint code at address              | adr -- ?       | renamed | now \\^  |
 | \\I    | input from a I/O port                     | port -- val    | renamed | now \\<  |
-| \\i    | loop counter variable                     | -- adr         | renamed | now \\=  |
 | \\K    | read a char from input                    | -- val         | renamed | now ?    |
 | \\N    | prints a CRLF to output                   | --             | renamed | now \\$  |
 | \\O    | output to an I/O port                     | val port --    | renamed | now \\>  |
@@ -68,7 +67,6 @@
 | Symbol | Description               | Effect |          |         |
 | ------ | ------------------------- | ------ | -------- | ------- |
 | \\\_   | if true break out of loop | b --   | new name | was \\B |
-| \\=    | loop counter variable     | -- adr | new name | was \\i |
 
 ### Memory and Variable Operations
 
