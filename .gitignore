@@ -1,6 +1,6 @@
 notes.txt
 .vscode/
-test.*.z80.hex
-test.*.z80.lst
+test.*.hex
+test.*.lst
 notes.md
 tec-test.z80-1
