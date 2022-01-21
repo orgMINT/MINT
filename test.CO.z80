@@ -10,7 +10,7 @@
     .include "MINT.asm"
     .include "ram.asm"
     .include "test.util.mac.asm"
-    .include "test.co.mac.asm"
+    ; .include "test.co.mac.asm"
     .include "test.tester.mac.asm"
     
     .org $4000
@@ -19,9 +19,18 @@
     
     CALL enter
     utilDefs
-    coDefs
+
+    ; DB ":T $ \\#1 \\#1 ;"     ; val --    2tor 2>r
+    ; DB ":F \\#2 \\#2 $ ;"     ; -- val    2rfrom 2r>
+
+    ; DB ":Y F $ T ;"
+    ; DB ":P 1_( 100+ Q Y ) ;"        ; endless
+    ; DB ":C \\$ 0 P 1_( Q.\\$ 1000 > \\_ Y ) ' B ;"
     
-    tester "C", ""
+
+    DB ":C 1000 ;"
+
+    tester "C", "1000"
 
     .cstr "`Done!`"
     HALT

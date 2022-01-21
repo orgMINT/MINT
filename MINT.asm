@@ -197,7 +197,7 @@ iOpcodes:
 
         REPDAT 8, lsb(altVar_)  ;e1
 
-        LITDAT 1
+        LITDAT 2
         DB     lsb(i_)          ;e9    i  ; returns index variable of current loop          
         DB     lsb(j_)          ;e9    j  ; returns index variable of outer loop          
 
