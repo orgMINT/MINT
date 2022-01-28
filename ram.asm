@@ -8,6 +8,8 @@ rStack:
             DS DSIZE
 dStack:        
 stack:
+            DS LSIZE
+lStack:
             .align $100
 opcodes:    
             DS $80
@@ -17,9 +19,9 @@ altCodes:
 
             .align $100
 mintVars:
-            DS 2                ; 
-vByteMode:  DS 2                ; 
             DS $30
+vLoopSP:    DS 2                ; 
+vByteMode:  DS 2                ; 
 tbPtr:      DS 2                ; reserved for tests
 
 RST08:      DS 2                 
@@ -34,7 +36,6 @@ NMIVEC:     DS 2                ;
 GETCVEC:    DS 2                ;   
 PUTCVEC:    DS 2                ;   
 
-altDefs:
             DS 26*2
 altVars:
 
@@ -69,8 +70,6 @@ vHeapPtr:   DS 2                ; h
 ; NS Table - Each space holds 26 user commands, 26 user vars, 12 bytes free
 ; ****************************************************************
             .align $40
-            .org $-($80-26*2*2)
-            DS ($80-26*2*2)     ; 12 bytes free vars for NS 0 
-NS0:        DS NSSIZE * NSNUM
-NS1         EQU NS0 + NSSIZE
+mintData:   DS mintDataSize
+
 HEAP:         

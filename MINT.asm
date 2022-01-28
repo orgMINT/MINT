@@ -12,13 +12,13 @@
 
         DSIZE       EQU $80
         RSIZE       EQU $80
+        LSIZE       EQU $80
         TIBSIZE     EQU $100
         TRUE        EQU 1
         FALSE       EQU 0
         EMPTY       EQU 0
 
-        NSNUM       EQU 5       ; namespaces 
-        NSSIZE      EQU $80
+        mintDataSize      EQU 26*2*2  ; A..Z, a..z words
 
 .macro LITDAT,len
         DB len
@@ -72,7 +72,7 @@ iAltVars:
         DW dStack               ; a vS0
         DW FALSE                ; b vBase16
         DW 0                    ; c vTIBPtr
-        DW NS0                  ; d vNS
+        DW 0                    ; d 
         DW 65                   ; e vLastDef "A"
         DW 0                    ; f 
         DW page6                ; g 
@@ -132,7 +132,7 @@ iOpcodes:
         DB    lsb(or_)     ;    |            
         DB    lsb(shr_)    ;    }            
         DB    lsb(rot_)    ;    ~ ( a b c -- b c a ) rotate            
-        DB    lsb(nop_)    ;    backspace
+        DB    lsb(nop_)    ;    DEL
 
         LITDAT 17
         DB     lsb(EMPTY)       ; NUL ^@        
@@ -165,7 +165,7 @@ iOpcodes:
         REPDAT 3, lsb(aNop_)
 
         LITDAT 8
-        DB     lsb(ifte_)       ;a8    (  ( b -- )              
+        DB     lsb(aNop_)       ;a8    (  ( b -- )              
         DB     lsb(aNop_)       ;a9    )                
         DB     lsb(aNop_)       ;aa    *                
         DB     lsb(aNop_)       ;ab    +                
@@ -174,26 +174,26 @@ iOpcodes:
         DB     lsb(prnStr_)     ;ae    .  ( b -- )              
         DB     lsb(aNop_)       ;af    /                
 
-        REPDAT 5, lsb(NSRef_)
-        REPDAT 5, lsb(aNop_)
+        REPDAT 10, lsb(aNop_)
+
         LITDAT 7
         DB     lsb(anonDef_)    ;ba    :                
         DB     lsb(aNop_)       ;bb    ;                
         DB     lsb(inPort_)     ;bc    <  ( port -- val )
         DB     lsb(aNop_)       ;bd    =    
         DB     lsb(outPort_)    ;be    >  ( val port -- )
-        DB     lsb(getRef_)     ;bf    ?
+        DB     lsb(aNop_)       ;bf    ?
         DB     lsb(cFetch_)     ;c0    @      
 
         REPDAT 26, lsb(aNop_)
 
         LITDAT 6
-        DB     lsb(cArrDef_)    ;db    [
-        DB     lsb(comment_)    ;dc    \  comment text, skips reading until end of line
-        DB     lsb(aNop_)       ;dd    ]
-        DB     lsb(go_)         ;de    ^  ( -- ? ) execute mint definition
-        DB     lsb(break_)      ;df    _  break loop if true
-        DB     lsb(strDef_)     ;e0    `  ( -- adr ) defines a string \` string `            
+        DB     lsb(cArrDef_)    ;db     [
+        DB     lsb(comment_)    ;dc     \  comment text, skips reading until end of line
+        DB     lsb(aNop_)       ;dd     ]
+        DB     lsb(go_)         ;de     ^  ( -- ? ) execute mint definition
+        DB     lsb(eret_)       ;       _  ( b -- ) conditional early return           
+        DB     lsb(strDef_)     ;e0     `  ( -- adr ) defines a string \` string `            
 
         REPDAT 8, lsb(altVar_)  ;e1
 
@@ -204,12 +204,12 @@ iOpcodes:
         REPDAT 16, lsb(altVar_)
 
         LITDAT 5
-        DB     lsb(NSEnter_)    ;fb    {
-        DB     lsb(aNop_)       ;fc    |            
-        DB     lsb(NSExit_)     ;fd    }            
-        DB     lsb(aNop_)       ;fe    ~           
-        DB     lsb(aNop_)       ;ff    BS		
-        
+        DB    lsb(rpop_)        ;       { ( -- n ) pop from return stack 
+        DB    lsb(aNop_)        ;                  
+        DB    lsb(rpush_)       ;       } ( n -- ) push to return stack           
+        DB    lsb(break_)       ;       ~ ( b -- ) conditional break from loop            
+        DB    lsb(aNop_)        ;       DEL
+
         ENDDAT 
 
 etx:                                ;=12
@@ -355,6 +355,8 @@ compNext1:
         JR NEXT
 
 init:                           ;=68
+        LD HL,LSTACK
+        LD (vLoopSP),HL         ; Loop stack pointer stored in memory
         LD IX,RSTACK
         LD IY,NEXT			    ; IY provides a faster jump to NEXT
         LD HL,ialtVars
@@ -362,11 +364,11 @@ init:                           ;=68
         LD BC,8 * 2
         LDIR
         
-        LD HL,NS0              ; init namespaces to 0
+        LD HL,mintData          ; init namespaces to 0 using LDIR
         LD DE,HL
         INC DE
         LD (HL),0
-        LD BC,NSNUM*NSSIZE
+        LD BC,mintDataSize
         LDIR
 
 initOps:
@@ -404,6 +406,11 @@ enter:                              ;=9
         DEC BC
         JP (IY)                    
 
+crlf:                               ;=7
+        call printStr
+        .cstr "\r\n"
+        RET
+
 printStr:                           ;=14
         EX (SP),HL
         CALL putStr
@@ -411,31 +418,22 @@ printStr:                           ;=14
         EX (SP),HL
         RET
 
-putStr0:
-        CALL putchar
-        INC HL
-putStr:
-        LD A,(HL)
-        OR A
-        JR NZ,putStr0
-        RET
-
-NSLookup:
+lookupRef:
         LD D,0
-NSLookup0:
+lookupRef0:
         CP "a"
-        JR NC,NSLookup2
-NSLookup1:
+        JR NC,lookupRef2
+lookupRef1:
         SUB "A"
         LD E,0
-        JR NSLookup3        
-NSLookup2:
+        JR lookupRef3        
+lookupRef2:
         SUB "a"
         LD E,26*2
-NSLookup3:
+lookupRef3:
         ADD A,A
         ADD A,E
-        LD HL,(vNS)
+        LD HL,mintData
         ADD A,L
         LD L,A
         LD A,0
@@ -595,17 +593,16 @@ arrDef1:
         LD HL,(vHeapPtr)        ; HL = heap ptr
         CALL rpush              ; save start of array \[  \]
         JP NEXT                 ; hardwired to NEXT
-arrEnd_:JP arrEnd
+
 
 call_:
         LD A,(BC)
-        CALL NSLookup1
+        CALL lookupRef1
         LD E,(HL)
         INC HL
         LD D,(HL)
         JP go1
 
-def_:   JP def
 
 dot_:       
         POP HL
@@ -649,6 +646,7 @@ fetch1:
         PUSH DE              
         JP (IY)           
 
+hex_:   JP hex
 
 key_:
         CALL getchar
@@ -762,26 +760,17 @@ less:
         
 var_:
         LD A,(BC)
-        CALL NSLookup2
+        CALL lookupRef2
         PUSH HL
         JP (IY)
 
-
-
-
-
-
-        JP str
-        
 num_:   JP  num
-
-
-
-
 str_:   JR str                      
+arrEnd_:JR arrEnd
+def_:   JR def
 div_:   JR div
 begin_: JR begin
-hex_:   JR hex
+
 alt_:   
 
 ;*******************************************************************
@@ -816,6 +805,58 @@ str2:
         DEC BC
         JP   (IY) 
 
+
+arrEnd:                             ;=27
+        CALL rpop                   ; DE = start of array
+        PUSH HL
+        EX DE,HL
+        LD HL,(vHeapPtr)            ; HL = heap ptr
+        OR A
+        SBC HL,DE                   ; bytes on heap 
+        LD A,(vByteMode)
+        OR A
+        JR NZ,arrEnd2
+        SRL H                       ; BC = m words
+        RR L
+arrEnd2:
+        PUSH HL 
+        LD IY,NEXT
+        JP (IY)                     ; hardwired to NEXT
+
+
+; **************************************************************************             
+; def is used to create a colon definition
+; When a colon is detected, the next character (usually uppercase alpha)
+; is looked up in the vector table to get its associated code field address
+; This CFA is updated to point to the character after uppercase alpha
+; The remainder of the characters are then skipped until after a semicolon  
+; is found.
+; ***************************************************************************
+
+def:                                ; Create a colon definition
+        INC BC
+        LD  A,(BC)                  ; Get the next character
+        LD (vLastDef),A
+        CALL lookupRef
+        LD DE,(vHeapPtr)            ; start of defintion
+        LD (HL),E                   ; Save low byte of address in CFA
+        INC HL              
+        LD (HL),D                   ; Save high byte of address in CFA+1
+        INC BC
+def1:                               ; Skip to end of definition   
+        LD A,(BC)                   ; Get the next character
+        INC BC                      ; Point to next character
+        LD (DE),A
+        INC DE
+        CP ";"                      ; Is it a semicolon 
+        JR Z, def2                  ; end the definition
+        JR  def1                    ; get the next element
+def2:    
+        DEC BC
+def3:
+        LD (vHeapPtr),DE            ; bump heap ptr to after definiton
+        JP (IY)       
+
 ; ********************************************************************
 ; 16-bit division subroutine.
 ;
@@ -829,7 +870,7 @@ str2:
 ; 35 bytes (reduced from 48)
 		
 
-div:                                ;=24
+div:                                ;=34
         POP  DE                     ; get first value
         POP  HL                     ; get 2nd value
         PUSH BC                     ; Preserve the IP
@@ -862,17 +903,14 @@ div4:
 
         JP (IY)
 
-; *************************************
-; Loop Handling Code
-; *************************************
-        	                        ;=23                     
+        	                        ;=57                     
 begin:                              ; Left parentesis begins a loop
         POP HL
         LD A,L                      ; zero?
         OR H
         JR Z,begin1
-        
-        DEC HL
+        PUSH IX
+        LD IX,(vLoopSP)
         LD DE,-6
         ADD IX,DE
         LD (IX+0),0                 ; loop var
@@ -881,7 +919,8 @@ begin:                              ; Left parentesis begins a loop
         LD (IX+3),H                 
         LD (IX+4),C                 ; loop address
         LD (IX+5),B                 
-
+        LD (vLoopSP),IX
+        POP IX
         JP (IY)
 begin1:
         LD E,1
@@ -892,137 +931,44 @@ begin2:
         XOR A
         OR E
         JR NZ,begin2
+        LD HL,1
 begin3:
+        INC BC
+        LD A,(BC)
+        DEC BC
+        CP "("
+        JR NZ,begin4
+        PUSH HL
+begin4:        
         JP (IY)
 
-hex:                                ;=26
-	    LD HL,0		    		    ;     Clear HL to accept the number
-hex1:
-        INC BC
-        LD A,(BC)				    ;     Get the character which is a numeral
-        BIT 6,A                     ;       is it uppercase alpha?
-        JR Z, hex2                  ; no a decimal
-        SUB 7                       ; sub 7  to make $A - $F
-hex2:
-        SUB $30                     ;       Form decimal digit
-        JP C,num2
-        CP $0F+1
-        JP NC,num2
-        ADD HL,HL                   ;        2X ; Multiply digit(s) in HL by 16
-        ADD HL,HL                   ;        4X
-        ADD HL,HL                   ;        8X
-        ADD HL,HL                   ;       16X     
-        ADD A,L                     ;       Add into bottom of HL
-        LD  L,A                     ;   
-        JR  hex1
-
-
-
-arrEnd:                             ;=27
-        CALL rpop                   ; DE = start of array
-        PUSH HL
-        EX DE,HL
-        LD HL,(vHeapPtr)            ; HL = heap ptr
-        OR A
-        SBC HL,DE                   ; bytes on heap 
-        LD A,(vByteMode)
-        OR A
-        JR NZ,arrEnd2
-        SRL H                       ; BC = m words
-        RR L
-arrEnd2:
-        PUSH HL 
-        LD IY,NEXT
-        JP (IY)                     ; hardwired to NEXT
-
-
-; **************************************************************************             
-; def is used to create a colon definition
-; When a colon is detected, the next character (usually uppercase alpha)
-; is looked up in the vector table to get its associated code field address
-; This CFA is updated to point to the character after uppercase alpha
-; The remainder of the characters are then skipped until after a semicolon  
-; is found.
-; ***************************************************************************
-; def:                                ; Create a colon definition
-;         INC BC
-;         LD  A,(BC)                  ; Get the next character
-;         LD (vLastDef),A
-;         INC BC
-;         CALL NSLookup
-;         LD DE,(vHeapPtr)            ; start of defintion
-;         LD (HL),E                   ; Save low byte of address in CFA
-;         INC HL              
-;         LD (HL),D                   ; Save high byte of address in CFA+1
-; def1:                               ; Skip to end of definition   
-;         LD A,(BC)                   ; Get the next character
-;         INC BC                      ; Point to next character
-;         LD (DE),A
-;         INC DE
-;         CP ";"                      ; Is it a semicolon 
-;         JR Z, def2                  ; end the definition
-;         JR  def1                    ; get the next element
-
-; def2:    
-;         DEC BC
-; def3:
-;         LD (vHeapPtr),DE            ; bump heap ptr to after definiton
-;         JP (IY)       
-
-def:                                ; Create a colon definition
-        INC BC
-        LD  A,(BC)                  ; Get the next character
-        LD (vLastDef),A
-        CALL NSLookup
-        LD DE,(vHeapPtr)            ; start of defintion
-        LD (HL),E                   ; Save low byte of address in CFA
-        INC HL              
-        LD (HL),D                   ; Save high byte of address in CFA+1
-        INC BC
-def1:                               ; Skip to end of definition   
-        LD A,(BC)                   ; Get the next character
-        INC BC                      ; Point to next character
-        LD (DE),A
-        INC DE
-        CP ";"                      ; Is it a semicolon 
-        JR Z, def2                  ; end the definition
-        JR  def1                    ; get the next element
-def2:    
-        DEC BC
-def3:
-        LD (vHeapPtr),DE            ; bump heap ptr to after definiton
-        JP (IY)       
-
-again:                              ;=51
+again:                              ;=72
+        PUSH IX
+        LD IX,(vLoopSP)
         LD E,(IX+0)                 ; peek loop var
         LD D,(IX+1)                 
-        
-        LD A,D                      ; check if IFTEMode
-        AND E
-        INC A
-        JR NZ,again1
-        INC DE
-        PUSH DE                     ; push FALSE condition
-        LD DE,2
-        JR again3                   ; drop IFTEMode
-
-again1:
         LD L,(IX+2)                 ; peek loop limit
         LD H,(IX+3)                 
+        DEC HL
         OR A
         SBC HL,DE
         JR Z,again2
         INC DE
         LD (IX+0),E                 ; poke loop var
         LD (IX+1),D                 
+again1:
         LD C,(IX+4)                 ; peek loop address
         LD B,(IX+5)                 
-        JP (IY)
+        JR again4
 again2:   
         LD DE,6                     ; drop loop frame
 again3:
         ADD IX,DE
-        JP (IY)
+again4:
+        LD (vLoopSP),IX
+        POP IX
+        LD HL,0                     ; skip ELSE clause
+        JR begin3               
         
         
 ; **************************************************************************
@@ -1116,38 +1062,23 @@ prompt_:
         JP (IY)
 
 
-getRef_:
-getRef:                             ;=8
-        INC BC
-        LD A,(BC)
-        CALL NSLookup
-        JP fetch1
-
 go_:
         POP DE
 go1:
-        LD A,D
+        LD A,D                      ; skip if destination address is null
         OR E
-        JR Z,go2
+        JR Z,go3
         LD HL,BC
+        INC BC                      ; read next char from source
+        LD A,(BC)                   ; if ; to tail call optimise
+        CP ";"                      ; by jumping to rather than calling destination
+        JR Z,go2
         CALL rpush                  ; save Instruction Pointer
+go2:
         LD BC,DE
         DEC BC
-go2:
+go3:
         JP (IY)                     
-
-ifte_:
-        POP DE
-        LD A,E
-        OR D
-        JR NZ,ifte1
-        INC DE
-        PUSH DE                     ; push TRUE on stack for else clause
-        JP begin1                   ; skip to closing ) works with \) too 
-ifte1:
-        LD HL,-1                    ; push -1 on return stack to indicate IFTEMode
-        CALL rpush
-        JP (IY)
 
 inPort_:
         POP HL
@@ -1160,21 +1091,20 @@ inPort_:
         JP (IY)        
 
 i_:
-        PUSH IX
+        LD HL,(vLoopSP)
+        PUSH HL
         JP (IY)
 
 j_:                                 ;=9  
-        PUSH IX                     ;the address of j is 6 bytes more than i
-        LD HL,6
+        LD HL,(vLoopSP)             ;the address of j is 6 bytes more than i
+        LD DE,6
+        ADD HL,DE
         PUSH HL
-        JP add_
+        JP (IY)
         
 newln_:
         call crlf
         JP (IY)        
-
-NSExit_:                            
-        JP NSExit                            
 
 outPort_:
         POP HL
@@ -1191,9 +1121,6 @@ prnStr:
         CALL putStr
         JP (IY)
 
-strDef_:
-        JR strDef
-        
 
 rpush_:
         POP HL
@@ -1205,20 +1132,42 @@ rpop_:
         PUSH HL
         JP (IY)
 
-NSEnter_:
-        JR NSEnter
-NSRef_:
-        JR NSRef
+aDup_:
+        JP dup_
+eret_:
+        POP HL
+        LD A,L
+        OR H
+        JP NZ,ret_
+        JP (IY)
 
+strDef_:
+        JR strDef
 
+unloop_:                        ;=  ( n -- ) unloop  loop frames (n < 64)
+        POP DE                  ; DE = num frames              
+        SLA E                   ; E' = E * 2
+        LD A,E                  ; A = E'
+        SLA E                   ; E'' = E' * 2
+        ADD A,E                 ; A = num frames * 6 
+        LD E,A                  ; D = 0, DE = num frames * 6
+        LD HL,(vLoopSP)         ; HL = loop stack ptr
+        ADD HL,DE               ; pop frames
+        LD (vLoopSP),HL
+        JP (IY)
+
+; **************************************************************************
+; utilTable and util_ MUST be on the same page, assumes same msb  
+; **************************************************************************
 utilTable:
-        DB lsb(exec_)       ;0    ( adr -- )
-        DB lsb(rpush_)      ;1    ( n -- )      push TOS onto return stack  
-        DB lsb(rpop_)       ;2    ( -- n )      pop TOS off return stack
+        DB lsb(exec_)       ;0    ( adr -- )    if not null execute code at adr
+        DB lsb(eret_)       ;1    ( b -- )      conditional early return  
+        DB lsb(unloop_)     ;2    ( n -- )      pop n loop frames from loop stack
         DB lsb(depth_)      ;3    ( -- val )    depth of data stack  
         DB lsb(printStk_)   ;4    ( -- )        non-destructively prints stack
         DB lsb(prompt_)     ;5    ( -- )        print MINT prompt 
         DB lsb(editDef_)    ;6    ( char -- )   edit command    
+        DB lsb(aDup_)       ;7    ( adr -- )    dupe (used in asm tests)
 
 util_:
 util:                           ;= 13
@@ -1241,7 +1190,7 @@ printStk_:
 printStk:                           ;=40
         ; MINT: \a@2- \#3 1- ("@ \b@ \(,)(.) 2-) '             
         call ENTER
-        .cstr "`=> `\\a@2-\\#3 1-(",$22,"@\\b@\\(,)(.)2-)'\\$"             
+        .cstr "`=> `\\a@2-\\#3 1-(",$22,"@\\b@(,)(.)2-)'\\$"             
         JP (IY)
 
 strDef:                         ;= 21
@@ -1261,45 +1210,6 @@ strDef2:
         LD (DE),A
         INC DE
         JP def3
-
-NSEnter:
-        INC BC
-NSEnter1:
-        LD A,(BC)                   ; read NS ASCII code
-        SUB "0"                     ; convert to number
-        INC BC
-        LD D,A                      ; multiply by 64
-        LD E,0
-        SRL D
-        RR E
-        SRL D
-        RR E
-        LD HL,(vNS)               ; 
-        call rpush
-        LD HL,NS0
-        ADD HL,DE
-        LD (vNS),HL
-        JP (IY)                    
-
-NSRef:                             ;=25
-        LD IY,rpop2                 ; rewire NEXT to simply return
-        CALL NSEnter1               ; enter namespace return here on NEXT
-        LD A,(BC)
-        CALL NSLookup
-        JR NZ,NSRef2
-        PUSH HL
-        LD IY,NEXT                  ; restore NEXT
-        CALL enter                  ; enter MINT interpreter with TOS=command 
-        .cstr "@\\^"                ; execute and restore namespace
-        JR NSExit
-NSRef2:                            ;=25
-        PUSH HL
-        LD IY,NEXT                  ; restore NEXT
-NSExit:                            
-        call rpop
-        LD (vNS),HL
-        JP (IY)
-        
 
 ;*******************************************************************
 ; Page 5 primitive routines continued
@@ -1377,17 +1287,43 @@ num2:
         PUSH HL                     ;       Put the number on the stack
         JP (IY)                     ; and process the next character
 
+hex:                                ;=26
+	    LD HL,0		    		    ;     Clear HL to accept the number
+hex1:
+        INC BC
+        LD A,(BC)				    ;     Get the character which is a numeral
+        BIT 6,A                     ;       is it uppercase alpha?
+        JR Z, hex2                  ; no a decimal
+        SUB 7                       ; sub 7  to make $A - $F
+hex2:
+        SUB $30                     ;       Form decimal digit
+        JP C,num2
+        CP $0F+1
+        JP NC,num2
+        ADD HL,HL                   ;        2X ; Multiply digit(s) in HL by 16
+        ADD HL,HL                   ;        4X
+        ADD HL,HL                   ;        8X
+        ADD HL,HL                   ;       16X     
+        ADD A,L                     ;       Add into bottom of HL
+        LD  L,A                     ;   
+        JR  hex1
+
 ;*******************************************************************
 ; Subroutines
 ;*******************************************************************
+
 prompt:                             ;=9
         call printStr
         .cstr "\r\n> "
         RET
 
-crlf:                               ;=7
-        call printStr
-        .cstr "\r\n"
+putStr0:
+        CALL putchar
+        INC HL
+putStr:
+        LD A,(HL)
+        OR A
+        JR NZ,putStr0
         RET
 
 rpush:                              ;=11
@@ -1411,7 +1347,7 @@ editDef:                            ;=50 lookup up def based on number
         LD A,L
         EX AF,AF'
         LD A,L
-        CALL NSLookup
+        CALL lookupRef
         LD E,(HL)
         INC HL
         LD D,(HL)

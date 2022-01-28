@@ -212,16 +212,13 @@ Note: logical NOT can be achieved with 0=
 
 ### User Defined Commands
 
-| Symbol        | Description                      | Effect   |
-| ------------- | -------------------------------- | -------- |
-| ;             | end of user definition END       |          |
-| :<CHAR>       | define a new command DEF         |          |
-| \\:           | define an anonynous command DEF  |          |
-| \\?<CHAR>     | get the address of the def       | -- adr   |
-| \\{<NUM>      | enter namespace NUM              | --       |
-| \\}           | exit namespace                   | --       |
-| \\<NUM><CHAR> | execute a command in a namespace | --       |
-| \\^           | execute mint code at address     | adr -- ? |
+| Symbol  | Description                     | Effect   |
+| ------- | ------------------------------- | -------- |
+| ;       | end of user definition END      |          |
+| :<CHAR> | define a new command DEF        |          |
+| \\:     | define an anonynous command DEF |          |
+| \\^     | execute mint code at address    | adr -- ? |
+| \\_     | condtional early return         | b --     |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -231,10 +228,20 @@ NOTE:
 
 | Symbol | Description                                       | Effect |
 | ------ | ------------------------------------------------- | ------ |
-| (      | BEGIN a loop or conditionally executed code block | n --   |
-| )      | END a loop or conditionally executed code block   | --     |
-| \\(    | beginIFTE \\(`true`)(`false`)                     | b --   |
-| \\\_   | if true break out of loop                         | b --   |
+| (      | BEGIN a loop which will repeat n times            | n --   |
+| )      | END a loop code block                             | --     |
+| \\\~   | if true break out of loop                         | b --   |
+
+NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
+
+e.g.    0(`will not execute`)
+        1(`will execute`)
+
+NOTE 2: if you *immediately* follow a code block with another code block, this second code block will execute
+if the condition is 0 (i.e. it is an ELSE clause)
+
+e.g.    0(`will not execute`)(`will execute`)
+        1(`will execute`)(`will not execute`)
 
 ### Memory and Variable Operations
 
@@ -254,7 +261,7 @@ NOTE:
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
 | \\a    | data stack start variable          | -- adr |
-| \\b    | base16 flag variable               | -- adr |
+| \\b    | base16 flag variable               | -- b   |
 | \\c    | text input buffer pointer variable | -- adr |
 | \\d    | start of user definitions          | -- adr |
 | \\h    | heap pointer variable              | -- adr |
@@ -272,8 +279,8 @@ NOTE:
 | Symbol | Description                     | Effect   |
 | ------ | ------------------------------- | -------- |
 | \\#0   | execute machine code at address | adr -- ? |
-| \\#1   | push to return stack            | val --   |
-| \\#2   | pop from return stack           | -- val   |
+| \\#1   |                                 | --       |
+| \\#2   |                                 | -- val   |
 | \\#3   | stack depth                     | -- val   |
 | \\#4   | print stack                     | --       |
 | \\#5   | print prompt                    | --       |
