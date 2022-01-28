@@ -233,12 +233,14 @@ NOTE:
 | \\\~   | if true break out of loop                         | b --   |
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
+
 e.g.    0(`will not execute`)
         1(`will execute`)
 
 NOTE 2: if you *immediately* follow a code block with another code block, this second code block will execute
 if the condition is 0 (i.e. it is an ELSE clause)
-        0(`will not execute`)(`will execute`)
+
+e.g.    0(`will not execute`)(`will execute`)
         1(`will execute`)(`will not execute`)
 
 ### Memory and Variable Operations
@@ -259,7 +261,7 @@ if the condition is 0 (i.e. it is an ELSE clause)
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
 | \\a    | data stack start variable          | -- adr |
-| \\b    | base16 flag variable               | -- adr |
+| \\b    | base16 flag variable               | -- b   |
 | \\c    | text input buffer pointer variable | -- adr |
 | \\d    | start of user definitions          | -- adr |
 | \\h    | heap pointer variable              | -- adr |
@@ -277,8 +279,8 @@ if the condition is 0 (i.e. it is an ELSE clause)
 | Symbol | Description                     | Effect   |
 | ------ | ------------------------------- | -------- |
 | \\#0   | execute machine code at address | adr -- ? |
-| \\#1   | push to return stack            | val --   |
-| \\#2   | pop from return stack           | -- val   |
+| \\#1   |                                 | --       |
+| \\#2   |                                 | -- val   |
 | \\#3   | stack depth                     | -- val   |
 | \\#4   | print stack                     | --       |
 | \\#5   | print prompt                    | --       |
