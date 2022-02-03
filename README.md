@@ -191,7 +191,7 @@ Note: logical NOT can be achieved with 0=
 | ------ | -------------------------------------------------------------------- | -------------- |
 | '      | drop the top member of the stack DROP                                | a a -- a       |
 | "      | duplicate the top member of the stack DUP                            | a -- a a       |
-| ~      | rotate the top 2 members of the stack ROT                            | a b c -- b c a |
+| ~      | rotate the top 3 members of the stack ROT                            | a b c -- b c a |
 | %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a   |
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
 
