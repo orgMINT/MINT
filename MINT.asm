@@ -13,18 +13,18 @@
         DSIZE       EQU $80
         RSIZE       EQU $80
         LSIZE       EQU $80
-        TIBSIZE     EQU $100
-        TRUE        EQU 1
+        TIBSIZE     EQU $100		; 256 bytes , along line!
+        TRUE        EQU 1		; not FF, for MINT
         FALSE       EQU 0
-        EMPTY       EQU 0
+        EMPTY       EQU 0		; for an empty macro, ctrl-<something>=macro, ie ctrl-h = backspace macros (in MINT)
 
-        mintDataSize      EQU 26*2*2  ; A..Z, a..z words
+        mintDataSize      EQU 26*2*2	; A..Z, a..z words
 
 .macro LITDAT,len
         DB len
 .endm
 
-.macro REPDAT,len,data
+.macro REPDAT,len,data			; compress the command tables
         
         DB (len | $80)
         DB data
@@ -38,7 +38,7 @@
 ; Page 0  Initialisation
 ; **************************************************************************		
 
-		.ORG ROMSTART + $180		
+		.ORG ROMSTART + $180		; 0+180 put mint code from here	
 
 ; **************************************************************************
 ; Macros must be written in Mint and end with ; 
@@ -47,10 +47,17 @@
 macros:
 
 backsp_:
-        DB "\\c@0=0=(\\c@1-\\c!`\b \b`);"
-
+        DB "\\c@0=0=(\\c@1-\\c!`\b \b`);"	;ctr-h  , \ needed inside control code, escape it with anothe \
+                                            	; \c tib add of tib, not visible
+                                         	;@ fetch val
+                                          	;1- reduce
+                                          	;c! store
+                                          	;`\b move cursor back, terminal command
+                                          	;the space between the \b is to over write
+                                            	;
+	
 reedit_:
-        DB "\\e\\@\\#6;"
+        DB "\\e\\@\\#6;"			; remembers last line edited
 
 edit_:
         .cstr "`?`?\\#5\\#6;"
@@ -68,19 +75,19 @@ toggleBase_:
 ; ***********************************************************************
 ; Initial values for user mintVars		
 ; ***********************************************************************		
-iAltVars:
-        DW dStack               ; a vS0
-        DW FALSE                ; b vBase16
-        DW 0                    ; c vTIBPtr
+iAltVars:			; value copied into tables
+        DW dStack               ; a vS0 start of datastack			
+        DW FALSE                ; b vBase16 
+        DW 0                    ; c vTIBPtr an offset to the tib
         DW 0                    ; d 
-        DW 65                   ; e vLastDef "A"
+        DW 65                   ; e vLastDef "A" last command u defined
         DW 0                    ; f 
-        DW page6                ; g 
-        DW HEAP                 ; h vHeapPtr
+        DW page6                ; g 256 bytes limits
+        DW HEAP                 ; h vHeapPtr \h start of the free mem
 
 iOpcodes:
-        LITDAT 4
-        DB    lsb(exit_)    ;   NUL 
+        LITDAT 4		; macros for compression
+        DB    lsb(exit_)    ;   NUL get least signif byte of address exit_
         DB    lsb(nop_)     ;   SOH 
         DB    lsb(nop_)     ;   STX 
         DB    lsb(etx_)     ;   ETX 
@@ -102,9 +109,9 @@ iOpcodes:
         DB    lsb(hdot_)   ;    ,            
         DB    lsb(sub_)    ;    -
         DB    lsb(dot_)    ;    .
-        DB    lsb(div_)    ;    /
+        DB    lsb(div_)    ;    /	;/MOD
 
-        REPDAT 10, lsb(num_)
+        REPDAT 10, lsb(num_)		; 10 x repeat lsb of add to the num routine 
 
         LITDAT 7
         DB    lsb(def_)    ;    :        
@@ -115,7 +122,7 @@ iOpcodes:
         DB    lsb(key_)    ;    ?   ( -- val )  read a char from input
         DB    lsb(fetch_)  ;    @    
 
-        REPDAT 26, lsb(call_)
+        REPDAT 26, lsb(call_)		; call a command A, B ....Z
 
         LITDAT 6
         DB    lsb(arrDef_) ;    [
@@ -123,16 +130,16 @@ iOpcodes:
         DB    lsb(arrEnd_) ;    ]
         DB    lsb(xor_)    ;    ^
         DB    lsb(neg_)    ;    _
-        DB    lsb(str_)    ;    `            
+        DB    lsb(str_)    ;    `    	; for printing `hello`        
 
-        REPDAT 26, lsb(var_)
+        REPDAT 26, lsb(var_)		; a b c .....z
 
         LITDAT 5
         DB    lsb(shl_)    ;    {
         DB    lsb(or_)     ;    |            
         DB    lsb(shr_)    ;    }            
         DB    lsb(rot_)    ;    ~ ( a b c -- b c a ) rotate            
-        DB    lsb(nop_)    ;    DEL
+        DB    lsb(nop_)    ;    DEL	; eg 10000()
 
         LITDAT 17
         DB     lsb(EMPTY)       ; NUL ^@        
@@ -156,55 +163,55 @@ iOpcodes:
         REPDAT 15, lsb(EMPTY)
 
         LITDAT 5
-        DB     lsb(aNop_)       ;a0    SP  
-        DB     lsb(aNop_)       ;a1    \!            
-        DB     lsb(aNop_)       ;a2    \"  
-        DB     lsb(util_)       ;a3    \#  utility command
-        DB     lsb(newln_)      ;a4    \$  prints a newline to output
+        DB     lsb(aNop_)       ;a0    SP  				;space
+        DB     lsb(aNop_)       ;a1    \!       			; this is a bug shud be lsb(cstore_)     
+        DB     lsb(aNop_)       ;a2    \"  				
+        DB     lsb(util_)       ;a3    \#  utility command		; table of special routines ie #5 etc				
+        DB     lsb(newln_)      ;a4    \$  prints a newline to output	
 
         REPDAT 3, lsb(aNop_)
 
         LITDAT 8
-        DB     lsb(aNop_)       ;a8    (  ( b -- )              
-        DB     lsb(aNop_)       ;a9    )                
-        DB     lsb(aNop_)       ;aa    *                
-        DB     lsb(aNop_)       ;ab    +                
-        DB     lsb(emit_)       ;ac    ,  ( b -- ) prints a char              
-        DB     lsb(aNop_)       ;ad    -                
-        DB     lsb(prnStr_)     ;ae    .  ( b -- )              
-        DB     lsb(aNop_)       ;af    /                
+        DB     lsb(aNop_)       ;a8    \(  ( b -- )              
+        DB     lsb(aNop_)       ;a9    \)                
+        DB     lsb(aNop_)       ;aa    \*                
+        DB     lsb(aNop_)       ;ab    \+                
+        DB     lsb(emit_)       ;ac    \,  ( b -- ) prints a char              
+        DB     lsb(aNop_)       ;ad    \-                
+        DB     lsb(prnStr_)     ;ae    \.  ( b -- ) prints a string from add term by null char             
+        DB     lsb(aNop_)       ;af    \/                
 
         REPDAT 10, lsb(aNop_)
 
         LITDAT 7
-        DB     lsb(anonDef_)    ;ba    :                
-        DB     lsb(aNop_)       ;bb    ;                
-        DB     lsb(inPort_)     ;bc    <  ( port -- val )
-        DB     lsb(aNop_)       ;bd    =    
-        DB     lsb(outPort_)    ;be    >  ( val port -- )
-        DB     lsb(aNop_)       ;bf    ?
-        DB     lsb(cFetch_)     ;c0    @      
+        DB     lsb(anonDef_)    ;ba    \:	return add of a anon def, \: 1 2 3;    \\ ret add of this                
+        DB     lsb(aNop_)       ;bb    \;                
+        DB     lsb(inPort_)     ;bc    \<  ( port -- val )
+        DB     lsb(aNop_)       ;bd    \=    
+        DB     lsb(outPort_)    ;be    \>  ( val port -- )
+        DB     lsb(aNop_)       ;bf    \?
+        DB     lsb(cFetch_)     ;c0    \@      byte fetch
 
         REPDAT 26, lsb(aNop_)
 
         LITDAT 6
-        DB     lsb(cArrDef_)    ;db     [
-        DB     lsb(comment_)    ;dc     \  comment text, skips reading until end of line
-        DB     lsb(aNop_)       ;dd     ]
-        DB     lsb(go_)         ;de     ^  ( -- ? ) execute mint definition
-        DB     lsb(eret_)       ;       _  ( b -- ) conditional early return           
-        DB     lsb(strDef_)     ;e0     `  ( -- adr ) defines a string \` string `            
+        DB     lsb(cArrDef_)    ;db     \[
+        DB     lsb(comment_)    ;dc     \\  comment text, skips reading until end of line
+        DB     lsb(aNop_)       ;dd     \]
+        DB     lsb(go_)         ;de     \^  ( -- ? ) execute mint definition a is address of mint code
+        DB     lsb(eret_)       ;       \_  ( b -- ) conditional early return - stop everything           
+        DB     lsb(strDef_)     ;e0     \`  ( -- adr ) defines a string \` string ` then use \. to prt            
 
-        REPDAT 8, lsb(altVar_)  ;e1
+        REPDAT 8, lsb(altVar_)  ;e1	\a...\h
 
         LITDAT 2
         DB     lsb(i_)          ;e9    i  ; returns index variable of current loop          
-        DB     lsb(j_)          ;e9    j  ; returns index variable of outer loop          
+        DB     lsb(j_)          ;e9    j  ; returns index variable of outer loop     \i+6     
 
-        REPDAT 16, lsb(altVar_)
+        REPDAT 16, lsb(altVar_)		\k...\z
 
         LITDAT 5
-        DB    lsb(rpop_)        ;       { ( -- n ) pop from return stack 
+        DB    lsb(rpop_)        ;       { ( -- n ) pop from MINT return stack 
         DB    lsb(aNop_)        ;                  
         DB    lsb(rpush_)       ;       } ( n -- ) push to return stack           
         DB    lsb(break_)       ;       ~ ( b -- ) conditional break from loop            
@@ -221,15 +228,15 @@ etx1:
         JR interpret
 
 start:
-        LD SP,DSTACK
-        CALL init
-        CALL printStr
+        LD SP,DSTACK		; start of MINT
+        CALL init		; setups
+        CALL printStr		; prog count to stack, put code line 235 on stack then call print
         .cstr "MINT V1.1\r\n"
 
 interpret:
         call prompt
 
-        LD BC,0                 ; load BC with offset into TIB         
+        LD BC,0                 ; load BC with offset into TIB, decide char into tib or execute or control         
         LD (vTIBPtr),BC
 
 interpret2:                     ; calc nesting (a macro might have changed it)
@@ -257,23 +264,23 @@ interpret4:
 ; *******************************************************************
 
 waitchar:   
-        CALL getchar            ; loop around waiting for character
-        CP $20
-        JR NC,waitchar1
-        CP $0                   ; is it end of string?
+        CALL getchar            ; loop around waiting for character from serial port
+        CP $20			; compare to space
+        JR NC,waitchar1		; if >= space, if below 20 set cary flag
+        CP $0                   ; is it end of string? null end of string
         JR Z,waitchar4
-        CP '\r'                 ; carriage return?
-        JR Z,waitchar3
+        CP '\r'                 ; carriage return? ascii 13
+        JR Z,waitchar3		; if amything else its macro/control 
         ; LD D,0
 macro:                          ;=25
         LD (vTIBPtr),BC
         LD HL,ctrlCodes
-        ADD A,L
+        ADD A,L			;look up key of macros
         LD L,A
         LD E,(HL)
         LD D,msb(macros)
         PUSH DE
-        call ENTER
+        call ENTER		;mint go operation and jump to it
         .cstr "\\^"
         LD BC,(vTIBPtr)
         JR interpret2
@@ -305,7 +312,7 @@ waitchar3:
 
 waitchar4:    
         LD (vTIBPtr),BC
-        LD BC,TIB               ; Instructions stored on heap at address HERE
+        LD BC,TIB               ; Instructions stored on heap at address HERE, we pressed enter
         DEC BC
 
 ; ********************************************************************************
@@ -341,9 +348,9 @@ NEXT:                               ;=9
 
 ; ARRAY compilation routine
 compNEXT:                       ;=20
-        POP DE          ; DE = return address
-        LD HL,(vHeapPtr)    ; load heap ptr
-        LD (HL),E       ; store lsb
+        POP DE          	; DE = return address
+        LD HL,(vHeapPtr)  	; load heap ptr
+        LD (HL),E       	; store lsb
         LD A,(vByteMode)
         INC HL          
         OR A
@@ -358,7 +365,7 @@ init:                           ;=68
         LD HL,LSTACK
         LD (vLoopSP),HL         ; Loop stack pointer stored in memory
         LD IX,RSTACK
-        LD IY,NEXT			    ; IY provides a faster jump to NEXT
+        LD IY,NEXT		; IY provides a faster jump to NEXT
         LD HL,ialtVars
         LD DE,altVars
         LD BC,8 * 2
@@ -411,11 +418,11 @@ crlf:                               ;=7
         .cstr "\r\n"
         RET
 
-printStr:                           ;=14
-        EX (SP),HL
-        CALL putStr
-        INC HL
-        EX (SP),HL
+printStr:                       ;=14
+        EX (SP),HL		; swap			
+        CALL putStr		
+        INC HL			; inc past null
+        EX (SP),HL		; put it back	
         RET
 
 lookupRef:
@@ -444,8 +451,8 @@ lookupRef3:
         RET
 
 printdec:                           ;=36
-        LD DE,-10000
-        CALL printdec1
+        LD DE,-10000			; mint ., 5th location of a dev number
+        CALL printdec1			; text book method look it up
         LD DE,-1000
         CALL printdec1
         LD DE,-100
@@ -571,7 +578,7 @@ xor1:
         XOR     H
         JR and1
 
-inv_:						    ; Bitwise INVert the top member of the stack
+inv_:				; Bitwise INVert the top member of the stack
         LD DE, $FFFF            ; by xoring with $FFFF
         JR xor1        
    
@@ -582,7 +589,7 @@ add_:                           ; Add the top 2 members of the stack
         PUSH    HL                 
         JP (IY)              
                                  
-again_: JP again
+again_: JP again		; close loop
 
 arrDef_:    
 arrDef:                         ;=18
@@ -630,7 +637,7 @@ etx_:
         JP ETX
         
 exit_:
-        INC BC
+        INC BC			; store offests into a table of bytes, smaller
         LD DE,BC                
         CALL rpop               ; Restore Instruction pointer
         LD BC,HL
@@ -689,7 +696,7 @@ shl_:
         PUSH HL                 ; shift left fallthrough into add_     
         JP (IY)                 ;   
     
-;  Right shift } is a divide by 2		
+				;  Right shift } is a divide by 2		
 shr_:    
         POP HL                  ; Get the top member of the stack
 shr1:
@@ -713,18 +720,18 @@ swap_:
         PUSH HL
         JP (IY)
         
-sub_:       				    ; Subtract the value 2nd on stack from top of stack 
+sub_:       		    ; Subtract the value 2nd on stack from top of stack 
         
         POP DE              ;    
         POP HL              ;      Entry point for INVert
 sub2:   
         AND A               ;      Entry point for NEGate
         SBC HL,DE           ; 15t
-        PUSH HL              ;    
-        JP (IY)            ;   
+        PUSH HL             ;    
+        JP (IY)             ;   
                                 ; 5  
 neg_:   
-        LD HL, 0    		    ; NEGate the value on top of stack (2's complement)
+        LD HL, 0    		; NEGate the value on top of stack (2's complement)
         POP DE                  ;    
         JR sub2                 ; use the SUBtract routine
     
@@ -749,7 +756,7 @@ lt_:
 cmp_:   
         AND A              ; reset the carry flag
         SBC HL,DE          ; only equality sets HL=0 here
-		JR Z,less         ; equality returns 0  KB 25/11/21
+	JR Z,less          ; equality returns 0  KB 25/11/21
         LD HL, 0
         JP M,less
 equal:  
@@ -877,19 +884,19 @@ div:                                ;=34
         LD B,H                      ; BC = 2nd value
         LD C,L		
 		
-        LD HL,0    	                ; Zero the remainder
-        LD A,16    	                ; Loop counter
+        LD HL,0    	            ; Zero the remainder
+        LD A,16    	            ; Loop counter
 
-div1:		                        ;shift the bits from BC (numerator) into HL (accumulator)
+div1:		                    ;shift the bits from BC (numerator) into HL (accumulator)
         SLA C
         RL B
         ADC HL,HL
 
-        SBC HL,DE			        ;Check if remainder >= denominator (HL>=DE)
+        SBC HL,DE		    ;Check if remainder >= denominator (HL>=DE)
         JR C,div2
         INC C
         JR div3
-div2:		                        ; remainder is not >= denominator, so we have to add DE back to HL
+div2:		                    ; remainder is not >= denominator, so we have to add DE back to HL
         ADD hl,de
 div3:
         DEC A
@@ -903,8 +910,8 @@ div4:
 
         JP (IY)
 
-        	                        ;=57                     
-begin:                              ; Left parentesis begins a loop
+        	                    ;=57                     
+begin:                              ; Left parentheses begins a loop
         POP HL
         LD A,L                      ; zero?
         OR H
@@ -1062,7 +1069,7 @@ prompt_:
         JP (IY)
 
 
-go_:
+go_:				    ;\^
         POP DE
 go1:
         LD A,D                      ; skip if destination address is null
@@ -1080,7 +1087,7 @@ go2:
 go3:
         JP (IY)                     
 
-inPort_:
+inPort_:			    ; \<
         POP HL
         LD A,C
         LD C,L
@@ -1159,15 +1166,16 @@ unloop_:                        ;=  ( n -- ) unloop  loop frames (n < 64)
 ; **************************************************************************
 ; utilTable and util_ MUST be on the same page, assumes same msb  
 ; **************************************************************************
+			    								;\#1... for machine code
 utilTable:
-        DB lsb(exec_)       ;0    ( adr -- )    if not null execute code at adr
-        DB lsb(eret_)       ;1    ( b -- )      conditional early return  
-        DB lsb(unloop_)     ;2    ( n -- )      pop n loop frames from loop stack
-        DB lsb(depth_)      ;3    ( -- val )    depth of data stack  
-        DB lsb(printStk_)   ;4    ( -- )        non-destructively prints stack
-        DB lsb(prompt_)     ;5    ( -- )        print MINT prompt 
-        DB lsb(editDef_)    ;6    ( char -- )   edit command    
-        DB lsb(aDup_)       ;7    ( adr -- )    dupe (used in asm tests)
+        DB lsb(exec_)       ;\#0    ( adr -- )    if not null execute code at adr
+        DB lsb(eret_)       ;\#1    ( b -- )      conditional early return  
+        DB lsb(unloop_)     ;\#2    ( n -- )      pop n loop frames from loop stack
+        DB lsb(depth_)      ;\#3    ( -- val )    depth of data stack  
+        DB lsb(printStk_)   ;\#4    ( -- )        non-destructively prints stack
+        DB lsb(prompt_)     ;\#5    ( -- )        print MINT prompt 
+        DB lsb(editDef_)    ;\#6    ( char -- )   edit command    
+        DB lsb(aDup_)       ;\#7    ( adr -- )    dupe (used in asm tests)
 
 util_:
 util:                           ;= 13
@@ -1236,7 +1244,7 @@ mul2:
         INC DE
         DEC A
         JR NZ,mul2
-		POP BC				        ; Restore the IP
+		POP BC			    ; Restore the IP
 		PUSH HL                     ; Put the product on the stack - stack bug fixed 2/12/21
 		JP (IY)
 
@@ -1284,27 +1292,27 @@ num1:                               ; corrected KB 24/11/21
                 
 num2:
         DEC BC
-        PUSH HL                     ;       Put the number on the stack
+        PUSH HL                     ; Put the number on the stack
         JP (IY)                     ; and process the next character
 
 hex:                                ;=26
-	    LD HL,0		    		    ;     Clear HL to accept the number
+	LD HL,0	    		    ; Clear HL to accept the number
 hex1:
         INC BC
-        LD A,(BC)				    ;     Get the character which is a numeral
-        BIT 6,A                     ;       is it uppercase alpha?
+        LD A,(BC)		    ; Get the character which is a numeral
+        BIT 6,A                     ; is it uppercase alpha?
         JR Z, hex2                  ; no a decimal
         SUB 7                       ; sub 7  to make $A - $F
 hex2:
-        SUB $30                     ;       Form decimal digit
+        SUB $30                     ; Form decimal digit
         JP C,num2
         CP $0F+1
         JP NC,num2
-        ADD HL,HL                   ;        2X ; Multiply digit(s) in HL by 16
-        ADD HL,HL                   ;        4X
-        ADD HL,HL                   ;        8X
-        ADD HL,HL                   ;       16X     
-        ADD A,L                     ;       Add into bottom of HL
+        ADD HL,HL                   ; 2X ; Multiply digit(s) in HL by 16
+        ADD HL,HL                   ; 4X
+        ADD HL,HL                   ; 8X
+        ADD HL,HL                   ; 16X     
+        ADD A,L                     ; Add into bottom of HL
         LD  L,A                     ;   
         JR  hex1
 
