@@ -208,7 +208,7 @@ iOpcodes:
         DB     lsb(i_)          ;e9    i  ; returns index variable of current loop          
         DB     lsb(j_)          ;e9    j  ; returns index variable of outer loop     \i+6     
 
-        REPDAT 16, lsb(altVar_)		\k...\z
+        REPDAT 16, lsb(altVar_)		; \k...\z
 
         LITDAT 5
         DB    lsb(rpop_)        ;       { ( -- n ) pop from MINT return stack 
