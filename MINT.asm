@@ -270,7 +270,7 @@ waitchar:
         CP $0                   ; is it end of string? null end of string
         JR Z,waitchar4
         CP '\r'                 ; carriage return? ascii 13
-        JR Z,waitchar3		; if amything else its macro/control 
+        JR Z,waitchar3		; if anything else its macro/control 
         ; LD D,0
 macro:                          ;=25
         LD (vTIBPtr),BC
@@ -278,10 +278,14 @@ macro:                          ;=25
         ADD A,L			;look up key of macros
         LD L,A
         LD E,(HL)
+        LD A,E
+        OR A
+        JR Z,macro1
         LD D,msb(macros)
         PUSH DE
         call ENTER		;mint go operation and jump to it
         .cstr "\\^"
+macro1:
         LD BC,(vTIBPtr)
         JR interpret2
 
@@ -412,11 +416,6 @@ enter:                              ;=9
         POP BC
         DEC BC
         JP (IY)                    
-
-crlf:                               ;=7
-        call printStr
-        .cstr "\r\n"
-        RET
 
 printStr:                       ;=14
         EX (SP),HL		; swap			
@@ -1385,4 +1384,9 @@ writeChar:                          ;=5
         LD (HL),A
         INC HL
         JP putchar
+
+crlf:                               ;=7
+        call printStr
+        .cstr "\r\n"
+        RET
 
