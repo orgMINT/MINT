@@ -1,3 +1,10 @@
+        DSIZE       EQU $80
+        RSIZE       EQU $80
+        LSIZE       EQU $80
+        TIBSIZE     EQU $100		; 256 bytes , along line!
+
+        VARS_SIZE      EQU 26*2*2	; A..Z, a..z words
+
         .ORG RAMSTART
 
 TIB:        DS TIBSIZE
@@ -41,11 +48,11 @@ altVars:
 
 vS0:        DS 2                ; a
 vBase16:    DS 2                ; b
-vTIBPtr:    DS 2                ; c
+vCarry:     DS 2                ; c
 vNS:        DS 2                ; d
 vLastDef:   DS 2                ; e
             DS 2                ; f
-vAltPage:   DS 2                ; g
+            DS 2                ; g
 vHeapPtr:   DS 2                ; h
             DS 2                ; i
             DS 2                ; j
@@ -58,7 +65,7 @@ vHeapPtr:   DS 2                ; h
             DS 2                ; q
             DS 2                ; r     
             DS 2                ; s
-            DS 2                ; t
+vTIBPtr:    DS 2                ; t
             DS 2                ; u
             DS 2                ; v
             DS 2                ; w
@@ -66,10 +73,7 @@ vHeapPtr:   DS 2                ; h
             DS 2                ; y
             DS 2                ; z
 
-; ****************************************************************
-; NS Table - Each space holds 26 user commands, 26 user vars, 12 bytes free
-; ****************************************************************
-            .align $40
-mintData:   DS mintDataSize
+            ; .align $40
+VARS:   DS VARS_SIZE
 
 HEAP:         

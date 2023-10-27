@@ -27,7 +27,7 @@ Like other small interpreted languages, the intention of MINT is to create a 16-
 
 The language needs the basic arithmetic operations of ADD, SUBTRACT, MULTIPLY and DIVIDE. These are implemented as 16-bit integer operations and invoked using the familiar characters +, -, \* and /.
 
-These are augmented by the bitwise Boolean operators AND, OR, XOR, INVERT and 2's complement NEGATE.
+These are augmented by the bitwise Boolean operators AND, OR, XOR, and INVERT.
 
 With MINT, these instructions are just one byte long and a look-up table is used instead of a switch-case structure. When using an 8-bit microprocessor, such as the Z80, it is simpler and faster to handle 8-bit instructions, so MINT uses a bytecode system, rather than the 16-bit threaded code that is used by a conventional Forth.
 
@@ -171,7 +171,6 @@ Mint is a bytecode interpreter - this means that all of its instructions are 1 b
 | {      | shift the number to the left (2\*)        | a -- b   |
 | }      | shift the number to the right (2/)        | a -- b   |
 | /      | 16-bit by 8-bit division DIV              | a b -- c |
-| \_     | 16-bit negation (2's complement) NEG      | a -- b   |
 | \*     | 8-bit by 8-bit integer multiplication MUL | a b -- c |
 | \>     | 16-bit comparison GT                      | a b -- c |
 | +      | 16-bit integer addition ADD               | a b -- c |
@@ -221,7 +220,7 @@ Note: logical NOT can be achieved with 0=
 | :<CHAR> | define a new command DEF        |          |
 | \\:     | define an anonynous command DEF |          |
 | \\^     | execute mint code at address    | adr -- ? |
-| \\_     | condtional early return         | b --     |
+| \\_     | conditional early return        | b --     |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
