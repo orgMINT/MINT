@@ -1,139 +1,387 @@
-# MINT
+# MINT Language
 
-A Minimal Interpreter in Z80 assembly language for small Z80 systems such as the TEC-1 and RC2014.
+MINT is a minimalist character-based interpreter but one which aims at fast performance, readability and ease of use. It is written for the Z80 microprocessor and is 2K.
 
-## New
-- https://www.youtube.com/watch?v=m66y6C54Cds
+## Table of Contents
 
-## What is MINT ?
 
-MINT is a tiny, stack based language based on Forth. On the Z80 it can be implemented in fewer than 2048 bytes of machine code - and it is relatively quick compared to other interpreted languages.
+## Reverse Polish Notation (RPN)
 
-It uses reverse Polish notation (RPN) so you have to put the operands before the operator. It's just like the old HP calculators from 50 years ago.
+RPN is a [concatenative](https://concatenative.org/wiki/view/Concatenative%20language)
+way of writing expressions in which the operators come after their operands.
+This makes it very easy to evaluate expressions, since the operands are already on the stack.
 
-If you want to add two numbers you just type:
+Here is an example of a simple MINT program that uses RPN:
 
-123 456 + .
+```
+10 20 + .
+```
 
-When you hit return the result will be displayed thus
+This program pushes the numbers `10` and `20` are operands which are followed by an
+operator `+` which adds the two operands together. The result becomes operand for
+the `.` operator which prints the sum.
 
-00579
+## Numbers in MINT
 
-> This is the cursor / prompt that confirms that the code has been executed and control has been passed back to the User.
+MINT on the Z80 uses 16-bit integers to represent numbers. A valid (but not very
+interesting) MINT program can be simply a sequence of numbers. Nothing will happen
+to them though until the program encounters an operator.
 
-## Fundamentals
+There are two main types of numbers in MINT: decimal numbers and hexadecimal numbers.
 
-Like other small interpreted languages, the intention of MINT is to create a 16-bit virtual machine by combining the mostly 8-bit operations available on the Z80, to provide 16-bit integer arithmetic and variable handling.
+### Decimal numbers
 
-The language needs the basic arithmetic operations of ADD, SUBTRACT, MULTIPLY and DIVIDE. These are implemented as 16-bit integer operations and invoked using the familiar characters +, -, \* and /.
+Decimal numbers are represented in MINT in the same way that they are represented
+in most other programming languages. For example, the number `12345` is represented
+as `12345`. A negative number is preceded by a `-` as in `-786`.
 
-These are augmented by the bitwise Boolean operators AND, OR, XOR, and INVERT.
+### Hexadecimal numbers
 
-With MINT, these instructions are just one byte long and a look-up table is used instead of a switch-case structure. When using an 8-bit microprocessor, such as the Z80, it is simpler and faster to handle 8-bit instructions, so MINT uses a bytecode system, rather than the 16-bit threaded code that is used by a conventional Forth.
+Hexadecimal numbers are represented in MINT using the uppercase letters `A` to `F`
+to represent the digits `10` to `15`. Hexadecimal numbers are prefixed with a `$`.
+So for example, the hexadecimal number `1F3A` is represented as `$1F3A`.
+Unlike decimal numbers, hexadecimal numbers are assumed to be positive in MINT.
 
-In the example above 123 456 + .
+### Formatting numbers
 
-The numerical strings 123 and 456 are evaluated as 16-bit binary numbers and placed on the data stack. The plus symbol is interpreted as a jump to the routine that performs a 16-bit addition of the top two elements on the data stack, placing their sum on the top of the data stack. The dot character prints out the top value of the data stack, consuming it at the same time.
+MINT provides commands for formatting hexadecimal and decimal numbers. The print
+operator `.` prints numbers in the current base. To switch the base to hexadecimal
+use the command `\\H` before using the `.` operator. To switch back to formatting
+in decimal use the command `\\D`.
 
-In addition to the arithmetic and boolean operations, there are also the three comparison operators Greater Than, Less Than and Equal to, represented by symbols > < and =.
+## Basic arithmetic operations
 
-The top two elements on the stack will be compared, resulting in 1 if the comparison is TRUE and 0 if the comparison is FALSE.
+```
+5 4 * .
+```
 
-With the comparison operators, it becomes possible to develop conditionally executed code, which forms the basis of program control words, such as IF, THEN, ELSE, and looping and branching structures.
+In this program the numbers `5` and `4` are operands to the operator `*` which
+multiplies them together. The `.` operator prints the result of the
+multiplication.
 
-In total there are approximately 30 characters that are recognised as the internal instruction set, or primitives. From these characters the user can construct further definitions to extend the usefulness of the language.
+```
+10 20 - .
+```
 
-## How MINT Works.
+This program subtracts `20` from `10` which results in the negative value `-10`
+The `.` operator prints the difference.
 
-MINT is an interpreted language that uses printable ascii characters as its "instructions". There are 95 such characters:
+```
+5 4 / .
+```
 
-- 10 Numerals - 0-9 used for decimal number entry
-- 11 Alphanumerics - 0-F used for hexadecimal number entry (only uppercase chars are recognized as hex digits)
-- 26 lowercase letters - used as User Variables
-- 26 system variables - most are available for general use
-- 33 arithmetic and punctuation codes - used to select the program operation aka "primitives"
-- 22 "alternate" codes - to extend the basic set of alphanumeric characters, these are prefixed by \
-- 26 uppercase letters - used as User Commands
+This program divides 5 with 4 prints their quotient. MINT for the Z80 uses
+16-bit integers. The remainder of the last division operation can accessed using
+the `\r` system variable.
 
-The interpreter scans a text string, held in a text buffer, one character at a time. It then uses a look-up table to broadly categorise the current character into one of the above groups.
+```
+\r .
+```
 
-For each category of character there is a handling routine, which determines how the character should be processed.
+## Variables and Variable Assignment
 
-NUMBERS
+Variables are named locations in memory that can store data. MINT has a limited
+number of global variables which have single letter names. In MINT a variable can
+be referred to by a singer letter from `a` to `z` so there are 52
+globals in MINT. Global variables can be used to store numbers, strings, arrays, blocks, functions etc.
 
-A number string such as 1234 will be scanned one digit at a time and converted into a 16-bit binary number using a routine called num\_ . The converted binary number is then placed on the top of the data stack which is used as a means of temporary storage, before being used later. Multiple numbers may be entered in a sequence separated by spaces: 1234 5678 3579 When the return key is pressed they will be processed in turn and each placed onto the stack. They may then be used as operands or parameters for a calculation or other function.
+To assign the value `10` to the global variable `x` use the `!` operator.
 
-VARIABLES
+```
+10 x !
+```
 
-User Variables are assigned to the lowercase alpha characters using a routine called var\_ The user variables are stored in an array of 26 pairs of bytes in RAM. The lowercase character is a shorthand way of addressing the pair of bytes that holds the variable. It is not usually necessary to know specifically at what address the variable is held at, as it can always be accessed using its name.
+In this example, the number `3` is assigned to the variable `x`
 
-When a lowercase character is interpreted the variable handler routine converts it to a 16-bit address, and places that address on the top of the stack.
+To access a value in a variable `x`, simply refer to it.
+This code adds `3` to the value stored in variable `x` and then prints it.
 
-SYSTEM VARIABLES
-System variables contain values which MINT uses internally but are available for programmatic use. These are the lowercase letters preceded by a \ e.g. \a, \b, \c etc. However Mint only uses a few of these variables so the user may use the other ones as they like.
+```
+3 x@ + .
+```
 
-PRIMITIVES
+The following code assigns the hexadecimal number `$3FFF` to variable `a`
+The second line fetches the value stored in `a` and prints it.
 
-A primitive is a built-in function, normally stored in ROM and not usually needed to be modified by the User. Primitives will include the familiar mathematical functions such as ADD, SUBtract, MULtiply and DIVide, and also boolean logic operations such as AND, OR, XOR and INVert.
+```
+$3FFF a !
+a .
+```
 
-There are also a small group of primitives that perform operations on the stack, DUP is used to duplicate the top item, DROP will remove the top item, making the second item available. SWAP will exchange the top two items, effectively placing the second item on top.
+In this longer example, the number `10` is stored in `a` and the number `20` is
+stored in `b`. The values in these two variables are then added together and the answer
+`30` is stored in `z`. Finally `z` is printed.
 
-In total, MINT contains 33 primitives which are executed when the interpreter finds the relevant symbol. Some of these will be commonly used arithmetic symbols like "+" and "-" Others are allocated to punctuation symbols. The full-stop, or dot character is used to print out the number held on the top of the stack.
+```
+10 a !
+20 b !
+a@ b@ + z !
+z@ .
+```
 
-ALTERNATE CODES
-Because ASCII provides only a limited set of symbols to use as primitives, MINT extends the basic set with a set of symbols prefixed by a \. An alternate code is any symbol or uppercase letter starting with a \ e.g. \+ \D etc. Alternate lowercase letters serve as system variables
+## Variable operators
 
-USER COMMANDS
+## Strings
 
-User Commands are what gives MINT its power and flexibility. Each uppercase letter can be assigned a routine written by the user in the Mint language. For example you may have a routine which produces a hexadecimal dump of the contents of memory. You could define a routine at D for this DUMP operation. You may also pass parameters to a user routine via the stack. In the case of a hex dump routine it would be common to give it the starting address of the section you want to dump, and this might be written 1234 D. On pressing return, the command will be interpreted and the dump routine will commence printing from location 1234. There are clearly 26 User Commands which is usually enough for most small applications.
+MINT allows null-terminated strings to be defined by surrounding the string with `'` characters.
 
-## Using MINT on the TEC-1
+```
+'hello there!' s !
+```
+
+Strings can be prints with the `\P` operator
+
+```
+s \.
+```
+
+prints out `hello there!`
+
+### Printing values
+
+MINT has a number of ways of printing to the output.
+
+`<value> .` prints a value as a number. This command is affected by \H /dc /byt /wrd  
+`<value> \C` prints a value as an ASCII character
+`<value> \P` prints a value as a pointer to a null terminated string
+
+Additionally MINT allows the user to easily print literal text by using \` quotes.
+
+For example
+
+```
+100 x !
+`The value of x is ` x .
+```
+
+prints `The value of x is 100`
+
+## Logical operators
+
+MINT uses numbers to define boolean values.
+
+- false is represent by the number `0`
+- true is any non-zero value, however the most useful representation is `1`.
+
+```
+3 0 = .
+```
+
+prints `0`
+
+```
+0 0 = .
+```
+
+prints `1`
+
+MINT has a set of bitwise logical operators that can be used to manipulate bits. These operators are:
+
+`&` performs a bitwise AND operation on the two operands.
+`|` performs a bitwise OR operation on the two operands.
+`^` performs a bitwise XOR operation on the two operands.
+`{` shifts the bits of the operand to the left by the specified number of positions.
+`}` shifts the bits of the operand to the right by the specified number of positions.
+
+The bitwise logical operators can be used to perform a variety of operations on bits, such as:
+
+- Checking if a bit is set or unset.
+- Setting or clearing a bit.
+- Flipping a bit.
+- Counting the number of set bits in a number.
+
+Here is an example of how to use the bitwise logical operators in MINT:
+
+Check if the first bit of the number 10 is set
+
+```
+10 & 1 .
+```
+
+this will print `1`
+
+Set the fourth bit of the number 10
+
+```
+1 }}} 1 | \H .
+```
+
+prints $0009
+
+Flip the third bit of the number 10
+
+```
+1 {{ $0F \X \H .
+```
+
+prints $000B
+
+## Conditional code
+
+Code blocks are useful when it comes to conditional code in MINT.
+
+The syntax for a MINT IF-THEN-ELSE or "if...else" operator in MINT is:
+
+```
+condition code-block-then code-block-else ?
+```
+
+If the condition is true, then code-block-then is evaluated and its value is returned.
+Otherwise, code-block-else is evaluated and its value is returned.
+
+Here is an example of a "if...else" operator in MINT:
+
+```
+10 x !
+20 y !
+
+x@ y@ > ( \'x is greater than y' )( \'y is greater than x' ) z !
+
+z \P
+```
+
+In this example, the variable x is assigned the value 10 and the variable y is assigned the value 20. The "if...else" operator then checks to see if x is greater than y. If it is, then the string "x is greater than y" is returned. Otherwise, the string "y is greater than x" is returned. The value of the "if...else" operator is then assigned to the variable z. Finally, the value of z is printed to the console.
+
+Here is another example of the "if...else" operator in MINT. This time, instead of creating a string just to print it, the following
+code conditionally prints text straight to the console.
+
+```
+18 a !
+
+`This person` a 18 > (`can`)(`cannot`) `vote`
+```
+
+In this example, the variable a is assigned the value 18. The "if...else" operator
+then checks to see if age is greater than or equal to the voting age of 18. If it is,
+then the text "can" is printed to the console. Otherwise, the string "cannot" is printed to the console.
+
+## Functions in MINT
+
+You can put any code inside `:` and `;` block which tells MINT to "execute this later".
+
+Functions are stored variables with uppercase letters.
+
+Storing a code block in the variable `Z`.
+
+```
+:Z `hello` 1. 2. 3. ;
+```
+
+Running the code block by stored in uppercase `Z` by referring to it
+
+```
+Z
+```
+
+will print out.
+
+```
+hello 1 2 3
+```
+
+A basic function with a single argument is represented as follows:
+
+```
+:F a ! a@ . ;
+```
+
+This function takes a single argument `a` and prints its value using the `.` operator.
+
+Example: a function to square a value a
+
+```
+:F a ! a@ a@ * ;
+```
+
+### Function with Multiple Arguments
+
+You can also define functions with multiple arguments. For example:
+
+```
+:F b ! a ! a@ b@ + . ;
+```
+
+This function takes two arguments `a` and `b`, adds them together using the `+` operator,
+and then prints the result using `.`.
+
+### Calling functions
+
+Functions are called by referring to them
+
+```
+:F b ! a ! a@ b@ * ;
+30 20 F .
+```
+
+This code passes the numbers `30` and `20` to a function which multiplies them and returns
+the result which is then printed.
+
+### Assigning Functions to Variables
+
+In MINT, you can assign functions to variables just like any other value.
+Variables in MINT are limited to a single uppercase or lowercase letter. To
+assign a function to a variable, use the `=` operator.
+
+Let's see some examples:
+
+Here's a function to print a number between after a `$` symbol and storing t in variable `A`
+
+```
+:A a ! `$` a@ . ;
+```
+
+And calling it:
+
+```
+100 A
+```
+
+The `100` is passed to the function as argument `a`. The function first prints `$` followed by `1001
+
+Here's a function to square two numbers. The function is stored in variable S
+
+```
+:S a ! a@ a@ * ;
+```
+
+Calling it:
+
+```
+4 S .
+```
+
+The number `4` is passed to the function S which squares the value and then prints it.
+
+```
+:T b ! a ! a@ b@ + ;
+```
+
+### Using Functions
+
+Once you've assigned functions to variables, you can use them in your MINT code.
+
+Example:
+
+```
+10 A       // prints 10
+3 7 B      // prints 10, the sum of 3 and 7
+```
+
+In the first line, we execute the function stored in variable `A` with the argument `10`,
+which prints `10`. In the second line, we execute the function stored in variable `B` with
+arguments `3` and `7`, which results in `10` being printed (the sum of the two arguments).
+
+### SYSTEM VARIABLES
+
+System variables contain values which MINT uses internally but are available for programmatic use. These are the lowercase letters preceded by a \ e.g. \a, \b, \c etc. However MINT only uses a few of these variables so the user may use the other ones as they like.
+
+### Using MINT on the TEC-1
 
 MINT was designed for for small Z80 based systems but specifically with the small memory configuration of the TEC-1 single board computer. It is only 2K to work with the original TEC-1 and interfaces to the serial interface via a simple adapter.
 
 On initialisation it will present a user prompt ">" followed by a CR and LF. It is now ready to accept commands from the keyboard.
 
-## Using MINT on the RC2014
-
-MINT was developed for the RC2014 Micro Z80 Single Board Computer. This board is supplied with a comprehensive Monitor program (The Small Computer Monitor (SCM) by Stephen Cousins). A 32K ROM contains the monitor and BASIC between $0000 and $7FFF. The 32K RAM starts at $8000, and MINT is loaded in to run from address $8000.
-
-Install the Intel Hex file RC2014_MINT.hex by pasting it into the SCM. At the Ready prompt, type G8000 to execute.
-
-If necessary, you can use the serial getchar and putchar routines that are available within the Small Computer Monitor
-
-See the User Manual pages 45 and 46 on how this is done
-
-https://smallcomputercentral.files.wordpress.com/2018/05/scmon-v1-0-userguide-e1-0-0.pdf
-
-MINT was assembled using asm80.com, an online 8-bit assembler. It will generate an Intel Hex file that can be pasted into RAM at address $8000 using a serial terminal program. I use TeraTerm when working within the windows environment.
-
-Once the MINT code image is pasted into RAM you can run it using the Go command "G8000"
-
-On initialisation it will respond:
-
-MINT V1.0
-
-On initialisation it will present a user prompt ">" followed by a CR and LF. It is now ready to accept commands from the keyboard.
-
-## Examples
-
-Spaces are shown for clarity, but only necessary to separate consecutive number strings. Most other operators can be concatenated without spaces.
-
-1234 5678 + . ; ADD 1234 to 5678 and print the result
-
-1234 5678 - . ; Subtract 1234 from 5678 and print the result
-
-1234 a! ; Store 1234 in the variable a
-
-5678 b! ; Store 5678 in the variable b
-
-b@ . ; print the value stored in b
-
-a@ b@ + . ; add the contents of a to b and print the sum
-
-a@ b! ; copy the contents of a into b
-
-##Loops
+### Loops
 
 0(this code will not be executed but skipped)
 1(this code will be execute once)
@@ -141,7 +389,26 @@ a@ b! ; copy the contents of a into b
 
 You can use the comparison operators < = and > to compare 2 values and conditionally execute the code between the brackets.
 
-ARRAYS
+## Arrays
+
+MINT arrays are a type of data structure that can be used to store a collection of elements. Arrays are indexed, which means that each element in the array has a unique number associated with it. This number is called the index of the element.
+In MINT, array indexes start at 0
+
+To create a MINT array, you can use the following syntax:
+
+_[ element1 element2 ... ]_
+
+for example
+
+```
+[ 1 2 3 ]
+```
+
+Arrays can be assigned to variables just like number values
+
+```
+[ 1 2 3 ] a !
+```
 
 An array of 16-bit numbers can be defined by enclosing them within square brackets:
 
@@ -159,23 +426,23 @@ To fetch the Nth member of the array, we can create a colon definition N
 
 :N @ $ {+ @. ;
 
-### LIST OF PRIMITIVES
+### List of operators
 
-Mint is a bytecode interpreter - this means that all of its instructions are 1 byte long. However, the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications running on an 8-bit cpu.
+MINT is a bytecode interpreter - this means that all of its instructions are 1 byte long. However, the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications running on an 8-bit cpu.
 
 ### Maths Operators
 
 | Symbol | Description                               | Effect   |
 | ------ | ----------------------------------------- | -------- |
 | -      | 16-bit integer subtraction SUB            | a b -- c |
-| {      | shift the number to the left (2\*)        | a -- b   |
-| }      | shift the number to the right (2/)        | a -- b   |
 | /      | 16-bit by 8-bit division DIV              | a b -- c |
+| +      | 16-bit integer addition ADD               | a b -- c |
 | \*     | 8-bit by 8-bit integer multiplication MUL | a b -- c |
 | \>     | 16-bit comparison GT                      | a b -- c |
-| +      | 16-bit integer addition ADD               | a b -- c |
 | <      | 16-bit comparison LT                      | a b -- c |
 | =      | 16 bit comparison EQ                      | a b -- c |
+| {      | shift left                                | --       |
+| }      | shift right                               | --       |
 
 ### Logical Operators
 
@@ -183,7 +450,7 @@ Mint is a bytecode interpreter - this means that all of its instructions are 1 b
 | ------ | ------------------ | -------- |
 | \|     | 16-bit bitwise OR  | a b -- c |
 | &      | 16-bit bitwise AND | a b -- c |
-| ^      | 16-bit bitwise XOR | a b -- c |
+| \\X    | xor                | a b -- c |
 
 Note: logical NOT can be achieved with 0=
 
@@ -212,15 +479,13 @@ Note: logical NOT can be achieved with 0=
 | \\<    | input from a I/O port                                     | port -- val |
 | #      | the following number is in hexadecimal                    | a --        |
 
-### User Defined Commands
-
 | Symbol  | Description                     | Effect   |
 | ------- | ------------------------------- | -------- |
 | ;       | end of user definition END      |          |
 | :<CHAR> | define a new command DEF        |          |
 | \\:     | define an anonynous command DEF |          |
 | \\^     | execute mint code at address    | adr -- ? |
-| \\_     | conditional early return        | b --     |
+| \\\_    | conditional early return        | b --     |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -228,22 +493,22 @@ NOTE:
 
 ### Loops and conditional execution
 
-| Symbol | Description                                       | Effect |
-| ------ | ------------------------------------------------- | ------ |
-| (      | BEGIN a loop which will repeat n times            | n --   |
-| )      | END a loop code block                             | --     |
-| \\\~   | if true break out of loop                         | b --   |
+| Symbol | Description                            | Effect |
+| ------ | -------------------------------------- | ------ |
+| (      | BEGIN a loop which will repeat n times | n --   |
+| )      | END a loop code block                  | --     |
+| \\\~   | if false break out of loop             | b --   |
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
-e.g.    0(`will not execute`)
-        1(`will execute`)
+e.g. 0(`will not execute`)
+1(`will execute`)
 
-NOTE 2: if you *immediately* follow a code block with another code block, this second code block will execute
+NOTE 2: if you _immediately_ follow a code block with another code block, this second code block will execute
 if the condition is 0 (i.e. it is an ELSE clause)
 
-e.g.    0(`will not execute`)(`will execute`)
-        1(`will execute`)(`will not execute`)
+e.g. 0(`will not execute`)(`will execute`)
+1(`will execute`)(`will not execute`)
 
 ### Memory and Variable Operations
 
@@ -264,11 +529,12 @@ e.g.    0(`will not execute`)(`will execute`)
 | ------ | ---------------------------------- | ------ |
 | \\a    | data stack start variable          | -- adr |
 | \\b    | base16 flag variable               | -- b   |
-| \\c    | text input buffer pointer variable | -- adr |
+| \\c    | carry flag variable                | -- adr |
 | \\d    | start of user definitions          | -- adr |
 | \\h    | heap pointer variable              | -- adr |
 | \\i    | loop counter variable              | -- adr |
 | \\j    | outer loop counter variable        | -- adr |
+| \\t    | text input buffer pointer variable | -- adr |
 
 ### Miscellaneous
 
