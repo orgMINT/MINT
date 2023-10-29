@@ -2,10 +2,49 @@
 
 MINT is a minimalist character-based interpreter but one which aims at fast performance, readability and ease of use. It is written for the Z80 microprocessor and is 2K.
 
-## Table of Contents
+<!-- vscode-markdown-toc -->
+
+- 1. [Reverse Polish Notation (RPN)](<#reverse-polish-notation-(rpn)>)
+- 2. [Numbers in MINT](#numbers-in-mint)
+  - 2.1. [Decimal numbers](#decimal-numbers)
+  - 2.2. [Hexadecimal numbers](#hexadecimal-numbers)
+  - 2.3. [Formatting numbers](#formatting-numbers)
+- 3. [Basic arithmetic operations](#basic-arithmetic-operations)
+- 4. [Variables and Variable Assignment](#variables-and-variable-assignment)
+- 5. [Variable operators](#variable-operators)
+- 6. [Strings](#strings)
+  - 6.1. [Printing values](#printing-values)
+- 7. [Logical operators](#logical-operators)
+- 8. [Conditional code](#conditional-code)
+- 9. [Functions in MINT](#functions-in-mint)
+  - 9.1. [Function with Multiple Arguments](#function-with-multiple-arguments)
+  - 9.2. [Calling functions](#calling-functions)
+  - 9.3. [Assigning Functions to Variables](#assigning-functions-to-variables)
+  - 9.4. [Using Functions](#using-functions)
+  - 9.5. [SYSTEM VARIABLES](#system-variables)
+  - 9.6. [Using MINT on the TEC-1](#using-mint-on-the-tec-1)
+  - 9.7. [Loops](#loops)
+- 10. [Arrays](#arrays)
+  - 10.1. [List of operators](#list-of-operators)
+  - 10.2. [Maths Operators](#maths-operators)
+  - 10.3. [Logical Operators](#logical-operators-1)
+  - 10.4. [Stack Operations](#stack-operations)
+  - 10.5. [Input & Output Operations](#input-&-output-operations)
+  - 10.6. [Loops and conditional execution](#loops-and-conditional-execution)
+  - 10.7. [Memory and Variable Operations](#memory-and-variable-operations)
+  - 10.8. [System Variables](#system-variables-1)
+  - 10.9. [Miscellaneous](#miscellaneous)
+  - 10.10. [Utility commands](#utility-commands)
+  - 10.11. [Control keys](#control-keys)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
 
 
-## Reverse Polish Notation (RPN)
+## 1. <a name='reverse-polish-notation-(rpn)'></a>Reverse Polish Notation (RPN)
 
 RPN is a [concatenative](https://concatenative.org/wiki/view/Concatenative%20language)
 way of writing expressions in which the operators come after their operands.
@@ -21,7 +60,7 @@ This program pushes the numbers `10` and `20` are operands which are followed by
 operator `+` which adds the two operands together. The result becomes operand for
 the `.` operator which prints the sum.
 
-## Numbers in MINT
+## 2. <a name='numbers-in-mint'></a>Numbers in MINT
 
 MINT on the Z80 uses 16-bit integers to represent numbers. A valid (but not very
 interesting) MINT program can be simply a sequence of numbers. Nothing will happen
@@ -29,27 +68,27 @@ to them though until the program encounters an operator.
 
 There are two main types of numbers in MINT: decimal numbers and hexadecimal numbers.
 
-### Decimal numbers
+### 2.1. <a name='decimal-numbers'></a>Decimal numbers
 
 Decimal numbers are represented in MINT in the same way that they are represented
 in most other programming languages. For example, the number `12345` is represented
 as `12345`. A negative number is preceded by a `-` as in `-786`.
 
-### Hexadecimal numbers
+### 2.2. <a name='hexadecimal-numbers'></a>Hexadecimal numbers
 
 Hexadecimal numbers are represented in MINT using the uppercase letters `A` to `F`
 to represent the digits `10` to `15`. Hexadecimal numbers are prefixed with a `$`.
 So for example, the hexadecimal number `1F3A` is represented as `$1F3A`.
 Unlike decimal numbers, hexadecimal numbers are assumed to be positive in MINT.
 
-### Formatting numbers
+### 2.3. <a name='formatting-numbers'></a>Formatting numbers
 
 MINT provides commands for formatting hexadecimal and decimal numbers. The print
 operator `.` prints numbers in the current base. To switch the base to hexadecimal
 use the command `\\H` before using the `.` operator. To switch back to formatting
 in decimal use the command `\\D`.
 
-## Basic arithmetic operations
+## 3. <a name='basic-arithmetic-operations'></a>Basic arithmetic operations
 
 ```
 5 4 * .
@@ -78,7 +117,7 @@ the `\r` system variable.
 \r .
 ```
 
-## Variables and Variable Assignment
+## 4. <a name='variables-and-variable-assignment'></a>Variables and Variable Assignment
 
 Variables are named locations in memory that can store data. MINT has a limited
 number of global variables which have single letter names. In MINT a variable can
@@ -119,9 +158,9 @@ a@ b@ + z !
 z@ .
 ```
 
-## Variable operators
+## 5. <a name='variable-operators'></a>Variable operators
 
-## Strings
+## 6. <a name='strings'></a>Strings
 
 MINT allows null-terminated strings to be defined by surrounding the string with `'` characters.
 
@@ -137,7 +176,7 @@ s \.
 
 prints out `hello there!`
 
-### Printing values
+### 6.1. <a name='printing-values'></a>Printing values
 
 MINT has a number of ways of printing to the output.
 
@@ -156,7 +195,7 @@ For example
 
 prints `The value of x is 100`
 
-## Logical operators
+## 7. <a name='logical-operators'></a>Logical operators
 
 MINT uses numbers to define boolean values.
 
@@ -216,7 +255,7 @@ Flip the third bit of the number 10
 
 prints $000B
 
-## Conditional code
+## 8. <a name='conditional-code'></a>Conditional code
 
 Code blocks are useful when it comes to conditional code in MINT.
 
@@ -255,7 +294,7 @@ In this example, the variable a is assigned the value 18. The "if...else" operat
 then checks to see if age is greater than or equal to the voting age of 18. If it is,
 then the text "can" is printed to the console. Otherwise, the string "cannot" is printed to the console.
 
-## Functions in MINT
+## 9. <a name='functions-in-mint'></a>Functions in MINT
 
 You can put any code inside `:` and `;` block which tells MINT to "execute this later".
 
@@ -293,7 +332,7 @@ Example: a function to square a value a
 :F a ! a@ a@ * ;
 ```
 
-### Function with Multiple Arguments
+### 9.1. <a name='function-with-multiple-arguments'></a>Function with Multiple Arguments
 
 You can also define functions with multiple arguments. For example:
 
@@ -304,7 +343,7 @@ You can also define functions with multiple arguments. For example:
 This function takes two arguments `a` and `b`, adds them together using the `+` operator,
 and then prints the result using `.`.
 
-### Calling functions
+### 9.2. <a name='calling-functions'></a>Calling functions
 
 Functions are called by referring to them
 
@@ -316,7 +355,7 @@ Functions are called by referring to them
 This code passes the numbers `30` and `20` to a function which multiplies them and returns
 the result which is then printed.
 
-### Assigning Functions to Variables
+### 9.3. <a name='assigning-functions-to-variables'></a>Assigning Functions to Variables
 
 In MINT, you can assign functions to variables just like any other value.
 Variables in MINT are limited to a single uppercase or lowercase letter. To
@@ -356,7 +395,7 @@ The number `4` is passed to the function S which squares the value and then prin
 :T b ! a ! a@ b@ + ;
 ```
 
-### Using Functions
+### 9.4. <a name='using-functions'></a>Using Functions
 
 Once you've assigned functions to variables, you can use them in your MINT code.
 
@@ -371,17 +410,17 @@ In the first line, we execute the function stored in variable `A` with the argum
 which prints `10`. In the second line, we execute the function stored in variable `B` with
 arguments `3` and `7`, which results in `10` being printed (the sum of the two arguments).
 
-### SYSTEM VARIABLES
+### 9.5. <a name='system-variables'></a>SYSTEM VARIABLES
 
 System variables contain values which MINT uses internally but are available for programmatic use. These are the lowercase letters preceded by a \ e.g. \a, \b, \c etc. However MINT only uses a few of these variables so the user may use the other ones as they like.
 
-### Using MINT on the TEC-1
+### 9.6. <a name='using-mint-on-the-tec-1'></a>Using MINT on the TEC-1
 
 MINT was designed for for small Z80 based systems but specifically with the small memory configuration of the TEC-1 single board computer. It is only 2K to work with the original TEC-1 and interfaces to the serial interface via a simple adapter.
 
 On initialisation it will present a user prompt ">" followed by a CR and LF. It is now ready to accept commands from the keyboard.
 
-### Loops
+### 9.7. <a name='loops'></a>Loops
 
 0(this code will not be executed but skipped)
 1(this code will be execute once)
@@ -389,7 +428,7 @@ On initialisation it will present a user prompt ">" followed by a CR and LF. It 
 
 You can use the comparison operators < = and > to compare 2 values and conditionally execute the code between the brackets.
 
-## Arrays
+## 10. <a name='arrays'></a>Arrays
 
 MINT arrays are a type of data structure that can be used to store a collection of elements. Arrays are indexed, which means that each element in the array has a unique number associated with it. This number is called the index of the element.
 In MINT, array indexes start at 0
@@ -426,11 +465,11 @@ To fetch the Nth member of the array, we can create a colon definition N
 
 :N @ $ {+ @. ;
 
-### List of operators
+### 10.1. <a name='list-of-operators'></a>List of operators
 
 MINT is a bytecode interpreter - this means that all of its instructions are 1 byte long. However, the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications running on an 8-bit cpu.
 
-### Maths Operators
+### 10.2. <a name='maths-operators'></a>Maths Operators
 
 | Symbol | Description                               | Effect   |
 | ------ | ----------------------------------------- | -------- |
@@ -444,7 +483,7 @@ MINT is a bytecode interpreter - this means that all of its instructions are 1 b
 | {      | shift left                                | --       |
 | }      | shift right                               | --       |
 
-### Logical Operators
+### 10.3. <a name='logical-operators-1'></a>Logical Operators
 
 | Symbol | Description        | Effect   |
 | ------ | ------------------ | -------- |
@@ -454,7 +493,7 @@ MINT is a bytecode interpreter - this means that all of its instructions are 1 b
 
 Note: logical NOT can be achieved with 0=
 
-### Stack Operations
+### 10.4. <a name='stack-operations'></a>Stack Operations
 
 | Symbol | Description                                                          | Effect         |
 | ------ | -------------------------------------------------------------------- | -------------- |
@@ -464,7 +503,7 @@ Note: logical NOT can be achieved with 0=
 | %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a   |
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
 
-### Input & Output Operations
+### 10.5. <a name='input-&-output-operations'></a>Input & Output Operations
 
 | Symbol | Description                                               | Effect      |
 | ------ | --------------------------------------------------------- | ----------- |
@@ -491,7 +530,7 @@ NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
 <NUM> is the namespace number. There are currently 5 namespaces numbered 0 - 4
 
-### Loops and conditional execution
+### 10.6. <a name='loops-and-conditional-execution'></a>Loops and conditional execution
 
 | Symbol | Description                            | Effect |
 | ------ | -------------------------------------- | ------ |
@@ -510,7 +549,7 @@ if the condition is 0 (i.e. it is an ELSE clause)
 e.g. 0(`will not execute`)(`will execute`)
 1(`will execute`)(`will not execute`)
 
-### Memory and Variable Operations
+### 10.7. <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
 | Symbol | Description                   | Effect        |
 | ------ | ----------------------------- | ------------- |
@@ -523,7 +562,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\`    | begin a string definition     | -- adr        |
 | \\@    | FETCH a byte from memory      | -- val        |
 
-### System Variables
+### 10.8. <a name='system-variables-1'></a>System Variables
 
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
@@ -536,13 +575,13 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\j    | outer loop counter variable        | -- adr |
 | \\t    | text input buffer pointer variable | -- adr |
 
-### Miscellaneous
+### 10.9. <a name='miscellaneous'></a>Miscellaneous
 
 | Symbol | Description                                   | Effect |
 | ------ | --------------------------------------------- | ------ |
 | \\\\   | comment text, skips reading until end of line | --     |
 
-### Utility commands
+### 10.10. <a name='utility-commands'></a>Utility commands
 
 | Symbol | Description                     | Effect   |
 | ------ | ------------------------------- | -------- |
@@ -554,7 +593,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\#5   | print prompt                    | --       |
 | \\#6   | edit command                    | val --   |
 
-### Control keys
+### 10.11. <a name='control-keys'></a>Control keys
 
 | Symbol | Description                     |
 | ------ | ------------------------------- |
