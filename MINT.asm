@@ -64,20 +64,6 @@ printStack_:
 toggleBase_:
     .cstr "\\b@0=\\b!;"
 
-
-; ***********************************************************************
-; Initial values for user mintVars		
-; ***********************************************************************		
-; iAltVars:			; value copied into tables
-;         DW dStack               ; a vS0 start of datastack			
-;         DW 0                    ; b vBase16 
-;         DW 0                    ; c vTIBPtr an offset to the tib
-;         DW 0                    ; d 
-;         DW 0                    ; e vLastDef "A" last command u defined
-;         DW 0                    ; f 
-;         DW 0                    ; g 
-;         DW HEAP                 ; h vHeapPtr \h start of the free mem
-
 iOpcodes:
     LITDAT 4		; macros for compression
     DB    lsb(exit_)    ;   NUL get least signif byte of address exit_
@@ -220,7 +206,7 @@ start:
     LD SP,DSTACK		; start of MINT
     CALL init		; setups
     CALL printStr		; prog count to stack, put code line 235 on stack then call print
-    .cstr "MINT V1.2\r\n"
+    .cstr "MINT1.2\r\n"
 
 interpret:
     call prompt
@@ -329,6 +315,29 @@ waitchar4:
 ; Instruction Pointer IP BC is incremented
 ;
 ; *********************************************************************************
+NEXT:                           ;=9      
+    INC BC                      ;       Increment the IP
+    LD A, (BC)                  ;       Get the next character and dispatch
+    LD L,A                      ;       Index into table
+    LD H,msb(opcodes)           ;       Start address of jump table         
+    LD L,(HL)                   ;       get low jump address
+    LD H,msb(page4)             ;       Load H with the 1st page address
+    JP (HL)                     ;       Jump to routine
+
+; ARRAY compilation routine
+compNEXT:                           ;=26
+    POP DE          	        ; DE = return address
+    LD HL,(vHeapPtr)  	        ; load heap ptr
+    LD (HL),E       	        ; store lsb
+    LD A,(vByteMode)
+    INC HL          
+    OR A
+    JR NZ,compNext1
+    LD (HL),D
+    INC HL
+compNEXT1:
+    LD (vHeapPtr),HL            ; save heap ptr
+    jr NEXT
 
 init:                           ;=68
     LD HL,LSTACK
@@ -524,28 +533,6 @@ rpop:                               ;=11
     INC IX                  
 rpop2:
     RET
-
-; ARRAY compilation routine
-compNEXT:                           ;=26
-    POP DE          	        ; DE = return address
-    LD HL,(vHeapPtr)  	        ; load heap ptr
-    LD (HL),E       	        ; store lsb
-    LD A,(vByteMode)
-    INC HL          
-    OR A
-    JR NZ,compNext1
-    LD (HL),D
-    INC HL
-compNEXT1:
-    LD (vHeapPtr),HL            ; save heap ptr
-NEXT:                           ;=9      
-    INC BC                      ;       Increment the IP
-    LD A, (BC)                  ;       Get the next character and dispatch
-    LD L,A                      ;       Index into table
-    LD H,msb(opcodes)           ;       Start address of jump table         
-    LD L,(HL)                   ;       get low jump address
-    LD H,msb(page4)             ;       Load H with the 1st page address
-    JP (HL)                     ;       Jump to routine
 
 ; **********************************************************************			 
 ; Page 4 primitive routines 
@@ -1372,6 +1359,7 @@ printDec:
     sub h  
     ld h,a
 printDec2:        
+    push bc
     ld c,0                      ; leading zeros flag = false
     ld de,-10000
     call printDec4
@@ -1384,8 +1372,9 @@ printDec2:
     inc c                       ; flag = true for at least digit
     ld e,-1
     call printDec4
+    pop bc
     ret
-printDec4:	     
+printDec4:
     ld b,'0'-1
 printDec5:	    
     inc b
