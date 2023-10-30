@@ -77,16 +77,14 @@ as `12345`. A negative number is preceded by a `-` as in `-786`.
 ### 2.2. <a name='hexadecimal-numbers'></a>Hexadecimal numbers
 
 Hexadecimal numbers are represented in MINT using the uppercase letters `A` to `F`
-to represent the digits `10` to `15`. Hexadecimal numbers are prefixed with a `$`.
-So for example, the hexadecimal number `1F3A` is represented as `$1F3A`.
+to represent the digits `10` to `15`. Hexadecimal numbers are prefixed with a `#`.
+So for example, the hexadecimal number `1F3A` is represented as `#1F3A`.
 Unlike decimal numbers, hexadecimal numbers are assumed to be positive in MINT.
 
 ### 2.3. <a name='formatting-numbers'></a>Formatting numbers
 
 MINT provides commands for formatting hexadecimal and decimal numbers. The print
-operator `.` prints numbers in the current base. To switch the base to hexadecimal
-use the command `\\H` before using the `.` operator. To switch back to formatting
-in decimal use the command `\\D`.
+operator `.` prints numbers in decimal. The `,` operator prints in hexadecimal.
 
 ## 3. <a name='basic-arithmetic-operations'></a>Basic arithmetic operations
 
@@ -106,23 +104,17 @@ This program subtracts `20` from `10` which results in the negative value `-10`
 The `.` operator prints the difference.
 
 ```
-5 4 / .
+5 4 / . .
 ```
 
-This program divides 5 with 4 prints their quotient. MINT for the Z80 uses
-16-bit integers. The remainder of the last division operation can accessed using
-the `\r` system variable.
-
-```
-\r .
-```
+This program divides 5 with 4 prints the remainder and the quotient. 
 
 ## 4. <a name='variables-and-variable-assignment'></a>Variables and Variable Assignment
 
 Variables are named locations in memory that can store data. MINT has a limited
 number of global variables which have single letter names. In MINT a variable can
-be referred to by a singer letter from `a` to `z` so there are 52
-globals in MINT. Global variables can be used to store numbers, strings, arrays, blocks, functions etc.
+be referred to by a singer letter from `a` to `z` so there are 26
+global variables in MINT. Global variables can be used to store numbers, strings, arrays, blocks, functions etc.
 
 To assign the value `10` to the global variable `x` use the `!` operator.
 
@@ -132,19 +124,19 @@ To assign the value `10` to the global variable `x` use the `!` operator.
 
 In this example, the number `3` is assigned to the variable `x`
 
-To access a value in a variable `x`, simply refer to it.
-This code adds `3` to the value stored in variable `x` and then prints it.
+To access a value in a variable `x`, use the `@` operator.
+The code below adds `3` to the value stored in variable `x` and then prints it.
 
 ```
 3 x@ + .
 ```
 
-The following code assigns the hexadecimal number `$3FFF` to variable `a`
+The following code assigns the hexadecimal number `#3FFF` to variable `a`
 The second line fetches the value stored in `a` and prints it.
 
 ```
-$3FFF a !
-a .
+#3FFF a !
+a@ .
 ```
 
 In this longer example, the number `10` is stored in `a` and the number `20` is
@@ -158,31 +150,21 @@ a@ b@ + z !
 z@ .
 ```
 
-## 5. <a name='variable-operators'></a>Variable operators
-
 ## 6. <a name='strings'></a>Strings
 
 MINT allows null-terminated strings to be defined by surrounding the string with `'` characters.
 
 ```
-'hello there!' s !
+\'hello there!' s !
 ```
 
-Strings can be prints with the `\P` operator
+Strings can be prints with the `\.` operator
 
 ```
 s \.
 ```
 
 prints out `hello there!`
-
-### 6.1. <a name='printing-values'></a>Printing values
-
-MINT has a number of ways of printing to the output.
-
-`<value> .` prints a value as a number. This command is affected by \H /dc /byt /wrd  
-`<value> \C` prints a value as an ASCII character
-`<value> \P` prints a value as a pointer to a null terminated string
 
 Additionally MINT allows the user to easily print literal text by using \` quotes.
 
@@ -199,8 +181,8 @@ prints `The value of x is 100`
 
 MINT uses numbers to define boolean values.
 
-- false is represent by the number `0`
-- true is any non-zero value, however the most useful representation is `1`.
+- false is represented by the number `0`
+- true is represented by the number `1`.
 
 ```
 3 0 = .
@@ -242,18 +224,18 @@ this will print `1`
 Set the fourth bit of the number 10
 
 ```
-1 }}} 1 | \H .
+1 }}} 1 | .
 ```
 
-prints $0009
+prints #0009
 
 Flip the third bit of the number 10
 
 ```
-1 {{ $0F \X \H .
+1 {{ #0F ^ .
 ```
 
-prints $000B
+prints #000B
 
 ## 8. <a name='conditional-code'></a>Conditional code
 
@@ -276,7 +258,7 @@ Here is an example of a "if...else" operator in MINT:
 
 x@ y@ > ( \'x is greater than y' )( \'y is greater than x' ) z !
 
-z \P
+z \.
 ```
 
 In this example, the variable x is assigned the value 10 and the variable y is assigned the value 20. The "if...else" operator then checks to see if x is greater than y. If it is, then the string "x is greater than y" is returned. Otherwise, the string "y is greater than x" is returned. The value of the "if...else" operator is then assigned to the variable z. Finally, the value of z is printed to the console.
@@ -287,7 +269,7 @@ code conditionally prints text straight to the console.
 ```
 18 a !
 
-`This person` a 18 > (`can`)(`cannot`) `vote`
+`This person` a@ 18 > (`can`)(`cannot`) `vote`
 ```
 
 In this example, the variable a is assigned the value 18. The "if...else" operator
@@ -337,18 +319,17 @@ Example: a function to square a value a
 You can also define functions with multiple arguments. For example:
 
 ```
-:F b ! a ! a@ b@ + . ;
+:F $ . . ;
 ```
 
-This function takes two arguments `a` and `b`, adds them together using the `+` operator,
-and then prints the result using `.`.
+This function swaps the top two arguments on the stack and then prints them using `.`.
 
 ### 9.2. <a name='calling-functions'></a>Calling functions
 
 Functions are called by referring to them
 
 ```
-:F b ! a ! a@ b@ * ;
+:F * ;
 30 20 F .
 ```
 
@@ -366,7 +347,7 @@ Let's see some examples:
 Here's a function to print a number between after a `$` symbol and storing t in variable `A`
 
 ```
-:A a ! `$` a@ . ;
+:A `$` . ;
 ```
 
 And calling it:
@@ -377,22 +358,16 @@ And calling it:
 
 The `100` is passed to the function as argument `a`. The function first prints `$` followed by `1001
 
-Here's a function to square two numbers. The function is stored in variable S
+Here's a function to square a number by duplicating the value on the stack and then multiplying the two numbers. The function is stored in variable S
 
 ```
-:S a ! a@ a@ * ;
+:S " * ;
 ```
 
 Calling it:
 
 ```
 4 S .
-```
-
-The number `4` is passed to the function S which squares the value and then prints it.
-
-```
-:T b ! a ! a@ b@ + ;
 ```
 
 ### 9.4. <a name='using-functions'></a>Using Functions
