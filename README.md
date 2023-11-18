@@ -224,7 +224,7 @@ this will print `1`
 Set the fourth bit of the number 10
 
 ```
-1 }}} 1 | .
+1 {{{ 1 | .
 ```
 
 prints #0009
