@@ -483,7 +483,7 @@ Note: logical NOT can be achieved with 0=
 | Symbol | Description                                               | Effect      |
 | ------ | --------------------------------------------------------- | ----------- |
 | ?      | read a char from input                                    | -- val      |
-| .      | print the top member of the stack as a decimal number DOT | a --        |
+| .      | print the number on the stack as a decimal  		     | a --        |
 | ,      | print the number on the stack as a hexadecimal            | a --        |
 | \`     | print the literal string between \` and \`                | --          |
 | \\.    | print a null terminated string                            | adr --      |
