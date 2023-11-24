@@ -122,7 +122,7 @@ To assign the value `10` to the global variable `x` use the `!` operator.
 10 x !
 ```
 
-In this example, the number `3` is assigned to the variable `x`
+In this example, the number `10` is assigned to the variable `x`
 
 To access a value in a variable `x`, use the `@` operator.
 The code below adds `3` to the value stored in variable `x` and then prints it.
