@@ -50,16 +50,16 @@ backsp_:
                                         	
 
 reedit_:
-    DB "\\e\\@\\#6;"			; remembers last line edited
+    DB "\\e\\@\\#;"			; remembers last line edited
 
 edit_:
-    .cstr "`?`?\\#5\\#6;"
+    .cstr "`?`?\\?\\#;"
 
 list_:
-    .cstr "\\$26(\\i@65+\\#6\\t@0>(\\$))\\#5;"
+    .cstr "\\$26(\\i@65+\\#\\t@0>(\\$))\\?;"
 
 printStack_:
-    .cstr "\\#4\\#5;"        
+    .cstr "\\_\\?;"        
 
 toggleBase_:
     .cstr "\\b@0=\\b!;"
@@ -76,19 +76,19 @@ iOpcodes:
     LITDAT 15
     DB    lsb(store_)   ;   !            
     DB    lsb(dup_)     ;   "
-    DB    lsb(hex_)    ;    #
-    DB    lsb(swap_)   ;    $            
-    DB    lsb(over_)   ;    %            
-    DB    lsb(and_)    ;    &
-    DB    lsb(drop_)   ;    '
-    DB    lsb(begin_)  ;    (        
-    DB    lsb(again_)  ;    )
-    DB    lsb(mul_)    ;    *            
-    DB    lsb(add_)    ;    +
-    DB    lsb(hdot_)   ;    ,            
-    DB    lsb(sub_)    ;    -
-    DB    lsb(dot_)    ;    .
-    DB    lsb(div_)    ;    /	;/MOD
+    DB    lsb(hex_)     ;    #
+    DB    lsb(swap_)    ;    $            
+    DB    lsb(over_)    ;    %            
+    DB    lsb(and_)     ;    &
+    DB    lsb(drop_)    ;    '
+    DB    lsb(begin_)   ;    (        
+    DB    lsb(again_)   ;    )
+    DB    lsb(mul_)     ;    *            
+    DB    lsb(add_)     ;    +
+    DB    lsb(hdot_)    ;    ,            
+    DB    lsb(sub_)     ;    -
+    DB    lsb(dot_)     ;    .
+    DB    lsb(div_)     ;    /	;/MOD
 
     REPDAT 10, lsb(num_)		; 10 x repeat lsb of add to the num routine 
 
@@ -108,8 +108,8 @@ iOpcodes:
     DB    lsb(alt_)    ;    \
     DB    lsb(arrEnd_) ;    ]
     DB    lsb(xor_)    ;    ^
-    DB    lsb(nop_)    ;    _
-    DB    lsb(str_)    ;    `    	; for printing `hello`        
+    DB    lsb(nop_)    ;    _   
+    DB    lsb(str_)    ;    `   ; for printing `hello`        
 
     REPDAT 26, lsb(var_)		; a b c .....z
 
@@ -142,30 +142,30 @@ iOpcodes:
     REPDAT 15, lsb(EMPTY)
 
     LITDAT 5
-    DB     lsb(aNop_)       ;a0    SP  				;space
-    DB     lsb(aNop_)       ;a1    \!       			; this is a bug shud be lsb(cstore_)     
+    DB     lsb(aNop_)       ;a0    SP  space
+    DB     lsb(cstore_)     ;a1    \!  byte store     
     DB     lsb(aNop_)       ;a2    \"  				
-    DB     lsb(util_)       ;a3    \#  utility command		; table of special routines ie #5 etc				
+    DB     lsb(editDef_)    ;a3    \#  utility command		; table of special routines 				
     DB     lsb(newln_)      ;a4    \$  prints a newline to output	
 
     REPDAT 7, lsb(aNop_)
 
     LITDAT 4
     DB     lsb(emit_)       ;ac    \,  ( b -- ) prints a char              
-    DB     lsb(aNop_)       ;ad    \-                
+    DB     lsb(depth_)      ;      \-  num items on stack
     DB     lsb(aNop_)       ;ae    \.              
     DB     lsb(aNop_)       ;af    \/                
 
     REPDAT 10, lsb(aNop_)
 
     LITDAT 7
-    DB     lsb(anonDef_)    ;ba    \:	return add of a anon def, \: 1 2 3;    \\ ret add of this                
-    DB     lsb(aNop_)       ;bb    \;                
+    DB     lsb(anonDef_)    ;ba    \:  return add of a anon def, \: 1 2 3;    \\ ret add of this                
+    DB     lsb(exec_)       ;bb    \;  execute machine code              
     DB     lsb(inPort_)     ;bc    \<  ( port -- val )
     DB     lsb(aNop_)       ;bd    \=    
     DB     lsb(outPort_)    ;be    \>  ( val port -- )
-    DB     lsb(aNop_)       ;bf    \?
-    DB     lsb(cFetch_)     ;c0    \@      byte fetch
+    DB     lsb(prompt_)     ;bf    \?  print MINT prompt
+    DB     lsb(cFetch_)     ;c0    \@  byte fetch
 
     REPDAT 26, lsb(aNop_)
 
@@ -173,23 +173,23 @@ iOpcodes:
     DB     lsb(cArrDef_)    ;db     \[
     DB     lsb(comment_)    ;dc     \\  comment text, skips reading until end of line
     DB     lsb(aNop_)       ;dd     \]
-    DB     lsb(go_)         ;de     \^  ( -- ? ) execute mint definition a is address of mint code
-    DB     lsb(exec_)       ;       \_  ( -- ? ) execute machine code       
-    DB     lsb(aNop_)       ;e0     \^            
+    DB     lsb(go_)         ;de     \^  execute mint definition a is address of mint code
+    DB     lsb(printStk_)   ;       \_  non-destructively prints stack       
+    DB     lsb(aNop_)       ;e0     \`            
 
-    REPDAT 8, lsb(altVar_)  ;e1	\a...\h
+    REPDAT 8, lsb(altVar_)  ;e1	    \a...\h
 
     LITDAT 2
-    DB     lsb(i_)          ;e9    i  ; returns index variable of current loop          
-    DB     lsb(j_)          ;e9    j  ; returns index variable of outer loop     \i+6     
+    DB     lsb(i_)          ;e9     \i  returns index variable of current loop          
+    DB     lsb(j_)          ;e9     \j  returns index variable of outer loop     \i+6     
 
-    REPDAT 16, lsb(altVar_)		; \k...\z
+    REPDAT 16, lsb(altVar_) ;       \k...\z
 
     LITDAT 5
-    DB    lsb(rpop_)        ;       { ( -- n ) pop from MINT return stack 
-    DB    lsb(aNop_)        ;                  
-    DB    lsb(rpush_)       ;       } ( n -- ) push to return stack           
-    DB    lsb(break_)       ;       ~ ( b -- ) conditional break from loop            
+    DB    lsb(rpop_)        ;       \{ ( -- n ) pop from MINT return stack 
+    DB    lsb(aNop_)        ;       \|           
+    DB    lsb(rpush_)       ;       \} ( n -- ) push to return stack           
+    DB    lsb(break_)       ;       \~ ( b -- ) conditional break from loop            
     DB    lsb(aNop_)        ;       DEL
 
     ENDDAT 
@@ -1028,6 +1028,9 @@ cStore_:
     LD     (HL),E          
     JP     (IY)            
                          
+depth_:
+    jp depth
+    
 emit_:
     POP HL
     LD A,L
@@ -1041,15 +1044,6 @@ exec1:
     POP HL
     EX (SP),HL
     JP (HL)
-
-depth_:
-    LD HL,0
-    ADD HL,SP
-    EX DE,HL
-    LD HL,DSTACK
-    OR A
-    SBC HL,DE
-    JP shr1
 
 editDef_:
     call editDef
@@ -1126,42 +1120,11 @@ rpop_:
 aDup_:
     JP dup_
 
-; **************************************************************************
-; utilTable and util_ MUST be on the same page, assumes same msb  
-; **************************************************************************
-		    								;\#1... for machine code
-utilTable:
-    DB lsb(exec_)       ;\#0    ( adr -- )    if not null execute code at adr
-    DB lsb(aNop_)       ;\#1    ( b -- )      conditional early return  
-    DB lsb(aNop_)       ;\#2    ( -- )      
-    DB lsb(depth_)      ;\#3    ( -- val )    depth of data stack  
-    DB lsb(printStk_)   ;\#4    ( -- )        non-destructively prints stack
-    DB lsb(prompt_)     ;\#5    ( -- )        print MINT prompt 
-    DB lsb(editDef_)    ;\#6    ( char -- )   edit command    
-    DB lsb(aDup_)       ;\#7    ( adr -- )    dupe (used in asm tests)
-
-util_:
-util:                           ;= 13
-    INC BC
-    LD A,(BC)
-    SUB "0"
-    LD L,lsb(utilTable)     ; H already contains msb(page6)
-    ADD A,L
-    LD L,A
-    LD L,(HL)               ; H already contains msb(page6)
-    JP (HL)
-
 printStk_:
-
-; **************************************************************************
-; Page 6 primitive routines continued  (page 7) 
-; **************************************************************************
-    ; falls through to following page
-    
 printStk:                           ;=40
-    ; MINT: \a@2- \#3 1- ("@ \b@ \(,)(.) 2-) '             
+    ; MINT: \a@2- \- 1- ("@ \b@ \(,)(.) 2-) '             
     call ENTER
-    .cstr "`=> `\\a@2-\\#3 1-(",$22,"@\\b@(,)(.)2-)'\\$"             
+    .cstr "`=> `\\a@2- \\- 1-(",$22,"@\\b@(,)(.)2-)'\\$"             
     JP (IY)
 
 ;*******************************************************************
@@ -1375,4 +1338,13 @@ carry:                              ;=10
     rl l
     ld (vCarry),hl
     jp (iy)              
+
+depth:
+    LD HL,0
+    ADD HL,SP
+    EX DE,HL
+    LD HL,DSTACK
+    OR A
+    SBC HL,DE
+    JP shr1
 

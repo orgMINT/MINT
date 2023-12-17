@@ -475,6 +475,7 @@ Note: logical NOT can be achieved with 0=
 | ~      | rotate the top 3 members of the stack ROT                            | a b c -- b c a |
 | %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a   |
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
+| \-     | stack depth                                                          | -- val         |
 
 ### 10.5. <a name='input-&-output-operations'></a>Input & Output Operations
 
@@ -485,7 +486,6 @@ Note: logical NOT can be achieved with 0=
 | ,      | print the number on the stack as a hexadecimal | a --        |
 | \`     | print the literal string between \` and \`     | --          |
 | \\,    | prints a character to output                   | val --      |
-| \\$    | prints a CRLF to output                        | --          |
 | \\>    | output to an I/O port                          | val port -- |
 | \\<    | input from a I/O port                          | port -- val |
 | #      | the following number is in hexadecimal         | a --        |
@@ -496,7 +496,7 @@ Note: logical NOT can be achieved with 0=
 | :<CHAR> | define a new command DEF        |          |
 | \\:     | define an anonymous command DEF |          |
 | \\^     | execute mint code at address    | adr -- ? |
-| \\\_    | execute mint code at address    | adr -- ? |
+| \\;     | execute mint code at address    | adr -- ? |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -508,7 +508,7 @@ NOTE:
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| \\\~   | if false break out of loop             | b --   |
+| \\~    | if false break out of loop             | b --   |
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
@@ -554,15 +554,12 @@ e.g. 0(`will not execute`)(`will execute`)
 
 ### 10.10. <a name='utility-commands'></a>Utility commands
 
-| Symbol | Description  | Effect   |
-| ------ | ------------ | -------- |
-| \\#0   |              | adr -- ? |
-| \\#1   |              | --       |
-| \\#2   |              | -- val   |
-| \\#3   | stack depth  | -- val   |
-| \\#4   | print stack  | --       |
-| \\#5   | print prompt | --       |
-| \\#6   | edit command | val --   |
+| Symbol | Description   | Effect |
+| ------ | ------------- | ------ |
+| \\$    | prints a CRLF | --     |
+| \\#    | edit command  | val -- |
+| \\?    | print prompt  | --     |
+| \\\_   | print stack   | --     |
 
 ### 10.11. <a name='control-keys'></a>Control keys
 
