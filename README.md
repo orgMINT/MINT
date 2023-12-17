@@ -149,23 +149,7 @@ a@ b@ + z !
 z@ .
 ```
 
-## 6. <a name='strings'></a>Strings
-
-MINT allows null-terminated strings to be defined by surrounding the string with `'` characters.
-
-```
-\'hello there!' s !
-```
-
-Strings can be prints with the `\.` operator
-
-```
-s \.
-```
-
-prints out `hello there!`
-
-Additionally MINT allows the user to easily print literal text by using \` quotes.
+MINT allows the user to easily print literal text by using \` quotes.
 
 For example
 
