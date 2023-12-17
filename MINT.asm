@@ -153,7 +153,7 @@ iOpcodes:
     LITDAT 4
     DB     lsb(emit_)       ;ac    \,  ( b -- ) prints a char              
     DB     lsb(aNop_)       ;ad    \-                
-    DB     lsb(prnStr_)     ;ae    \.  ( b -- ) prints a string from add term by null char             
+    DB     lsb(aNop_)       ;ae    \.              
     DB     lsb(aNop_)       ;af    \/                
 
     REPDAT 10, lsb(aNop_)
@@ -174,8 +174,8 @@ iOpcodes:
     DB     lsb(comment_)    ;dc     \\  comment text, skips reading until end of line
     DB     lsb(aNop_)       ;dd     \]
     DB     lsb(go_)         ;de     \^  ( -- ? ) execute mint definition a is address of mint code
-    DB     lsb(eret_)       ;       \_  ( b -- ) conditional early return - stop everything           
-    DB     lsb(strDef_)     ;e0     \`  ( -- adr ) defines a string \` string ` then use \. to prt            
+    DB     lsb(exec_)       ;       \_  ( -- ? ) execute machine code       
+    DB     lsb(aNop_)       ;e0     \^            
 
     REPDAT 8, lsb(altVar_)  ;e1	\a...\h
 
@@ -206,7 +206,7 @@ start:
     LD SP,DSTACK		; start of MINT
     CALL init		; setups
     CALL printStr		; prog count to stack, put code line 235 on stack then call print
-    .cstr "MINT1.2\r\n"
+    .cstr "MINT1.3\r\n"
 
 interpret:
     call prompt
@@ -763,20 +763,21 @@ less:
     PUSH HL
     JP (IY) 
     
+num_:   JP  num
+begin_: JP begin
+arrEnd_:JP arrEnd
+
+str_:   JR str                      
+def_:   JR def
+div_:   JR div
+alt_:   jr alt 
+
 var_:
     LD A,(BC)
     CALL lookupRef2
     PUSH HL
     JP (IY)
 
-num_:   JP  num
-str_:   JR str                      
-arrEnd_:JR arrEnd
-def_:   JR def
-div_:   JR div
-begin_: JR begin
-
-alt_:   
 
 ;*******************************************************************
 ; Page 5 primitive routines 
@@ -794,7 +795,6 @@ alt2:
     LD L,A                      
     JP (HL)                     ;       Jump to routine
 
-
 str:                                ;=15                      
     INC BC
     
@@ -809,25 +809,6 @@ str1:
 str2:  
     DEC BC
     JP   (IY) 
-
-
-arrEnd:                             ;=27
-    CALL rpop                   ; DE = start of array
-    PUSH HL
-    EX DE,HL
-    LD HL,(vHeapPtr)            ; HL = heap ptr
-    OR A
-    SBC HL,DE                   ; bytes on heap 
-    LD A,(vByteMode)
-    OR A
-    JR NZ,arrEnd2
-    SRL H                       ; BC = m words
-    RR L
-arrEnd2:
-    PUSH HL 
-    LD IY,NEXT
-    JP (IY)                     ; hardwired to NEXT
-
 
 ; **************************************************************************             
 ; def is used to create a colon definition
@@ -862,51 +843,63 @@ def3:
     LD (vHeapPtr),DE            ; bump heap ptr to after definiton
     JP (IY)       
 
-; ********************************************************************
-; 16-bit division subroutine.
-;
-; BC: divisor, DE: dividend, HL: remainder
-
-; *********************************************************************            
-; This divides DE by BC, storing the result in DE, remainder in HL
-; *********************************************************************
-
-; 1382 cycles
-; 35 bytes (reduced from 48)
-	
-
-div:                                ;=34
-    POP  DE                     ; get first value
-    POP  HL                     ; get 2nd value
-    PUSH BC                     ; Preserve the IP
-    LD B,H                      ; BC = 2nd value
-    LD C,L		
-	
-    LD HL,0    	            ; Zero the remainder
-    LD A,16    	            ; Loop counter
-
-div1:		                    ;shift the bits from BC (numerator) into HL (accumulator)
-    SLA C
-    RL B
-    ADC HL,HL
-
-    SBC HL,DE		    ;Check if remainder >= denominator (HL>=DE)
-    JR C,div2
-    INC C
-    JR div3
-div2:		                    ; remainder is not >= denominator, so we have to add DE back to HL
-    ADD hl,de
-div3:
-    DEC A
-    JR NZ,div1
-    LD D,B                      ; Result from BC to DE
-    LD E,C
-div4:    
-    POP  BC                     ; Restore the IP
-    PUSH DE                     ; Push Result
-    PUSH HL                     ; Push remainder             
-
-    JP (IY)
+div:
+    ld hl,bc                    ; hl = IP
+    pop bc                      ; bc = denominator
+    ex (sp),hl                  ; save IP, hl = numerator  
+    ld a,h
+    xor b
+    push af
+    xor b
+    jp p,absBC
+;absHL
+    xor a  
+    sub l  
+    ld l,a
+    sbc a,a  
+    sub h  
+    ld h,a
+absBC:
+    xor b
+    jp p,$+9
+    xor a  
+    sub c  
+    ld c,a
+    sbc a,a  
+    sub b  
+    ld b,a
+    add hl,hl
+    ld a,15
+    ld de,0
+    ex de,hl
+    jr jumpin
+Loop1:
+    add hl,bc   ;--
+Loop2:
+    dec a       ;4
+    jr z,EndSDiv ;12|7
+jumpin:
+    sla e       ;8
+    rl d        ;8
+    adc hl,hl   ;15
+    sbc hl,bc   ;15
+    jr c,Loop1  ;23-2b
+    inc e       ;--
+    jp Loop2    ;--
+EndSDiv:
+    pop af  
+    jp p,div10
+    xor a  
+    sub e  
+    ld e,a
+    sbc a,a  
+    sub d  
+    ld d,a
+div10:
+    pop bc
+    push de                     ; quotient
+    push hl                     ; remainder
+    jp (iy)
 
     	                    ;=57                     
 begin:                              ; Left parentheses begins a loop
@@ -1120,13 +1113,6 @@ outPort_:
     LD C,E
     JP (IY)        
 
-prnStr_:
-prnStr:
-    POP HL
-    CALL putStr
-    JP (IY)
-
-
 rpush_:
     POP HL
     CALL rpush
@@ -1139,15 +1125,6 @@ rpop_:
 
 aDup_:
     JP dup_
-eret_:
-    POP HL
-    LD A,L
-    OR H
-    JP NZ,ret_
-    JP (IY)
-
-strDef_:
-    JR strDef
 
 ; **************************************************************************
 ; utilTable and util_ MUST be on the same page, assumes same msb  
@@ -1155,8 +1132,8 @@ strDef_:
 		    								;\#1... for machine code
 utilTable:
     DB lsb(exec_)       ;\#0    ( adr -- )    if not null execute code at adr
-    DB lsb(eret_)       ;\#1    ( b -- )      conditional early return  
-    DB lsb(anop_)       ;\#2    ( -- )      
+    DB lsb(aNop_)       ;\#1    ( b -- )      conditional early return  
+    DB lsb(aNop_)       ;\#2    ( -- )      
     DB lsb(depth_)      ;\#3    ( -- val )    depth of data stack  
     DB lsb(printStk_)   ;\#4    ( -- )        non-destructively prints stack
     DB lsb(prompt_)     ;\#5    ( -- )        print MINT prompt 
@@ -1187,27 +1164,26 @@ printStk:                           ;=40
     .cstr "`=> `\\a@2-\\#3 1-(",$22,"@\\b@(,)(.)2-)'\\$"             
     JP (IY)
 
-strDef:                         ;= 21
-    LD DE,(vHeapPtr)        ; HL = heap ptr
-    PUSH DE                 ; save start of string 
-    INC BC                  ; point to next char
-    JR strDef2
-strDef1:
-    LD (DE),A
-    INC DE                  ; increase count
-    INC BC                  ; point to next char
-strDef2:
-    LD A,(BC)
-    CP "`"                  ; ` is the string terminator
-    JR NZ,strDef1
-    XOR A                   ; write null to terminate string
-    LD (DE),A
-    INC DE
-    JP def3
-
 ;*******************************************************************
 ; Page 5 primitive routines continued
 ;*******************************************************************
+
+arrEnd:                             ;=27
+    CALL rpop                   ; DE = start of array
+    PUSH HL
+    EX DE,HL
+    LD HL,(vHeapPtr)            ; HL = heap ptr
+    OR A
+    SBC HL,DE                   ; bytes on heap 
+    LD A,(vByteMode)
+    OR A
+    JR NZ,arrEnd2
+    SRL H                       ; BC = m words
+    RR L
+arrEnd2:
+    PUSH HL 
+    LD IY,NEXT
+    JP (IY)                     ; hardwired to NEXT
 
 ; ********************************************************************
 ; 16-bit multiply  

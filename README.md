@@ -1,4 +1,4 @@
-# MINT Language
+# MINT Language 1.3
 
 MINT is a minimalist character-based interpreter but one which aims at fast performance, readability and ease of use. It is written for the Z80 microprocessor and is 2K.
 
@@ -464,7 +464,6 @@ MINT is a bytecode interpreter - this means that all of its instructions are 1 b
 | ------ | ------------------ | -------- |
 | \|     | 16-bit bitwise OR  | a b -- c |
 | &      | 16-bit bitwise AND | a b -- c |
-| \\X    | xor                | a b -- c |
 
 Note: logical NOT can be achieved with 0=
 
@@ -485,8 +484,6 @@ Note: logical NOT can be achieved with 0=
 | ?      | read a char from input                                    | -- val      |
 | .      | print the number on the stack as a decimal  		     | a --        |
 | ,      | print the number on the stack as a hexadecimal            | a --        |
-| \`     | print the literal string between \` and \`                | --          |
-| \\.    | print a null terminated string                            | adr --      |
 | \\,    | prints a character to output                              | val --      |
 | \\$    | prints a CRLF to output                                   | --          |
 | \\>    | output to an I/O port                                     | val port -- |
@@ -497,9 +494,9 @@ Note: logical NOT can be achieved with 0=
 | ------- | ------------------------------- | -------- |
 | ;       | end of user definition END      |          |
 | :<CHAR> | define a new command DEF        |          |
-| \\:     | define an anonynous command DEF |          |
+| \\:     | define an anonymous command DEF |          |
 | \\^     | execute mint code at address    | adr -- ? |
-| \\\_    | conditional early return        | b --     |
+| \\\_    | execute mint code at address    | adr -- ? |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -560,7 +557,7 @@ e.g. 0(`will not execute`)(`will execute`)
 
 | Symbol | Description                     | Effect   |
 | ------ | ------------------------------- | -------- |
-| \\#0   | execute machine code at address | adr -- ? |
+| \\#0   |                                 | adr -- ? |
 | \\#1   |                                 | --       |
 | \\#2   |                                 | -- val   |
 | \\#3   | stack depth                     | -- val   |
