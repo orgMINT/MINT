@@ -43,7 +43,6 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-
 ## 1. <a name='reverse-polish-notation-(rpn)'></a>Reverse Polish Notation (RPN)
 
 RPN is a [concatenative](https://concatenative.org/wiki/view/Concatenative%20language)
@@ -107,7 +106,7 @@ The `.` operator prints the difference.
 5 4 / . .
 ```
 
-This program divides 5 with 4 prints the remainder and the quotient. 
+This program divides 5 with 4 prints the remainder and the quotient.
 
 ## 4. <a name='variables-and-variable-assignment'></a>Variables and Variable Assignment
 
@@ -479,16 +478,17 @@ Note: logical NOT can be achieved with 0=
 
 ### 10.5. <a name='input-&-output-operations'></a>Input & Output Operations
 
-| Symbol | Description                                               | Effect      |
-| ------ | --------------------------------------------------------- | ----------- |
-| ?      | read a char from input                                    | -- val      |
-| .      | print the number on the stack as a decimal  		     | a --        |
-| ,      | print the number on the stack as a hexadecimal            | a --        |
-| \\,    | prints a character to output                              | val --      |
-| \\$    | prints a CRLF to output                                   | --          |
-| \\>    | output to an I/O port                                     | val port -- |
-| \\<    | input from a I/O port                                     | port -- val |
-| #      | the following number is in hexadecimal                    | a --        |
+| Symbol | Description                                    | Effect      |
+| ------ | ---------------------------------------------- | ----------- |
+| ?      | read a char from input                         | -- val      |
+| .      | print the number on the stack as a decimal     | a --        |
+| ,      | print the number on the stack as a hexadecimal | a --        |
+| \`     | print the literal string between \` and \`     | --          |
+| \\,    | prints a character to output                   | val --      |
+| \\$    | prints a CRLF to output                        | --          |
+| \\>    | output to an I/O port                          | val port -- |
+| \\<    | input from a I/O port                          | port -- val |
+| #      | the following number is in hexadecimal         | a --        |
 
 | Symbol  | Description                     | Effect   |
 | ------- | ------------------------------- | -------- |
@@ -531,7 +531,6 @@ e.g. 0(`will not execute`)(`will execute`)
 | @      | FETCH a value from memory     | -- val        |
 | \\!    | STORE a byte to memory        | val adr --    |
 | \\[    | begin a byte array definition | --            |
-| \\`    | begin a string definition     | -- adr        |
 | \\@    | FETCH a byte from memory      | -- val        |
 
 ### 10.8. <a name='system-variables-1'></a>System Variables
@@ -555,15 +554,15 @@ e.g. 0(`will not execute`)(`will execute`)
 
 ### 10.10. <a name='utility-commands'></a>Utility commands
 
-| Symbol | Description                     | Effect   |
-| ------ | ------------------------------- | -------- |
-| \\#0   |                                 | adr -- ? |
-| \\#1   |                                 | --       |
-| \\#2   |                                 | -- val   |
-| \\#3   | stack depth                     | -- val   |
-| \\#4   | print stack                     | --       |
-| \\#5   | print prompt                    | --       |
-| \\#6   | edit command                    | val --   |
+| Symbol | Description  | Effect   |
+| ------ | ------------ | -------- |
+| \\#0   |              | adr -- ? |
+| \\#1   |              | --       |
+| \\#2   |              | -- val   |
+| \\#3   | stack depth  | -- val   |
+| \\#4   | print stack  | --       |
+| \\#5   | print prompt | --       |
+| \\#6   | edit command | val --   |
 
 ### 10.11. <a name='control-keys'></a>Control keys
 
