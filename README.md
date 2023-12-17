@@ -545,7 +545,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\?    | print prompt  | --     |
 | \\\_   | print stack   | --     |
 
-### 10.11. <a name='control-keys'></a>Control keys
+### Control keys
 
 | Symbol | Description                     |
 | ------ | ------------------------------- |
