@@ -496,7 +496,7 @@ Note: logical NOT can be achieved with 0=
 | :<CHAR> | define a new command DEF        |          |
 | \\:     | define an anonymous command DEF |          |
 | \\^     | execute mint code at address    | adr -- ? |
-| \\;     | execute mint code at address    | adr -- ? |
+| \\;     | execute machine code at address | adr -- ? |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
