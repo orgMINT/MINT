@@ -536,7 +536,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | ------ | --------------------------------------------- | ------ |
 | \\\\   | comment text, skips reading until end of line | --     |
 
-### 10.10. <a name='utility-commands'></a>Utility commands
+### Utility commands
 
 | Symbol | Description   | Effect |
 | ------ | ------------- | ------ |
