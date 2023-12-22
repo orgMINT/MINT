@@ -20,9 +20,8 @@ lStack:
             .align $100
 opcodes:    
             DS $80
-ctrlCodes:
 altCodes:
-            DS $80
+            DS $80-32
 
             .align $100
 mintVars:

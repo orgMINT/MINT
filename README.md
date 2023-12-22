@@ -549,7 +549,6 @@ e.g. 0(`will not execute`)(`will execute`)
 
 | Symbol | Description                     |
 | ------ | ------------------------------- |
-| ^B     | toggle base decimal/hexadecimal |
 | ^E     | edit a definition               |
 | ^H     | backspace                       |
 | ^J     | re-edit                         |

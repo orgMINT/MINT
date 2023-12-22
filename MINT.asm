@@ -13,6 +13,12 @@
     FALSE       EQU 0
     EMPTY       EQU 0		; for an empty macro, ctrl-<something>=macro, ie ctrl-h = backspace macros (in MINT)
 
+    CTRL_E      equ 5
+    CTRL_H      equ 8
+    CTRL_J      equ 10
+    CTRL_L      equ 12
+    CTRL_P      equ 16
+
 .macro LITDAT,len
     DB len
 .endm
@@ -39,16 +45,6 @@
 ; **************************************************************************
 macros:
 
-backsp_:
-    DB "\\t@0=0=(\\t@1-\\t!`\b \b`);"	;ctr-h  , \ needed inside control code, escape it with anothe \
-                                        	; \c tib add of tib, not visible
-                                     	;@ fetch val
-                                      	;1- reduce
-                                      	;c! store
-                                      	;`\b move cursor back, terminal command
-                                      	;the space between the \b is to over write
-                                        	
-
 reedit_:
     DB "\\e\\@\\#;"			; remembers last line edited
 
@@ -60,9 +56,6 @@ list_:
 
 printStack_:
     .cstr "\\_\\?;"        
-
-toggleBase_:
-    .cstr "\\b@0=\\b!;"
 
 iOpcodes:
     LITDAT 4		; macros for compression
@@ -119,27 +112,6 @@ iOpcodes:
     DB    lsb(shr_)    ;    }            
     DB    lsb(rot_)    ;    ~ ( a b c -- b c a ) rotate            
     DB    lsb(nop_)    ;    DEL	; eg 10000()
-
-    LITDAT 17
-    DB     lsb(EMPTY)       ; NUL ^@        
-    DB     lsb(EMPTY)       ; SOH ^A  1
-    DB     lsb(toggleBase_) ; STX ^B  2
-    DB     lsb(EMPTY)       ; ETX ^C  3
-    DB     lsb(EMPTY)       ; EOT ^D  4
-    DB     lsb(edit_)       ; ENQ ^E  5
-    DB     lsb(EMPTY)       ; ACK ^F  6
-    DB     lsb(EMPTY)       ; BEL ^G  7 
-    DB     lsb(backsp_)     ; BS  ^H  8
-    DB     lsb(EMPTY)       ; TAB ^I  9
-    DB     lsb(reedit_)     ; LF  ^J 10
-    DB     lsb(EMPTY)       ; VT  ^K 11
-    DB     lsb(list_)       ; FF  ^L 12
-    DB     lsb(EMPTY)       ; CR  ^M 13
-    DB     lsb(EMPTY)       ; SO  ^N 14
-    DB     lsb(EMPTY)       ; SI  ^O 15
-    DB     lsb(printStack_) ; DLE ^P 16
-
-    REPDAT 15, lsb(EMPTY)
 
     LITDAT 5
     DB     lsb(aNop_)       ;a0    SP  space
@@ -243,21 +215,28 @@ waitchar:
     JR Z,waitchar4
     CP '\r'                 ; carriage return? ascii 13
     JR Z,waitchar3		; if anything else its macro/control 
-    ; LD D,0
+    cp CTRL_H
+    jp z,backSpace_
+    LD d,msb(macros)
+    cp CTRL_E
+    ld e,lsb(edit_)
+    jr z,macro
+    cp CTRL_J
+    ld e,lsb(reedit_)
+    jr z,macro
+    cp CTRL_L
+    ld e,lsb(list_)
+    jr z,macro
+    cp CTRL_P
+    ld e,lsb(printStack_)
+    jr z,macro
+    jr interpret2
+
 macro:                          ;=25
     LD (vTIBPtr),BC
-    LD HL,ctrlCodes
-    ADD A,L			;look up key of macros
-    LD L,A
-    LD E,(HL)
-    LD A,E
-    OR A
-    JR Z,macro1
-    LD D,msb(macros)
     PUSH DE
     call ENTER		;mint go operation and jump to it
     .cstr "\\^"
-macro1:
     LD BC,(vTIBPtr)
     JR interpret2
 
@@ -321,21 +300,15 @@ NEXT:                           ;=9
     LD H,msb(page4)             ;       Load H with the 1st page address
     JP (HL)                     ;       Jump to routine
 
-; ARRAY compilation routine
-compNEXT:                           ;=26
-    POP DE          	        ; DE = return address
-    LD HL,(vHeapPtr)  	        ; load heap ptr
-    LD (HL),E       	        ; store lsb
-    LD A,(vByteMode)
-    INC HL          
-    OR A
-    JR NZ,compNext1
-    LD (HL),D
-    INC HL
-compNEXT1:
-    LD (vHeapPtr),HL            ; save heap ptr
-    jr NEXT
-
+backSpace_:
+    ld a,c
+    or b
+    jp z, interpret2
+    dec bc
+    call printStr
+    .cstr "\b \b"
+    jp interpret2
+    
 init:                           ;=68
     LD HL,LSTACK
     LD (vLoopSP),HL         ; Loop stack pointer stored in memory
@@ -531,6 +504,38 @@ rpop:                               ;=11
 rpop2:
     RET
 
+carry:                              ;=10
+    ld hl,0
+    rl l
+    ld (vCarry),hl
+    jp (iy)              
+
+writeChar:                          ;=5
+    LD (HL),A
+    INC HL
+    JP putchar
+
+hex:                                ;=26
+    LD HL,0	    		    ; Clear HL to accept the number
+hex1:
+    INC BC
+    LD A,(BC)		    ; Get the character which is a numeral
+    BIT 6,A                     ; is it uppercase alpha?
+    JR Z, hex2                  ; no a decimal
+    SUB 7                       ; sub 7  to make $A - $F
+hex2:
+    SUB $30                     ; Form decimal digit
+    JP C,num2
+    CP $0F+1
+    JP NC,num2
+    ADD HL,HL                   ; 2X ; Multiply digit(s) in HL by 16
+    ADD HL,HL                   ; 4X
+    ADD HL,HL                   ; 8X
+    ADD HL,HL                   ; 16X     
+    ADD A,L                     ; Add into bottom of HL
+    LD  L,A                     ;   
+    JR  hex1
+
 ; **********************************************************************			 
 ; Page 4 primitive routines 
 ; **********************************************************************
@@ -584,17 +589,6 @@ add_:                           ; Add the top 2 members of the stack
     JP carry              
                              
 again_: JP again		; close loop
-
-arrDef_:    
-arrDef:                         ;=18
-    LD A,FALSE
-arrDef1:      
-    LD IY,compNEXT
-    LD (vByteMode),A
-    LD HL,(vHeapPtr)        ; HL = heap ptr
-    CALL rpush              ; save start of array \[  \]
-    JP NEXT                 ; hardwired to NEXT
-
 
 call_:
     LD A,(BC)
@@ -654,8 +648,6 @@ key_:
     LD L,A
     PUSH HL
     JP (IY)
-
-mul_:   JP mul      
 
 nop_:       
     JP NEXT             ; hardwire white space to always go to NEXT (important for arrays)
@@ -760,39 +752,14 @@ less:
     PUSH HL
     JP (IY) 
     
-num_:   JP  num
-begin_: JP begin
-arrEnd_:JP arrEnd
-
-str_:   JR str                      
-def_:   JR def
-div_:   JR div
-alt_:   jr alt 
-
 var_:
     LD A,(BC)
     CALL lookupRef2
     PUSH HL
     JP (IY)
 
-
-;*******************************************************************
-; Page 5 primitive routines 
-;*******************************************************************
-    ;falls through 
-alt:                                ;=11
-    INC BC
-    LD A,(BC)
-    LD HL,altCodes
-    ADD A,L
-    LD L,A
-alt2:
-    LD A,(HL)                   ;       get low jump address
-    LD HL,page6
-    LD L,A                      
-    JP (HL)                     ;       Jump to routine
-
-str:                                ;=15                      
+str_:                         
+str:                                                      
     INC BC
     
 str1:            
@@ -802,43 +769,61 @@ str1:
     JR Z,str2
     CALL putchar
     JR str1
-
 str2:  
     DEC BC
     JP   (IY) 
 
-; **************************************************************************             
-; def is used to create a colon definition
-; When a colon is detected, the next character (usually uppercase alpha)
-; is looked up in the vector table to get its associated code field address
-; This CFA is updated to point to the character after uppercase alpha
-; The remainder of the characters are then skipped until after a semicolon  
-; is found.
-; ***************************************************************************
+num_:   JP num
+begin_: JP begin
+arrDef_:JP arrDef    
+arrEnd_:JP arrEnd
+def_:   jp def
 
-def:                                ; Create a colon definition
+mul_:   jr mul      
+div_:   jr div
+alt_:   
+
+;*******************************************************************
+; Page 5 primitive routines 
+;*******************************************************************
+    ;falls through 
+alt:                                ;=11
     INC BC
-    LD  A,(BC)                  ; Get the next character
-    LD (vLastDef),A
-    CALL lookupRef
-    LD DE,(vHeapPtr)            ; start of defintion
-    LD (HL),E                   ; Save low byte of address in CFA
-    INC HL              
-    LD (HL),D                   ; Save high byte of address in CFA+1
-    INC BC
-def1:                               ; Skip to end of definition   
-    LD A,(BC)                   ; Get the next character
-    INC BC                      ; Point to next character
-    LD (DE),A
+    LD A,(BC)
+    sub 32
+    LD HL,altCodes
+    ADD A,L
+    LD L,A
+alt2:
+    LD A,(HL)                   ;       get low jump address
+    LD HL,page6
+    LD L,A                      
+    JP (HL)                     ;       Jump to routine
+
+; ********************************************************************
+; 16-bit multiply  
+mul:                                ;=19
+    POP  DE                     ; get first value
+    POP  HL
+    PUSH BC                     ; Preserve the IP
+    LD B,H                      ; BC = 2nd value
+    LD C,L
+    
+    LD HL,0
+    LD A,16
+mul2:
+    ADD HL,HL
+    RL E
+    RL D
+    JR NC,$+6
+    ADD HL,BC
+    JR NC,$+3
     INC DE
-    CP ";"                      ; Is it a semicolon 
-    JR Z, def2                  ; end the definition
-    JR  def1                    ; get the next element
-def2:    
-    DEC BC
-def3:
-    LD (vHeapPtr),DE            ; bump heap ptr to after definiton
-    JP (IY)       
+    DEC A
+    JR NZ,mul2
+	POP BC			    ; Restore the IP
+	PUSH HL                     ; Put the product on the stack - stack bug fixed 2/12/21
+	JP (IY)
 
 div:
     ld hl,bc                    ; hl = IP
@@ -965,7 +950,6 @@ again4:
     LD HL,0                     ; skip ELSE clause
     JR begin3               
     
-    
 ; **************************************************************************
 ; Page 6 Alt primitives
 ; **************************************************************************
@@ -1026,8 +1010,15 @@ cStore_:
     JP     (IY)            
                          
 depth_:
-    jp depth
-    
+depth:
+    LD HL,0
+    ADD HL,SP
+    EX DE,HL
+    LD HL,DSTACK
+    OR A
+    SBC HL,DE
+    JP shr1
+
 emit_:
     POP HL
     LD A,L
@@ -1104,61 +1095,16 @@ outPort_:
     LD C,E
     JP (IY)        
 
-aDup_:
-    JP dup_
-
 printStk_:
 printStk:                           ;=40
     ; MINT: \a@2- \- 1- ("@ \b@ \(,)(.) 2-) '             
     call ENTER
-    .cstr "`=> `\\a@2- \\- 1-(",$22,"@\\b@(,)(.)2-)'\\$"             
+    .cstr "`=> `\\a@2- \\- 1-(",$22,"@.2-)'\\$"             
     JP (IY)
 
 ;*******************************************************************
 ; Page 5 primitive routines continued
 ;*******************************************************************
-
-arrEnd:                             ;=27
-    CALL rpop                   ; DE = start of array
-    PUSH HL
-    EX DE,HL
-    LD HL,(vHeapPtr)            ; HL = heap ptr
-    OR A
-    SBC HL,DE                   ; bytes on heap 
-    LD A,(vByteMode)
-    OR A
-    JR NZ,arrEnd2
-    SRL H                       ; BC = m words
-    RR L
-arrEnd2:
-    PUSH HL 
-    LD IY,NEXT
-    JP (IY)                     ; hardwired to NEXT
-
-; ********************************************************************
-; 16-bit multiply  
-mul:                                ;=19
-    POP  DE                     ; get first value
-    POP  HL
-    PUSH BC                     ; Preserve the IP
-    LD B,H                      ; BC = 2nd value
-    LD C,L
-    
-    LD HL,0
-    LD A,16
-mul2:
-    ADD HL,HL
-    RL E
-    RL D
-    JR NC,$+6
-    ADD HL,BC
-    JR NC,$+3
-    INC DE
-    DEC A
-    JR NZ,mul2
-	POP BC			    ; Restore the IP
-	PUSH HL                     ; Put the product on the stack - stack bug fixed 2/12/21
-	JP (IY)
 
 ; ********************************************************************************
 ; Number Handling Routine - converts numeric ascii string to a 16-bit number in HL
@@ -1210,27 +1156,6 @@ num3:
     push hl                     ; Put the number on the stack
     jp (iy)                     ; and process the next character
 
-hex:                                ;=26
-LD HL,0	    		    ; Clear HL to accept the number
-hex1:
-    INC BC
-    LD A,(BC)		    ; Get the character which is a numeral
-    BIT 6,A                     ; is it uppercase alpha?
-    JR Z, hex2                  ; no a decimal
-    SUB 7                       ; sub 7  to make $A - $F
-hex2:
-    SUB $30                     ; Form decimal digit
-    JP C,num2
-    CP $0F+1
-    JP NC,num2
-    ADD HL,HL                   ; 2X ; Multiply digit(s) in HL by 16
-    ADD HL,HL                   ; 4X
-    ADD HL,HL                   ; 8X
-    ADD HL,HL                   ; 16X     
-    ADD A,L                     ; Add into bottom of HL
-    LD  L,A                     ;   
-    JR  hex1
-
 ;*******************************************************************
 ; Subroutines
 ;*******************************************************************
@@ -1267,10 +1192,6 @@ editDef3:
     SBC HL,DE
     LD (vTIBPtr),HL
     RET
-writeChar:                          ;=5
-    LD (HL),A
-    INC HL
-    JP putchar
 
 ; hl = value
 printDec:    
@@ -1320,18 +1241,79 @@ printDec7:
     ld a,b
     jp putchar
 
-carry:                              ;=10
-    ld hl,0
-    rl l
-    ld (vCarry),hl
-    jp (iy)              
-
-depth:
-    LD HL,0
-    ADD HL,SP
-    EX DE,HL
-    LD HL,DSTACK
+; ARRAY compilation routine
+compNEXT:                           ;=26
+    POP DE          	        ; DE = return address
+    LD HL,(vHeapPtr)  	        ; load heap ptr
+    LD (HL),E       	        ; store lsb
+    LD A,(vByteMode)
+    INC HL          
     OR A
-    SBC HL,DE
-    JP shr1
+    JR NZ,compNext1
+    LD (HL),D
+    INC HL
+compNEXT1:
+    LD (vHeapPtr),HL            ; save heap ptr
+    jp NEXT
+
+arrDef:                         ;=18
+    LD A,FALSE
+arrDef1:      
+    LD IY,compNEXT
+    LD (vByteMode),A
+    LD HL,(vHeapPtr)        ; HL = heap ptr
+    CALL rpush              ; save start of array \[  \]
+    JP NEXT                 ; hardwired to NEXT
+
+arrEnd:                             ;=27
+    CALL rpop                   ; DE = start of array
+    PUSH HL
+    EX DE,HL
+    LD HL,(vHeapPtr)            ; HL = heap ptr
+    OR A
+    SBC HL,DE                   ; bytes on heap 
+    LD A,(vByteMode)
+    OR A
+    JR NZ,arrEnd2
+    SRL H                       ; BC = m words
+    RR L
+arrEnd2:
+    PUSH HL 
+    LD IY,NEXT
+    JP (IY)                     ; hardwired to NEXT
+
+; **************************************************************************             
+; def is used to create a colon definition
+; When a colon is detected, the next character (usually uppercase alpha)
+; is looked up in the vector table to get its associated code field address
+; This CFA is updated to point to the character after uppercase alpha
+; The remainder of the characters are then skipped until after a semicolon  
+; is found.
+; ***************************************************************************
+
+def:                                ; Create a colon definition
+    INC BC
+    LD  A,(BC)                  ; Get the next character
+    LD (vLastDef),A
+    CALL lookupRef
+    LD DE,(vHeapPtr)            ; start of defintion
+    LD (HL),E                   ; Save low byte of address in CFA
+    INC HL              
+    LD (HL),D                   ; Save high byte of address in CFA+1
+    INC BC
+def1:                               ; Skip to end of definition   
+    LD A,(BC)                   ; Get the next character
+    INC BC                      ; Point to next character
+    LD (DE),A
+    INC DE
+    CP ";"                      ; Is it a semicolon 
+    JR Z, def2                  ; end the definition
+    JR  def1                    ; get the next element
+def2:    
+    DEC BC
+def3:
+    LD (vHeapPtr),DE            ; bump heap ptr to after definiton
+    JP (IY)       
+
+
 
