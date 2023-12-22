@@ -185,12 +185,9 @@ iOpcodes:
 
     REPDAT 16, lsb(altVar_) ;       \k...\z
 
-    LITDAT 5
-    DB    lsb(rpop_)        ;       \{ ( -- n ) pop from MINT return stack 
-    DB    lsb(aNop_)        ;       \|           
-    DB    lsb(rpush_)       ;       \} ( n -- ) push to return stack           
+    REPDAT 3, lsb(aNop_)    ;       \{ \| \}
+    LITDAT 1
     DB    lsb(break_)       ;       \~ ( b -- ) conditional break from loop            
-    DB    lsb(aNop_)        ;       DEL
 
     ENDDAT 
 
@@ -1106,16 +1103,6 @@ outPort_:
     OUT (C),L
     LD C,E
     JP (IY)        
-
-rpush_:
-    POP HL
-    CALL rpush
-    JP (IY)
-
-rpop_:
-    CALL rpop
-    PUSH HL
-    JP (IY)
 
 aDup_:
     JP dup_
