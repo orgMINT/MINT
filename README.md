@@ -17,26 +17,28 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 - 7. [Logical operators](#logical-operators)
 - 8. [Conditional code](#conditional-code)
 - 9. [Functions in MINT](#functions-in-mint)
+
   - 9.1. [Function with Multiple Arguments](#function-with-multiple-arguments)
   - 9.2. [Calling functions](#calling-functions)
   - 9.3. [Assigning Functions to Variables](#assigning-functions-to-variables)
   - 9.4. [Using Functions](#using-functions)
-  - 9.5. [SYSTEM VARIABLES](#system-variables)
-  - 9.6. [Using MINT on the TEC-1](#using-mint-on-the-tec-1)
-  - 9.7. [Loops](#loops)
+  - 9.5. [Anonymous Functions](anonymous-functions)
 - 10. [Arrays](#arrays)
 - 11. [Appendices](#appendices)
-  - 11.1. [List of operators](#list-of-operators)
-  - 11.2. [Maths Operators](#maths-operators)
-  - 11.3. [Logical Operators](#logical-operators-1)
-  - 11.4. [Stack Operations](#stack-operations)
-  - 11.5. [Input & Output Operations](#input-&-output-operations)
-  - 11.6. [Loops and conditional execution](#loops-and-conditional-execution)
-  - 11.7. [Memory and Variable Operations](#memory-and-variable-operations)
-  - 11.8. [System Variables](#system-variables-1)
-  - 11.9. [Miscellaneous](#miscellaneous)
-  - 11.10. [Utility commands](#utility-commands)
-  - 11.11. [Control keys](#control-keys)
+  - 11.1. [SYSTEM VARIABLES](#system-variables)
+  - 11.2. [Using MINT on the TEC-1](#using-mint-on-the-tec-1)
+  - 11.3. [Loops](#loops)
+  - 11.4. [List of operators](#list-of-operators)
+  - 11.5. [Maths Operators](#maths-operators)
+  - 11.6. [Logical Operators](#logical-operators-1)
+  - 11.7. [Stack Operations](#stack-operations)
+  - 11.8. [Input & Output Operations](#input-&-output-operations)
+  - 11.9. [Loops and conditional execution](#loops-and-conditional-execution)
+  - 11.10. [Memory and Variable Operations](#memory-and-variable-operations)
+  - 11.11. [System Variables](#system-variables-1)
+  - 11.12. [Miscellaneous](#miscellaneous)
+  - 11.13. [Utility commands](#utility-commands)
+  - 11.14. [Control keys](#control-keys)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -364,27 +366,11 @@ Example:
 3 7 B      // prints 10, the sum of 3 and 7
 ```
 
+### 9.5. <a name='anonymous-functions'></a>Anonymous Functions
+
 In the first line, we execute the function stored in variable `A` with the argument `10`,
 which prints `10`. In the second line, we execute the function stored in variable `B` with
 arguments `3` and `7`, which results in `10` being printed (the sum of the two arguments).
-
-### 9.5. <a name='system-variables'></a>SYSTEM VARIABLES
-
-System variables contain values which MINT uses internally but are available for programmatic use. These are the lowercase letters preceded by a \ e.g. \a, \b, \c etc. However MINT only uses a few of these variables so the user may use the other ones as they like.
-
-### 9.6. <a name='using-mint-on-the-tec-1'></a>Using MINT on the TEC-1
-
-MINT was designed for for small Z80 based systems but specifically with the small memory configuration of the TEC-1 single board computer. It is only 2K to work with the original TEC-1 and interfaces to the serial interface via a simple adapter.
-
-On initialisation it will present a user prompt ">" followed by a CR and LF. It is now ready to accept commands from the keyboard.
-
-### 9.7. <a name='loops'></a>Loops
-
-0(this code will not be executed but skipped)
-1(this code will be execute once)
-10(this code will execute 10 times)
-
-You can use the comparison operators < = and > to compare 2 values and conditionally execute the code between the brackets.
 
 ## 10. <a name='arrays'></a>Arrays
 
@@ -427,13 +413,33 @@ To fetch the Nth member of the array, we can create use the index operator `_`
 [ 1 2 3 ] 2 _ @
 ```
 
+Nesting arrays...
+
 ## 11. <a name='appendices'></a>Appendices
 
-### 11.1. <a name='list-of-operators'></a>List of operators
+### 11.1. <a name='system-variables'></a>SYSTEM VARIABLES
+
+System variables contain values which MINT uses internally but are available for programmatic use. These are the lowercase letters preceded by a \ e.g. \a, \b, \c etc. However MINT only uses a few of these variables so the user may use the other ones as they like.
+
+### 11.2. <a name='using-mint-on-the-tec-1'></a>Using MINT on the TEC-1
+
+MINT was designed for for small Z80 based systems but specifically with the small memory configuration of the TEC-1 single board computer. It is only 2K to work with the original TEC-1 and interfaces to the serial interface via a simple adapter.
+
+On initialisation it will present a user prompt ">" followed by a CR and LF. It is now ready to accept commands from the keyboard.
+
+### 11.3. <a name='loops'></a>Loops
+
+0(this code will not be executed but skipped)
+1(this code will be execute once)
+10(this code will execute 10 times)
+
+You can use the comparison operators < = and > to compare 2 values and conditionally execute the code between the brackets.
+
+### 11.4. <a name='list-of-operators'></a>List of operators
 
 MINT is a bytecode interpreter - this means that all of its instructions are 1 byte long. However, the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications running on an 8-bit cpu.
 
-### 11.2. <a name='maths-operators'></a>Maths Operators
+### 11.5. <a name='maths-operators'></a>Maths Operators
 
 | Symbol | Description                               | Effect   |
 | ------ | ----------------------------------------- | -------- |
@@ -447,7 +453,7 @@ MINT is a bytecode interpreter - this means that all of its instructions are 1 b
 | {      | shift left                                | --       |
 | }      | shift right                               | --       |
 
-### 11.3. <a name='logical-operators-1'></a>Logical Operators
+### 11.6. <a name='logical-operators-1'></a>Logical Operators
 
 | Symbol | Description        | Effect   |
 | ------ | ------------------ | -------- |
@@ -456,7 +462,7 @@ MINT is a bytecode interpreter - this means that all of its instructions are 1 b
 
 Note: logical NOT can be achieved with 0=
 
-### 11.4. <a name='stack-operations'></a>Stack Operations
+### 11.7. <a name='stack-operations'></a>Stack Operations
 
 | Symbol | Description                                                          | Effect         |
 | ------ | -------------------------------------------------------------------- | -------------- |
@@ -467,7 +473,7 @@ Note: logical NOT can be achieved with 0=
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
 | \D     | stack depth                                                          | -- val         |
 
-### 11.5. <a name='input-&-output-operations'></a>Input & Output Operations
+### 11.8. <a name='input-&-output-operations'></a>Input & Output Operations
 
 | Symbol | Description                                    | Effect      |
 | ------ | ---------------------------------------------- | ----------- |
@@ -484,7 +490,7 @@ Note: logical NOT can be achieved with 0=
 | ------- | ------------------------------- | -------- |
 | ;       | end of user definition END      |          |
 | :<CHAR> | define a new command DEF        |          |
-| \\:     | define an anonymous command DEF |          |
+| \\:     | define an anonymous command DEF | -- adr   |
 | \\G     | execute mint code at address    | adr -- ? |
 | \\X     | execute machine code at address | adr -- ? |
 
@@ -492,7 +498,7 @@ NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
 <NUM> is the namespace number. There are currently 5 namespaces numbered 0 - 4
 
-### 11.6. <a name='loops-and-conditional-execution'></a>Loops and conditional execution
+### 11.9. <a name='loops-and-conditional-execution'></a>Loops and conditional execution
 
 | Symbol | Description                            | Effect |
 | ------ | -------------------------------------- | ------ |
@@ -511,7 +517,7 @@ if the condition is 0 (i.e. it is an ELSE clause)
 e.g. 0(`will not execute`)(`will execute`)
 1(`will execute`)(`will not execute`)
 
-### 11.7. <a name='memory-and-variable-operations'></a>Memory and Variable Operations
+### 11.10. <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
 | Symbol | Description                   | Effect         |
 | ------ | ----------------------------- | -------------- |
@@ -525,7 +531,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\S    | array size                    | adr -- val     |
 | \\[    | begin a byte array definition | --             |
 
-### 11.8. <a name='system-variables-1'></a>System Variables
+### 11.11. <a name='system-variables-1'></a>System Variables
 
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
@@ -537,13 +543,13 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\j    | outer loop counter variable        | -- adr |
 | \\t    | text input buffer pointer variable | -- adr |
 
-### 11.9. <a name='miscellaneous'></a>Miscellaneous
+### 11.12. <a name='miscellaneous'></a>Miscellaneous
 
 | Symbol | Description                                   | Effect |
 | ------ | --------------------------------------------- | ------ |
 | \\\\   | comment text, skips reading until end of line | --     |
 
-### 11.10. <a name='utility-commands'></a>Utility commands
+### 11.13. <a name='utility-commands'></a>Utility commands
 
 | Symbol | Description   | Effect  |
 | ------ | ------------- | ------- |
@@ -552,7 +558,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\P    | print prompt  | --      |
 | \\T    | print stack   | --      |
 
-### 11.11. <a name='control-keys'></a>Control keys
+### 11.14. <a name='control-keys'></a>Control keys
 
 | Symbol | Description       |
 | ------ | ----------------- |
