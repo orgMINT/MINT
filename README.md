@@ -139,11 +139,13 @@ prints `1`
 
 MINT has a set of bitwise logical operators that can be used to manipulate bits. These operators are:
 
-`&` performs a bitwise AND operation on the two operands.
-`|` performs a bitwise OR operation on the two operands.
-`^` performs a bitwise XOR operation on the two operands.
-`{` shifts the bits of the operand to the left by the specified number of positions.
-`}` shifts the bits of the operand to the right by the specified number of positions.
+```
+& performs a bitwise AND operation on the two operands.
+| performs a bitwise OR operation on the two operands.
+^ performs a bitwise XOR operation on the two operands.
+{ shifts the bits of the operand to the left by one.
+} shifts the bits of the operand to the right by one.
+```
 
 The bitwise logical operators can be used to perform a variety of operations on bits, such as:
 
@@ -157,26 +159,26 @@ Here is an example of how to use the bitwise logical operators in MINT:
 Check if the first bit of the number 10 is set
 
 ```
-10 & 1 .
+10 1 & ,
 ```
 
-this will print `1`
+this will print 0001
 
-Set the fourth bit of the number 10
-
-```
-1 {{{ 1 | .
-```
-
-prints #0009
-
-Flip the third bit of the number 10
+Shift 1 three times to the left (i.e. multiple by 8) and then OR 1 with the least significant bit.
 
 ```
-1 {{ #0F ^ .
+1 {{{ 1 | ,
 ```
 
-prints #000B
+prints 0009
+
+Shift 1 two times to the left (i.e. multiple by 4) and then XOR #0F and then mask with #0F.
+
+```
+1 {{ #0F ^ #0F & ,
+```
+
+prints 000B
 
 ## <a name='variables'></a>Variables
 
