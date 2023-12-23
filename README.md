@@ -39,7 +39,7 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Utility commands](#utility-commands)
   - [Control keys](#control-keys)
 
-## Reverse Polish Notation (RPN)
+## <a name='reverse-polish-notation-(rpn)'></a>Reverse Polish Notation (RPN)
 
 RPN is a [concatenative](https://concatenative.org/wiki/view/Concatenative%20language)
 way of writing expressions in which the operators come after their operands.
