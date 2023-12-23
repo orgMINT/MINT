@@ -12,7 +12,7 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 - [Printing text](#printing-text)
 - [Basic arithmetic operations](#basic-arithmetic-operations)
 - [Logical operators](#logical-operators)
-- [Variable Assignment](#variable-assignment)
+- [Variables](#variables)
 - [Arrays](#arrays)
   - [Basic arrays](#basic-arrays)
   - [Array size](#array-size)
@@ -23,7 +23,6 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 - [Functions in MINT](#functions-in-mint)
   - [Function with multiple arguments](#function-with-multiple-arguments)
   - [Calling functions](#calling-functions)
-  - [Assigning functions to variables](#assigning-functions-to-variables)
   - [Using functions](#using-functions)
   - [Anonymous functions](#anonymous-functions)
 - [Appendices](#appendices)
@@ -35,6 +34,7 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Input & Output Operations](#input-&-output-operations)
   - [Loops and conditional execution](#loops-and-conditional-execution)
   - [Memory and Variable Operations](#memory-and-variable-operations)
+  - [Array Operations](#array-operations)
   - [System Variables](#system-variables-1)
   - [Miscellaneous](#miscellaneous)
   - [Utility commands](#utility-commands)
@@ -178,7 +178,7 @@ Flip the third bit of the number 10
 
 prints #000B
 
-## <a name='variable-assignment'></a>Variable Assignment
+## <a name='variables'></a>Variables
 
 Variables are named locations in memory that can store data. MINT has a limited
 number of global variables which have single letter names. In MINT a variable can
@@ -476,40 +476,6 @@ Functions are called by referring to them
 This code passes the numbers `30` and `20` to a function which multiplies them and returns
 the result which is then printed.
 
-### <a name='assigning-functions-to-variables'></a>Assigning functions to variables
-
-In MINT, you can assign functions to variables just like any other value.
-Variables in MINT are limited to a single uppercase or lowercase letter. To
-assign a function to a variable, use the `=` operator.
-
-Let's see some examples:
-
-Here's a function to print a number between after a `$` symbol and storing t in variable `A`
-
-```
-:A `$` . ;
-```
-
-And calling it:
-
-```
-100 A
-```
-
-The `100` is passed to the function as argument `a`. The function first prints `$` followed by `1001
-
-Here's a function to square a number by duplicating the value on the stack and then multiplying the two numbers. The function is stored in variable S
-
-```
-:S " * ;
-```
-
-Calling it:
-
-```
-4 S .
-```
-
 ### <a name='using-functions'></a>Using functions
 
 Once you've assigned functions to variables, you can use them in your MINT code.
@@ -644,17 +610,21 @@ e.g. 0(`will not execute`)(`will execute`)
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
-| Symbol | Description                   | Effect         |
-| ------ | ----------------------------- | -------------- |
-| !      | STORE a value to memory       | val adr --     |
-| @      | FETCH a value from memory     | adr -- val     |
-| \\!    | STORE a byte to memory        | val adr --     |
-| \\@    | FETCH a byte from memory      | -- val         |
-| [      | begin an array definition     | --             |
-| ]      | end an array definition       | -- adr         |
-| \_     | get address of array item     | adr idx -- adr |
-| \\S    | array size                    | adr -- val     |
-| \\[    | begin a byte array definition | --             |
+| Symbol | Description               | Effect     |
+| ------ | ------------------------- | ---------- |
+| !      | STORE a value to memory   | val adr -- |
+| @      | FETCH a value from memory | adr -- val |
+| \\!    | STORE a byte to memory    | val adr -- |
+| \\@    | FETCH a byte from memory  | -- val     |
+
+### <a name='array-operations'></a>Array Operations
+
+| Symbol | Description | Effect |
+| [ | begin an array definition | -- |
+| ] | end an array definition | -- adr |
+| \_ | get address of array item | adr idx -- adr |
+| \\S | array size | adr -- val |
+| \\[ | begin a byte array definition | -- |
 
 ### <a name='system-variables-1'></a>System Variables
 
