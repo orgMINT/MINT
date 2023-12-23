@@ -619,12 +619,13 @@ e.g. 0(`will not execute`)(`will execute`)
 
 ### <a name='array-operations'></a>Array Operations
 
-| Symbol | Description | Effect |
-| [ | begin an array definition | -- |
-| ] | end an array definition | -- adr |
-| \_ | get address of array item | adr idx -- adr |
-| \\S | array size | adr -- val |
-| \\[ | begin a byte array definition | -- |
+| Symbol | Description                   | Effect         |
+| ------ | ----------------------------- | -------------- |
+| [      | begin an array definition     | --             |
+| ]      | end an array definition       | -- adr         |
+| \_     | get address of array item     | adr idx -- adr |
+| \\S    | array size                    | adr -- val     |
+| \\[    | begin a byte array definition | --             |
 
 ### <a name='system-variables-1'></a>System Variables
 
