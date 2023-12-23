@@ -6,6 +6,7 @@
     SBC HL,DE
     LD A,L
     OR H
+    pop hl
     JR Z,expect%%M
 
     CALL printStr

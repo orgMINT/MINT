@@ -239,9 +239,8 @@ Here is an example of a "if...else" operator in MINT:
 10 x !
 20 y !
 
-x@ y@ > ( \'x is greater than y' )( \'y is greater than x' ) z !
+x@ y@ > ( `x is greater than y` )( `y is greater than x` )
 
-z \.
 ```
 
 In this example, the variable x is assigned the value 10 and the variable y is assigned the value 20. The "if...else" operator then checks to see if x is greater than y. If it is, then the string "x is greater than y" is returned. Otherwise, the string "y is greater than x" is returned. The value of the "if...else" operator is then assigned to the variable z. Finally, the value of z is printed to the console.
@@ -411,11 +410,11 @@ An array of 16-bit numbers can be defined by enclosing them within square bracke
 
 [1 2 3 4 5 6 7 8 9 0]
 
-Defining an array puts its start address and length onto the stack
+Defining an array puts its start address onto the stack
 
 These can then be allocated to a variable, which acts as a pointer to the array in memory
 
-[1 2 3 4 5 6 7 8 9 0] $ a!
+[1 2 3 4 5 6 7 8 9 0] a!
 
 The swap $ is used to get the starting address onto the top of the stack and then store that into the variable a.
 
@@ -459,7 +458,7 @@ Note: logical NOT can be achieved with 0=
 | ~      | rotate the top 3 members of the stack ROT                            | a b c -- b c a |
 | %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a   |
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
-| \-     | stack depth                                                          | -- val         |
+| \D     | stack depth                                                          | -- val         |
 
 ### 10.5. <a name='input-&-output-operations'></a>Input & Output Operations
 
@@ -469,9 +468,9 @@ Note: logical NOT can be achieved with 0=
 | .      | print the number on the stack as a decimal     | a --        |
 | ,      | print the number on the stack as a hexadecimal | a --        |
 | \`     | print the literal string between \` and \`     | --          |
-| \\,    | prints a character to output                   | val --      |
-| \\>    | output to an I/O port                          | val port -- |
-| \\<    | input from a I/O port                          | port -- val |
+| \\E    | prints a character to output                   | val --      |
+| \\O    | output to an I/O port                          | val port -- |
+| \\I    | input from a I/O port                          | port -- val |
 | #      | the following number is in hexadecimal         | a --        |
 
 | Symbol  | Description                     | Effect   |
@@ -479,8 +478,8 @@ Note: logical NOT can be achieved with 0=
 | ;       | end of user definition END      |          |
 | :<CHAR> | define a new command DEF        |          |
 | \\:     | define an anonymous command DEF |          |
-| \\^     | execute mint code at address    | adr -- ? |
-| \\;     | execute machine code at address | adr -- ? |
+| \\G     | execute mint code at address    | adr -- ? |
+| \\X     | execute machine code at address | adr -- ? |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -492,7 +491,7 @@ NOTE:
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| \\~    | if false break out of loop             | b --   |
+| \\B    | if false break out of loop             | b --   |
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
@@ -507,15 +506,17 @@ e.g. 0(`will not execute`)(`will execute`)
 
 ### 10.7. <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
-| Symbol | Description                   | Effect        |
-| ------ | ----------------------------- | ------------- |
-| !      | STORE a value to memory       | val adr --    |
-| [      | begin an array definition     | --            |
-| ]      | end an array definition       | -- adr nwords |
-| @      | FETCH a value from memory     | -- val        |
-| \\!    | STORE a byte to memory        | val adr --    |
-| \\[    | begin a byte array definition | --            |
-| \\@    | FETCH a byte from memory      | -- val        |
+| Symbol | Description                   | Effect         |
+| ------ | ----------------------------- | -------------- |
+| !      | STORE a value to memory       | val adr --     |
+| @      | FETCH a value from memory     | adr -- val     |
+| \\!    | STORE a byte to memory        | val adr --     |
+| \\@    | FETCH a byte from memory      | -- val         |
+| [      | begin an array definition     | --             |
+| ]      | end an array definition       | -- adr         |
+| \_     | get address of array item     | adr idx -- adr |
+| \\S    | array size                    | adr -- val     |
+| \\[    | begin a byte array definition | -- adr         |
 
 ### 10.8. <a name='system-variables-1'></a>System Variables
 
@@ -540,17 +541,17 @@ e.g. 0(`will not execute`)(`will execute`)
 
 | Symbol | Description   | Effect |
 | ------ | ------------- | ------ |
-| \\$    | prints a CRLF | --     |
-| \\#    | edit command  | val -- |
-| \\?    | print prompt  | --     |
-| \\\_   | print stack   | --     |
+| \\N    | prints a CRLF | --     |
+| \\L    | edit command  | val -- |
+| \\P    | print prompt  | --     |
+| \\T    | print stack   | --     |
 
 ### 10.11. <a name='control-keys'></a>Control keys
 
-| Symbol | Description                     |
-| ------ | ------------------------------- |
-| ^E     | edit a definition               |
-| ^H     | backspace                       |
-| ^J     | re-edit                         |
-| ^L     | list definitions                |
-| ^P     | print stack                     |
+| Symbol | Description       |
+| ------ | ----------------- |
+| ^E     | edit a definition |
+| ^H     | backspace         |
+| ^J     | re-edit           |
+| ^L     | list definitions  |
+| ^P     | print stack       |

@@ -19,16 +19,19 @@ stack:
 lStack:
             .align $100
 opcodes:    
-            DS $80
+            DS $80-32-1-1
 altCodes:
-            DS $80-32
+            DS $80-32-1-5
 
             .align $100
 mintVars:
             DS $30
 vLoopSP:    DS 2                ; 
+
 vByteMode:  DS 2                ; 
 tbPtr:      DS 2                ; reserved for tests
+vTemp1:     ds 2                ; 
+vTemp2:     ds 2                ; 
 
 RST08:      DS 2                 
 RST10:      DS 2                 
