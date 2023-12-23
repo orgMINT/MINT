@@ -9,12 +9,11 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Decimal numbers](#decimal-numbers)
   - [Hexadecimal numbers](#hexadecimal-numbers)
   - [Formatting numbers](#formatting-numbers)
+- [Printing text](#printing-text)
 - [Basic arithmetic operations](#basic-arithmetic-operations)
 - [Logical operators](#logical-operators)
-- [Variables and Variable Assignment](#variables-and-variable-assignment)
+- [Variable Assignment](#variable-assignment)
 - [Variable operators](#variable-operators)
-- [Strings](#strings)
-  - [Printing values](#printing-values)
 - [Arrays](#arrays)
   - [Basic arrays](#basic-arrays)
   - [Array size](#array-size)
@@ -83,6 +82,19 @@ Unlike decimal numbers, hexadecimal numbers are assumed to be positive in MINT.
 
 MINT provides commands for formatting hexadecimal and decimal numbers. The print
 operator `.` prints numbers in decimal. The `,` operator prints in hexadecimal.
+
+## <a name='printing-text'></a>Printing text
+
+MINT allows the user to easily print literal text by using \` quotes.
+
+For example
+
+```
+100 x !
+`The value of x is ` x .
+```
+
+prints `The value of x is 100`
 
 ## <a name='basic-arithmetic-operations'></a>Basic arithmetic operations
 
@@ -167,7 +179,7 @@ Flip the third bit of the number 10
 
 prints #000B
 
-## <a name='variables-and-variable-assignment'></a>Variables and Variable Assignment
+## <a name='variable-assignment'></a>Variable Assignment
 
 Variables are named locations in memory that can store data. MINT has a limited
 number of global variables which have single letter names. In MINT a variable can
@@ -197,7 +209,7 @@ The second line fetches the value stored in `a` and prints it.
 a@ .
 ```
 
-In this longer example, the number `10` is stored in `a` and the number `20` is
+In this longer example, the number 10 is stored in `a` and the number `20` is
 stored in `b`. The values in these two variables are then added together and the answer
 `30` is stored in `z`. Finally `z` is printed.
 
@@ -207,17 +219,6 @@ stored in `b`. The values in these two variables are then added together and the
 a@ b@ + z !
 z@ .
 ```
-
-MINT allows the user to easily print literal text by using \` quotes.
-
-For example
-
-```
-100 x !
-`The value of x is ` x .
-```
-
-prints `The value of x is 100`
 
 ## <a name='arrays'></a>Arrays
 
