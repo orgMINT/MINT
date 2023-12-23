@@ -13,7 +13,6 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 - [Basic arithmetic operations](#basic-arithmetic-operations)
 - [Logical operators](#logical-operators)
 - [Variable Assignment](#variable-assignment)
-- [Variable operators](#variable-operators)
 - [Arrays](#arrays)
   - [Basic arrays](#basic-arrays)
   - [Array size](#array-size)
