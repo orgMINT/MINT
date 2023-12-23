@@ -1139,7 +1139,7 @@
 0454   FD E9                  JP   (IY)   
 0456                HEX_:        ;=26
 0456   21 00 00               LD   hl,0   ; Clear hl to accept the number
-0459   C3 E6 07               JP   hex0   
+0459   C3 E8 07               JP   hex0   
 045C                KEY_:        
 045C   CD 81 00               CALL   getchar   
 045F   26 00                  LD   H,0   
@@ -1761,58 +1761,60 @@
 07BA   70                     LD   (hl),b   
 07BB   23                     INC   hl   ; hl = array[0], bc = count
 07BC                             ; de = old SP, hl = array[0], bc = count
-07BC   18 0F                  JR   arrayEnd2   
+07BC   18 11                  JR   arrayEnd2   
 07BE                ARRAYEND1:      
 07BE   0B                     DEC   bc   ; dec items count
-07BF   1A                     LD   a,(de)   ; a = lsb of stack item
+07BF   1B                     DEC   de   
 07C0   1B                     DEC   de   
-07C1   77                     LD   (hl),a   ; write lsb of array item
-07C2   23                     INC   hl   ; move to msb of array item
-07C3   3A 32 0C               LD   a,(vByteMode)   ; vByteMode=1?
-07C6   3D                     DEC   a   
-07C7   28 04                  JR   z,arrayEnd2   
-07C9   1A                     LD   a,(de)   ; a = msb of stack item
-07CA   1B                     DEC   de   
-07CB   77                     LD   (hl),a   ; write msb of array item
-07CC   23                     INC   hl   ; move to next word in array
-07CD                ARRAYEND2:      
-07CD   79                     LD   a,c   ; if not zero loop
-07CE   B0                     OR   b   
-07CF   20 ED                  JR   nz,arrayEnd1   
-07D1   EB                     EX   de,hl   ; de = end of array
-07D2   2A 38 0C               LD   hl,(vTemp2)   
-07D5   F9                     LD   sp,hl   ; SP = old SP
-07D6   2A 92 0C               LD   hl,(vHeapPtr)   ; de = array[-2]
-07D9   23                     INC   hl   
-07DA   23                     INC   hl   
-07DB   E5                     PUSH   hl   ; return array[0]
-07DC   ED 53 92 0C            LD   (vHeapPtr),de   ; move heap* to end of array
-07E0   ED 4B 36 0C            LD   bc,(vTemp1)   ; restore IP
-07E4   FD E9                  JP   (iy)   
-07E6                HEX0:        
-07E6                HEX1:        
-07E6   03                     INC   BC   
-07E7   0A                     LD   A,(BC)   ; Get the character which is a numeral
-07E8   CB 77                  BIT   6,A   ; is it uppercase alpha?
-07EA   28 02                  JR   Z,hex2   ; no a decimal
-07EC   D6 07                  SUB   7   ; sub 7  to make $A - $F
-07EE                HEX2:        
-07EE   D6 30                  SUB   $30   ; Form decimal digit
-07F0   DA EB 06               JP   C,num2   
-07F3   FE 10                  CP   $0F+1   
-07F5   D2 EB 06               JP   NC,num2   
-07F8   29                     ADD   hl,hl   ; 2X ; Multiply digit(s) in hl by 16
-07F9   29                     ADD   hl,hl   ; 4X
-07FA   29                     ADD   hl,hl   ; 8X
-07FB   29                     ADD   hl,hl   ; 16X
-07FC   85                     ADD   A,L   ; add into bottom of hl
-07FD   6F                     LD   L,A   ; 
-07FE   18 E6                  JR   hex1   
-0800                DSIZE:    EQU   $80   
-0800                RSIZE:    EQU   $80   
-0800                LSIZE:    EQU   $80   
-0800                TIBSIZE:   EQU   $100   ; 256 bytes , along line!
-0800                VARS_SIZE:   EQU   26*2*2   ; A..Z, a..z words
+07C1   1A                     LD   a,(de)   ; a = lsb of stack item
+07C2   77                     LD   (hl),a   ; write lsb of array item
+07C3   23                     INC   hl   ; move to msb of array item
+07C4   3A 32 0C               LD   a,(vByteMode)   ; vByteMode=1?
+07C7   3D                     DEC   a   
+07C8   28 05                  JR   z,arrayEnd2   
+07CA   13                     INC   de   
+07CB   1A                     LD   a,(de)   ; a = msb of stack item
+07CC   1B                     DEC   de   
+07CD   77                     LD   (hl),a   ; write msb of array item
+07CE   23                     INC   hl   ; move to next word in array
+07CF                ARRAYEND2:      
+07CF   79                     LD   a,c   ; if not zero loop
+07D0   B0                     OR   b   
+07D1   20 EB                  JR   nz,arrayEnd1   
+07D3   EB                     EX   de,hl   ; de = end of array
+07D4   2A 38 0C               LD   hl,(vTemp2)   
+07D7   F9                     LD   sp,hl   ; SP = old SP
+07D8   2A 92 0C               LD   hl,(vHeapPtr)   ; de = array[-2]
+07DB   23                     INC   hl   
+07DC   23                     INC   hl   
+07DD   E5                     PUSH   hl   ; return array[0]
+07DE   ED 53 92 0C            LD   (vHeapPtr),de   ; move heap* to end of array
+07E2   ED 4B 36 0C            LD   bc,(vTemp1)   ; restore IP
+07E6   FD E9                  JP   (iy)   
+07E8                HEX0:        
+07E8                HEX1:        
+07E8   03                     INC   BC   
+07E9   0A                     LD   A,(BC)   ; Get the character which is a numeral
+07EA   CB 77                  BIT   6,A   ; is it uppercase alpha?
+07EC   28 02                  JR   Z,hex2   ; no a decimal
+07EE   D6 07                  SUB   7   ; sub 7  to make $A - $F
+07F0                HEX2:        
+07F0   D6 30                  SUB   $30   ; Form decimal digit
+07F2   DA EB 06               JP   C,num2   
+07F5   FE 10                  CP   $0F+1   
+07F7   D2 EB 06               JP   NC,num2   
+07FA   29                     ADD   hl,hl   ; 2X ; Multiply digit(s) in hl by 16
+07FB   29                     ADD   hl,hl   ; 4X
+07FC   29                     ADD   hl,hl   ; 8X
+07FD   29                     ADD   hl,hl   ; 16X
+07FE   85                     ADD   A,L   ; add into bottom of hl
+07FF   6F                     LD   L,A   ; 
+0800   18 E6                  JR   hex1   
+0802                DSIZE:    EQU   $80   
+0802                RSIZE:    EQU   $80   
+0802                LSIZE:    EQU   $80   
+0802                TIBSIZE:   EQU   $100   ; 256 bytes , along line!
+0802                VARS_SIZE:   EQU   26*2*2   ; A..Z, a..z words
 0800                          .ORG   RAMSTART   
 0800                TIB:      DS   TIBSIZE   
 0900                          DS   RSIZE   
@@ -2277,8 +2279,8 @@ NUM1:               06D3 DEFINED AT LINE 1173 IN MINT.asm
 NUM2:               06EB DEFINED AT LINE 1191 IN MINT.asm
                     > USED AT LINE 1176 IN MINT.asm
                     > USED AT LINE 1178 IN MINT.asm
-                    > USED AT LINE 1384 IN MINT.asm
                     > USED AT LINE 1386 IN MINT.asm
+                    > USED AT LINE 1388 IN MINT.asm
 NUM3:               06F6 DEFINED AT LINE 1199 IN MINT.asm
                     > USED AT LINE 1194 IN MINT.asm
 EDITDEF:            06F9 DEFINED AT LINE 1207 IN MINT.asm
@@ -2320,16 +2322,16 @@ ARRDEF1:            0794 DEFINED AT LINE 1323 IN MINT.asm
 ARREND:             07A0 DEFINED AT LINE 1330 IN MINT.asm
                     > USED AT LINE 800 IN MINT.asm
 ARRAYEND1:          07BE DEFINED AT LINE 1347 IN MINT.asm
-                    > USED AT LINE 1363 IN MINT.asm
-ARRAYEND2:          07CD DEFINED AT LINE 1360 IN MINT.asm
+                    > USED AT LINE 1365 IN MINT.asm
+ARRAYEND2:          07CF DEFINED AT LINE 1362 IN MINT.asm
                     > USED AT LINE 1346 IN MINT.asm
-                    > USED AT LINE 1355 IN MINT.asm
-HEX0:               07E6 DEFINED AT LINE 1375 IN MINT.asm
+                    > USED AT LINE 1356 IN MINT.asm
+HEX0:               07E8 DEFINED AT LINE 1377 IN MINT.asm
                     > USED AT LINE 664 IN MINT.asm
-HEX1:               07E6 DEFINED AT LINE 1376 IN MINT.asm
-                    > USED AT LINE 1393 IN MINT.asm
-HEX2:               07EE DEFINED AT LINE 1382 IN MINT.asm
-                    > USED AT LINE 1380 IN MINT.asm
+HEX1:               07E8 DEFINED AT LINE 1378 IN MINT.asm
+                    > USED AT LINE 1395 IN MINT.asm
+HEX2:               07F0 DEFINED AT LINE 1384 IN MINT.asm
+                    > USED AT LINE 1382 IN MINT.asm
 DSIZE:              0080 DEFINED AT LINE 1 IN ram.asm
                     > USED AT LINE 15 IN ram.asm
 RSIZE:              0080 DEFINED AT LINE 2 IN ram.asm
@@ -2376,14 +2378,14 @@ VLOOPSP:            0C30 DEFINED AT LINE 29 IN ram.asm
                     > USED AT LINE 1123 IN MINT.asm
 VBYTEMODE:          0C32 DEFINED AT LINE 31 IN ram.asm
                     > USED AT LINE 1324 IN MINT.asm
-                    > USED AT LINE 1353 IN MINT.asm
+                    > USED AT LINE 1354 IN MINT.asm
 TBPTR:              0C34 DEFINED AT LINE 32 IN ram.asm
 VTEMP1:             0C36 DEFINED AT LINE 33 IN ram.asm
                     > USED AT LINE 1331 IN MINT.asm
-                    > USED AT LINE 1372 IN MINT.asm
+                    > USED AT LINE 1374 IN MINT.asm
 VTEMP2:             0C38 DEFINED AT LINE 34 IN ram.asm
                     > USED AT LINE 1333 IN MINT.asm
-                    > USED AT LINE 1365 IN MINT.asm
+                    > USED AT LINE 1367 IN MINT.asm
 RST08:              0C3A DEFINED AT LINE 36 IN ram.asm
                     > USED AT LINE 107 IN IOSerial.asm
                     > USED AT LINE 447 IN IOSerial.asm
@@ -2433,8 +2435,8 @@ VHEAPPTR:           0C92 DEFINED AT LINE 58 IN ram.asm
                     > USED AT LINE 1254 IN MINT.asm
                     > USED AT LINE 1270 IN MINT.asm
                     > USED AT LINE 1340 IN MINT.asm
-                    > USED AT LINE 1367 IN MINT.asm
-                    > USED AT LINE 1371 IN MINT.asm
+                    > USED AT LINE 1369 IN MINT.asm
+                    > USED AT LINE 1373 IN MINT.asm
 VTIBPTR:            0CAA DEFINED AT LINE 70 IN ram.asm
                     > USED AT LINE 227 IN MINT.asm
                     > USED AT LINE 279 IN MINT.asm

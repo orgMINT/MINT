@@ -523,14 +523,13 @@ e.g. 0(`will not execute`)(`will execute`)
 | ]      | end an array definition       | -- adr         |
 | \_     | get address of array item     | adr idx -- adr |
 | \\S    | array size                    | adr -- val     |
-| \\[    | begin a byte array definition | -- adr         |
+| \\[    | begin a byte array definition | --             |
 
 ### 11.8. <a name='system-variables-1'></a>System Variables
 
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
 | \\a    | data stack start variable          | -- adr |
-| \\b    | base16 flag variable               | -- b   |
 | \\c    | carry flag variable                | -- adr |
 | \\d    | start of user definitions          | -- adr |
 | \\h    | heap pointer variable              | -- adr |
@@ -546,12 +545,12 @@ e.g. 0(`will not execute`)(`will execute`)
 
 ### 11.10. <a name='utility-commands'></a>Utility commands
 
-| Symbol | Description   | Effect |
-| ------ | ------------- | ------ |
-| \\N    | prints a CRLF | --     |
-| \\L    | edit command  | --     |
-| \\P    | print prompt  | --     |
-| \\T    | print stack   | --     |
+| Symbol | Description   | Effect  |
+| ------ | ------------- | ------- |
+| \\N    | prints a CRLF | --      |
+| \\L    | edit command  | char -- |
+| \\P    | print prompt  | --      |
+| \\T    | print stack   | --      |
 
 ### 11.11. <a name='control-keys'></a>Control keys
 
