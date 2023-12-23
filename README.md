@@ -27,7 +27,7 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Calling functions](#calling-functions)
   - [Assigning Functions to Variables](#assigning-functions-to-variables)
   - [Using Functions](#using-functions)
-  - [Anonymous Functions](anonymous-functions)
+  - [Anonymous Functions](#anonymous-functions)
 - [Appendices](#appendices)
   - [Using MINT on the TEC-1](#using-mint-on-the-tec-1)
   - [List of operators](#list-of-operators)
@@ -510,7 +510,7 @@ Calling it:
 4 S .
 ```
 
-### 9.4. <a name='using-functions'></a>Using Functions
+### <a name='using-functions'></a>Using Functions
 
 Once you've assigned functions to variables, you can use them in your MINT code.
 
@@ -535,7 +535,7 @@ A function at an address can be executed with the `\G` operator.
 This code declares an anonymous function and stores its address in `a`. This function will
 increment its argument by 1.
 
-The next line pushs the number 3 on the stack and executes the function in `a`. 
+The next line pushs the number 3 on the stack and executes the function in `a`.
 The function adds 1 and prints 4 to the console.
 
 ```
@@ -544,7 +544,7 @@ The function adds 1 and prints 4 to the console.
 ```
 
 Anonymous functions can be stored in arrays and can even be used as a kind of "switch" statement.
-This code declares an array containing 3 anonymous functions. The next line accesses the array at 
+This code declares an array containing 3 anonymous functions. The next line accesses the array at
 index 2 and runs it. "two" is printed to the console.
 
 ```
