@@ -527,6 +527,16 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 
 ### <a name='anonymous-functions'></a>Anonymous Functions
 
+```
+\: 1+ ; a!
+3 a@ \G .
+```
+
+```
+[\: `zero` ; \: `one` ; \: `two` ;] b!
+b@ 2_@ \G
+```
+
 ## <a name='appendices'></a>Appendices
 
 ### <a name='using-mint-on-the-tec-1'></a>Using MINT on the TEC-1
