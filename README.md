@@ -427,7 +427,7 @@ To fetch the Nth member of the array, we can create use the index operator `_`
 [ 1 2 3 ] 2 _ @
 ```
 
-## 11. <a name='appendices'></a>Aappendices
+## 11. <a name='appendices'></a>Appendices
 
 ### 11.1. <a name='list-of-operators'></a>List of operators
 
