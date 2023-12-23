@@ -16,6 +16,10 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 - [Strings](#strings)
   - [Printing values](#printing-values)
 - [Arrays](#arrays)
+  - [Basic Arrays](#basic-arrays)
+  - [Array Size](#array-size)
+  - [Nested Arrays](#nested-arrays)
+  - [Byte Arrays](#byte-arrays)
 - [Loops](#loops)
 - [Conditional code](#conditional-code)
 - [Functions in MINT](#functions-in-mint)
@@ -218,6 +222,8 @@ prints `The value of x is 100`
 
 ## <a name='arrays'></a>Arrays
 
+### <a name='basic-arrays'></a>Basic Arrays
+
 MINT arrays are a type of data structure that can be used to store a collection of elements. Arrays are indexed, which means that each element in the array has a unique number associated with it. This number is called the index of the element.
 In MINT, array indexes start at 0
 
@@ -253,11 +259,59 @@ These can then be allocated to a variable, which acts as a pointer to the array 
 
 To fetch the Nth member of the array, we can create use the index operator `_`
 
+The following prints the item at index 2 (which is 3).
+
 ```
-[ 1 2 3 ] 2 _ @
+[ 1 2 3 ] 2_ @ .
 ```
 
-Nesting arrays...
+### <a name='array-size'></a>Array Size
+
+The size of an array can be determined with the `\\S` operator which puts the number
+of items in the array on the stack.
+
+The following prints 5 on the console.
+
+```
+[ 1 2 3 4 5 ] \\S .
+```
+
+### <a name='nested-arrays'></a>Nested Arrays
+
+In MINT arrays can be nested inside one another.
+
+The following code shows an array with another array as its second item.
+This code accesses the second item of the first array with `1_ @`. It then accesses
+the first item of the inner array with `0_ @` and prints the result (which is 2).
+
+```
+[1 [2 3]] 1_ @ 0_ @ .
+```
+
+### <a name='byte-arrays'></a>Byte Arrays
+
+MINT by default declares arrays of 16 bit words however it is also possible to declare
+and array of 8 bit byte values using `\\[`
+
+```
+\\[1 2 3]
+```
+
+The size of a byte array can be determined with the `\\S` operator.
+The following code prints 3.
+
+```
+\\[1 2 3]\\S .
+```
+
+A byte value can be read from an address with `\\@` however to access an item in a byte array
+use `+` instead of `_` to get the address of the indexed item.
+
+The following prints 2
+
+```
+\\[1 2 3] 1+ \\@ .
+```
 
 ## <a name='loops'></a>Loops
 
