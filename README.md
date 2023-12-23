@@ -16,18 +16,18 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 - [Strings](#strings)
   - [Printing values](#printing-values)
 - [Arrays](#arrays)
-  - [Basic Arrays](#basic-arrays)
-  - [Array Size](#array-size)
-  - [Nested Arrays](#nested-arrays)
-  - [Byte Arrays](#byte-arrays)
+  - [Basic arrays](#basic-arrays)
+  - [Array size](#array-size)
+  - [Nested arrays](#nested-arrays)
+  - [Byte arrays](#byte-arrays)
 - [Loops](#loops)
 - [Conditional code](#conditional-code)
 - [Functions in MINT](#functions-in-mint)
-  - [Function with Multiple Arguments](#function-with-multiple-arguments)
+  - [Function with multiple arguments](#function-with-multiple-arguments)
   - [Calling functions](#calling-functions)
-  - [Assigning Functions to Variables](#assigning-functions-to-variables)
-  - [Using Functions](#using-functions)
-  - [Anonymous Functions](#anonymous-functions)
+  - [Assigning functions to variables](#assigning-functions-to-variables)
+  - [Using functions](#using-functions)
+  - [Anonymous functions](#anonymous-functions)
 - [Appendices](#appendices)
   - [Using MINT on the TEC-1](#using-mint-on-the-tec-1)
   - [List of operators](#list-of-operators)
@@ -221,7 +221,7 @@ prints `The value of x is 100`
 
 ## <a name='arrays'></a>Arrays
 
-### <a name='basic-arrays'></a>Basic Arrays
+### <a name='basic-arrays'></a>Basic arrays
 
 MINT arrays are a type of data structure that can be used to store a collection of elements. Arrays are indexed, which means that each element in the array has a unique number associated with it. This number is called the index of the element.
 In MINT, array indexes start at 0
@@ -264,7 +264,7 @@ The following prints the item at index 2 (which is 3).
 [ 1 2 3 ] 2_ @ .
 ```
 
-### <a name='array-size'></a>Array Size
+### <a name='array-size'></a>Array size
 
 The size of an array can be determined with the `\S` operator which puts the number
 of items in the array on the stack.
@@ -275,7 +275,7 @@ The following prints 5 on the console.
 [ 1 2 3 4 5 ] \S .
 ```
 
-### <a name='nested-arrays'></a>Nested Arrays
+### <a name='nested-arrays'></a>Nested arrays
 
 In MINT arrays can be nested inside one another.
 
@@ -287,7 +287,7 @@ the first item of the inner array with `0_ @` and prints the result (which is 2)
 [1 [2 3]] 1_ @ 0_ @ .
 ```
 
-### <a name='byte-arrays'></a>Byte Arrays
+### <a name='byte-arrays'></a>Byte arrays
 
 MINT by default declares arrays of 16 bit words however it is also possible to declare
 and array of 8 bit byte values using `\[`
@@ -454,7 +454,7 @@ Example: a function to square a value a
 :F a ! a@ a@ * ;
 ```
 
-### <a name='function-with-multiple-arguments'></a>Function with Multiple Arguments
+### <a name='function-with-multiple-arguments'></a>Function with multiple arguments
 
 You can also define functions with multiple arguments. For example:
 
@@ -476,7 +476,7 @@ Functions are called by referring to them
 This code passes the numbers `30` and `20` to a function which multiplies them and returns
 the result which is then printed.
 
-### <a name='assigning-functions-to-variables'></a>Assigning Functions to Variables
+### <a name='assigning-functions-to-variables'></a>Assigning functions to variables
 
 In MINT, you can assign functions to variables just like any other value.
 Variables in MINT are limited to a single uppercase or lowercase letter. To
@@ -510,7 +510,7 @@ Calling it:
 4 S .
 ```
 
-### <a name='using-functions'></a>Using Functions
+### <a name='using-functions'></a>Using functions
 
 Once you've assigned functions to variables, you can use them in your MINT code.
 
@@ -525,7 +525,7 @@ In the first line, we execute the function stored in variable `A` with the argum
 which prints `10`. In the second line, we execute the function stored in variable `B` with
 arguments `3` and `7`, which results in `10` being printed (the sum of the two arguments).
 
-### <a name='anonymous-functions'></a>Anonymous Functions
+### <a name='anonymous-functions'></a>Anonymous functions
 
 MINT code is not restricted to upper case variables. Functions an be declared anonymously using
 the `\:` operator. A function declared this way puts the address of the function on the stack.
