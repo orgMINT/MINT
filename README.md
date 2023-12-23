@@ -29,7 +29,6 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Using Functions](#using-functions)
   - [Anonymous Functions](anonymous-functions)
 - [Appendices](#appendices)
-  - [SYSTEM VARIABLES](#system-variables)
   - [Using MINT on the TEC-1](#using-mint-on-the-tec-1)
   - [List of operators](#list-of-operators)
   - [Maths Operators](#maths-operators)
@@ -529,10 +528,6 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 ### <a name='anonymous-functions'></a>Anonymous Functions
 
 ## <a name='appendices'></a>Appendices
-
-### <a name='system-variables'></a>SYSTEM VARIABLES
-
-System variables contain values which MINT uses internally but are available for programmatic use. These are the lowercase letters preceded by a \ e.g. \a, \b, \c etc. However MINT only uses a few of these variables so the user may use the other ones as they like.
 
 ### <a name='using-mint-on-the-tec-1'></a>Using MINT on the TEC-1
 
