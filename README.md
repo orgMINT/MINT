@@ -267,13 +267,13 @@ The following prints the item at index 2 (which is 3).
 
 ### <a name='array-size'></a>Array Size
 
-The size of an array can be determined with the `\\S` operator which puts the number
+The size of an array can be determined with the `\S` operator which puts the number
 of items in the array on the stack.
 
 The following prints 5 on the console.
 
 ```
-[ 1 2 3 4 5 ] \\S .
+[ 1 2 3 4 5 ] \S .
 ```
 
 ### <a name='nested-arrays'></a>Nested Arrays
@@ -291,26 +291,26 @@ the first item of the inner array with `0_ @` and prints the result (which is 2)
 ### <a name='byte-arrays'></a>Byte Arrays
 
 MINT by default declares arrays of 16 bit words however it is also possible to declare
-and array of 8 bit byte values using `\\[`
+and array of 8 bit byte values using `\[`
 
 ```
-\\[1 2 3]
+\[1 2 3]
 ```
 
-The size of a byte array can be determined with the `\\S` operator.
+The size of a byte array can be determined with the `\S` operator.
 The following code prints 3.
 
 ```
-\\[1 2 3]\\S .
+\[1 2 3]\S .
 ```
 
-A byte value can be read from an address with `\\@` however to access an item in a byte array
+A byte value can be read from an address with `\@` however to access an item in a byte array
 use `+` instead of `_` to get the address of the indexed item.
 
 The following prints 2
 
 ```
-\\[1 2 3] 1+ \\@ .
+\[1 2 3] 1+ \@ .
 ```
 
 ## <a name='loops'></a>Loops
@@ -339,34 +339,34 @@ When the loop ends it prints the value of t which is 10.
 0t! 10( t@ 1+ t! ) t@ .
 ```
 
-MINT provides a special variable `\\i` which acts as a loop counter. The counter counts up from zero. Just before the
+MINT provides a special variable `\i` which acts as a loop counter. The counter counts up from zero. Just before the
 counter reaches the limit number it terminates.
 
 This prints the numbers 0 to 9.
 
 ```
-10 ( \\i@ . )
+10 ( \i@ . )
 ```
 
-Loops can also be terminated early with the conditional break operator `\\B`
+Loops can also be terminated early with the conditional break operator `\B`
 
 This code initialises `t` to zero and starts a loop to repeat 10 times.
-The code to repeat accesses the `\\i` variable and compares it to 4. When `\\i` exceeds 4 it breaks the loop.
+The code to repeat accesses the `\i` variable and compares it to 4. When `\i` exceeds 4 it breaks the loop.
 Otherwise it accesses `t` and adds 1 to it.
 
 Finally when the loop ends it prints the value of t which is 5.
 
 ```
-0t! 10(\\i@ 4 > \\B \\i@ t@ 1+ t!) t@ .
+0t! 10(\i@ 4 > \B \i@ t@ 1+ t!) t@ .
 ```
 
-Loops can be nested and then special `\\j` variable is provided to access the counter of the outer loop.
+Loops can be nested and then special `\j` variable is provided to access the counter of the outer loop.
 
 The following has two nested loops with limits of 2. The two counter variables are summed and added to `t`.
 When the loop ends `t` prints 4.
 
 ```
-0t! 2(2(\\i@ \\j@ + t@ + t! )) t@ .
+0t! 2(2(\i@ \j@ + t@ + t! )) t@ .
 ```
 
 ## <a name='conditional-code'></a>Conditional code
