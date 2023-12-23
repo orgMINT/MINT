@@ -25,17 +25,18 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - 9.6. [Using MINT on the TEC-1](#using-mint-on-the-tec-1)
   - 9.7. [Loops](#loops)
 - 10. [Arrays](#arrays)
-  - 10.1. [List of operators](#list-of-operators)
-  - 10.2. [Maths Operators](#maths-operators)
-  - 10.3. [Logical Operators](#logical-operators-1)
-  - 10.4. [Stack Operations](#stack-operations)
-  - 10.5. [Input & Output Operations](#input-&-output-operations)
-  - 10.6. [Loops and conditional execution](#loops-and-conditional-execution)
-  - 10.7. [Memory and Variable Operations](#memory-and-variable-operations)
-  - 10.8. [System Variables](#system-variables-1)
-  - 10.9. [Miscellaneous](#miscellaneous)
-  - 10.10. [Utility commands](#utility-commands)
-  - 10.11. [Control keys](#control-keys)
+- 11. [Appendices](#appendices)
+  - 11.1. [List of operators](#list-of-operators)
+  - 11.2. [Maths Operators](#maths-operators)
+  - 11.3. [Logical Operators](#logical-operators-1)
+  - 11.4. [Stack Operations](#stack-operations)
+  - 11.5. [Input & Output Operations](#input-&-output-operations)
+  - 11.6. [Loops and conditional execution](#loops-and-conditional-execution)
+  - 11.7. [Memory and Variable Operations](#memory-and-variable-operations)
+  - 11.8. [System Variables](#system-variables-1)
+  - 11.9. [Miscellaneous](#miscellaneous)
+  - 11.10. [Utility commands](#utility-commands)
+  - 11.11. [Control keys](#control-keys)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -408,25 +409,31 @@ Arrays can be assigned to variables just like number values
 
 An array of 16-bit numbers can be defined by enclosing them within square brackets:
 
-[1 2 3 4 5 6 7 8 9 0]
+```
+[ 1 2 3 4 5 6 7 8 9 0 ]
+```
 
 Defining an array puts its start address onto the stack
 
 These can then be allocated to a variable, which acts as a pointer to the array in memory
 
-[1 2 3 4 5 6 7 8 9 0] a!
+```
+[ 1 2 3 4 5 6 7 8 9 0 ] a !
+```
 
-The swap $ is used to get the starting address onto the top of the stack and then store that into the variable a.
+To fetch the Nth member of the array, we can create use the index operator `_`
 
-To fetch the Nth member of the array, we can create a colon definition N
+```
+[ 1 2 3 ] 2 _ @
+```
 
-:N @ $ {+ @. ;
+## 11. <a name='appendices'></a>Aappendices
 
-### 10.1. <a name='list-of-operators'></a>List of operators
+### 11.1. <a name='list-of-operators'></a>List of operators
 
 MINT is a bytecode interpreter - this means that all of its instructions are 1 byte long. However, the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications running on an 8-bit cpu.
 
-### 10.2. <a name='maths-operators'></a>Maths Operators
+### 11.2. <a name='maths-operators'></a>Maths Operators
 
 | Symbol | Description                               | Effect   |
 | ------ | ----------------------------------------- | -------- |
@@ -440,7 +447,7 @@ MINT is a bytecode interpreter - this means that all of its instructions are 1 b
 | {      | shift left                                | --       |
 | }      | shift right                               | --       |
 
-### 10.3. <a name='logical-operators-1'></a>Logical Operators
+### 11.3. <a name='logical-operators-1'></a>Logical Operators
 
 | Symbol | Description        | Effect   |
 | ------ | ------------------ | -------- |
@@ -449,7 +456,7 @@ MINT is a bytecode interpreter - this means that all of its instructions are 1 b
 
 Note: logical NOT can be achieved with 0=
 
-### 10.4. <a name='stack-operations'></a>Stack Operations
+### 11.4. <a name='stack-operations'></a>Stack Operations
 
 | Symbol | Description                                                          | Effect         |
 | ------ | -------------------------------------------------------------------- | -------------- |
@@ -460,7 +467,7 @@ Note: logical NOT can be achieved with 0=
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
 | \D     | stack depth                                                          | -- val         |
 
-### 10.5. <a name='input-&-output-operations'></a>Input & Output Operations
+### 11.5. <a name='input-&-output-operations'></a>Input & Output Operations
 
 | Symbol | Description                                    | Effect      |
 | ------ | ---------------------------------------------- | ----------- |
@@ -485,7 +492,7 @@ NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
 <NUM> is the namespace number. There are currently 5 namespaces numbered 0 - 4
 
-### 10.6. <a name='loops-and-conditional-execution'></a>Loops and conditional execution
+### 11.6. <a name='loops-and-conditional-execution'></a>Loops and conditional execution
 
 | Symbol | Description                            | Effect |
 | ------ | -------------------------------------- | ------ |
@@ -504,7 +511,7 @@ if the condition is 0 (i.e. it is an ELSE clause)
 e.g. 0(`will not execute`)(`will execute`)
 1(`will execute`)(`will not execute`)
 
-### 10.7. <a name='memory-and-variable-operations'></a>Memory and Variable Operations
+### 11.7. <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
 | Symbol | Description                   | Effect         |
 | ------ | ----------------------------- | -------------- |
@@ -518,7 +525,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\S    | array size                    | adr -- val     |
 | \\[    | begin a byte array definition | -- adr         |
 
-### 10.8. <a name='system-variables-1'></a>System Variables
+### 11.8. <a name='system-variables-1'></a>System Variables
 
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
@@ -531,13 +538,13 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\j    | outer loop counter variable        | -- adr |
 | \\t    | text input buffer pointer variable | -- adr |
 
-### 10.9. <a name='miscellaneous'></a>Miscellaneous
+### 11.9. <a name='miscellaneous'></a>Miscellaneous
 
 | Symbol | Description                                   | Effect |
 | ------ | --------------------------------------------- | ------ |
 | \\\\   | comment text, skips reading until end of line | --     |
 
-### 10.10. <a name='utility-commands'></a>Utility commands
+### 11.10. <a name='utility-commands'></a>Utility commands
 
 | Symbol | Description   | Effect |
 | ------ | ------------- | ------ |
@@ -546,7 +553,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | \\P    | print prompt  | --     |
 | \\T    | print stack   | --     |
 
-### 10.11. <a name='control-keys'></a>Control keys
+### 11.11. <a name='control-keys'></a>Control keys
 
 | Symbol | Description       |
 | ------ | ----------------- |
