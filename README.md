@@ -527,10 +527,25 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 
 ### <a name='anonymous-functions'></a>Anonymous Functions
 
+MINT code is not restricted to upper case variables. Functions an be declared anonymously using
+the `\:` operator. A function declared this way puts the address of the function on the stack.
+
+A function at an address can be executed with the `\G` operator.
+
+This code declares an anonymous function and stores its address in `a`. This function will
+increment its argument by 1.
+
+The next line pushs the number 3 on the stack and executes the function in `a`. 
+The function adds 1 and prints 4 to the console.
+
 ```
 \: 1+ ; a!
 3 a@ \G .
 ```
+
+Anonymous functions can be stored in arrays and can even be used as a kind of "switch" statement.
+This code declares an array containing 3 anonymous functions. The next line accesses the array at 
+index 2 and runs it. "two" is printed to the console.
 
 ```
 [\: `zero` ; \: `one` ; \: `two` ;] b!
