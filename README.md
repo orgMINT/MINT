@@ -542,7 +542,7 @@ e.g. 0(`will not execute`)(`will execute`)
 | Symbol | Description   | Effect |
 | ------ | ------------- | ------ |
 | \\N    | prints a CRLF | --     |
-| \\L    | edit command  | val -- |
+| \\L    | edit command  | --     |
 | \\P    | print prompt  | --     |
 | \\T    | print stack   | --     |
 

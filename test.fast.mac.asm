@@ -21,10 +21,10 @@
     HALT
     .cstr
 expect%%M:
-    POP HL
 .endm
 
 .macro test,code1,val1
+    CALL init
     CALL enter
     .cstr code1
     expect code1,val1
