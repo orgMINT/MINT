@@ -10,11 +10,13 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Hexadecimal numbers](#hexadecimal-numbers)
   - [Formatting numbers](#formatting-numbers)
 - [Basic arithmetic operations](#basic-arithmetic-operations)
+- [Logical operators](#logical-operators)
 - [Variables and Variable Assignment](#variables-and-variable-assignment)
 - [Variable operators](#variable-operators)
 - [Strings](#strings)
   - [Printing values](#printing-values)
-- [Logical operators](#logical-operators)
+- [Arrays](#arrays)
+- [Loops](#loops)
 - [Conditional code](#conditional-code)
 - [Functions in MINT](#functions-in-mint)
   - [Function with Multiple Arguments](#function-with-multiple-arguments)
@@ -22,11 +24,9 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Assigning Functions to Variables](#assigning-functions-to-variables)
   - [Using Functions](#using-functions)
   - [Anonymous Functions](anonymous-functions)
-- [Arrays](#arrays)
 - [Appendices](#appendices)
   - [SYSTEM VARIABLES](#system-variables)
   - [Using MINT on the TEC-1](#using-mint-on-the-tec-1)
-  - [Loops](#loops)
   - [List of operators](#list-of-operators)
   - [Maths Operators](#maths-operators)
   - [Logical Operators](#logical-operators-1)
@@ -104,58 +104,6 @@ The `.` operator prints the difference.
 
 This program divides 5 with 4 prints the remainder and the quotient.
 
-## <a name='variables-and-variable-assignment'></a>Variables and Variable Assignment
-
-Variables are named locations in memory that can store data. MINT has a limited
-number of global variables which have single letter names. In MINT a variable can
-be referred to by a singer letter from `a` to `z` so there are 26
-global variables in MINT. Global variables can be used to store numbers, strings, arrays, blocks, functions etc.
-
-To assign the value `10` to the global variable `x` use the `!` operator.
-
-```
-10 x !
-```
-
-In this example, the number `10` is assigned to the variable `x`
-
-To access a value in a variable `x`, use the `@` operator.
-The code below adds `3` to the value stored in variable `x` and then prints it.
-
-```
-3 x@ + .
-```
-
-The following code assigns the hexadecimal number `#3FFF` to variable `a`
-The second line fetches the value stored in `a` and prints it.
-
-```
-#3FFF a !
-a@ .
-```
-
-In this longer example, the number `10` is stored in `a` and the number `20` is
-stored in `b`. The values in these two variables are then added together and the answer
-`30` is stored in `z`. Finally `z` is printed.
-
-```
-10 a !
-20 b !
-a@ b@ + z !
-z@ .
-```
-
-MINT allows the user to easily print literal text by using \` quotes.
-
-For example
-
-```
-100 x !
-`The value of x is ` x .
-```
-
-prints `The value of x is 100`
-
 ## <a name='logical-operators'></a>Logical operators
 
 MINT uses numbers to define boolean values.
@@ -216,18 +164,177 @@ Flip the third bit of the number 10
 
 prints #000B
 
+## <a name='variables-and-variable-assignment'></a>Variables and Variable Assignment
+
+Variables are named locations in memory that can store data. MINT has a limited
+number of global variables which have single letter names. In MINT a variable can
+be referred to by a singer letter from `a` to `z` so there are 26
+global variables in MINT. Global variables can be used to store numbers, strings, arrays, blocks, functions etc.
+
+To assign the value `10` to the global variable `x` use the `!` operator.
+
+```
+10 x !
+```
+
+In this example, the number `10` is assigned to the variable `x`
+
+To access a value in a variable `x`, use the `@` operator.
+The code below adds `3` to the value stored in variable `x` and then prints it.
+
+```
+3 x@ + .
+```
+
+The following code assigns the hexadecimal number `#3FFF` to variable `a`
+The second line fetches the value stored in `a` and prints it.
+
+```
+#3FFF a !
+a@ .
+```
+
+In this longer example, the number `10` is stored in `a` and the number `20` is
+stored in `b`. The values in these two variables are then added together and the answer
+`30` is stored in `z`. Finally `z` is printed.
+
+```
+10 a !
+20 b !
+a@ b@ + z !
+z@ .
+```
+
+MINT allows the user to easily print literal text by using \` quotes.
+
+For example
+
+```
+100 x !
+`The value of x is ` x .
+```
+
+prints `The value of x is 100`
+
+## <a name='arrays'></a>Arrays
+
+MINT arrays are a type of data structure that can be used to store a collection of elements. Arrays are indexed, which means that each element in the array has a unique number associated with it. This number is called the index of the element.
+In MINT, array indexes start at 0
+
+To create a MINT array, you can use the following syntax:
+
+_[ element1 element2 ... ]_
+
+for example
+
+```
+[ 1 2 3 ]
+```
+
+Arrays can be assigned to variables just like number values
+
+```
+[ 1 2 3 ] a !
+```
+
+An array of 16-bit numbers can be defined by enclosing them within square brackets:
+
+```
+[ 1 2 3 4 5 6 7 8 9 0 ]
+```
+
+Defining an array puts its start address onto the stack
+
+These can then be allocated to a variable, which acts as a pointer to the array in memory
+
+```
+[ 1 2 3 4 5 6 7 8 9 0 ] a !
+```
+
+To fetch the Nth member of the array, we can create use the index operator `_`
+
+```
+[ 1 2 3 ] 2 _ @
+```
+
+Nesting arrays...
+
+## <a name='loops'></a>Loops
+
+Looping in MINT is of the form _number (code to execute)_. The number represents the number of times the
+code between parentheses will be repeated. If the number is zero then the code will be skipped. If the number
+is ten it will be repeated ten times. If the number is -1 then the loop will repeat forever.
+
+```
+0(this code will not be executed but skipped)
+1(this code will be execute once)
+10(this code will execute 10 times)
+-1(this code will be execute forever)
+```
+
+This code following prints ten x's.
+
+```
+10 (`x`)
+```
+
+The following code repeats ten times and adds 1 to the variable `t` each time.
+When the loop ends it prints the value of t which is 10.
+
+```
+0t! 10( t@ 1+ t! ) t@ .
+```
+
+MINT provides a special variable `\\i` which acts as a loop counter. The counter counts up from zero. Just before the
+counter reaches the limit number it terminates.
+
+This prints the numbers 0 to 9.
+
+```
+10 ( \\i@ . )
+```
+
+Loops can also be terminated early with the conditional break operator `\\B`
+
+This code initialises `t` to zero and starts a loop to repeat 10 times.
+The code to repeat accesses the `\\i` variable and compares it to 4. When `\\i` exceeds 4 it breaks the loop.
+Otherwise it accesses `t` and adds 1 to it.
+
+Finally when the loop ends it prints the value of t which is 5.
+
+```
+0t! 10(\\i@ 4 > \\B \\i@ t@ 1+ t!) t@ .
+```
+
+Loops can be nested and then special `\\j` variable is provided to access the counter of the outer loop.
+
+The following has two nested loops with limits of 2. The two counter variables are summed and added to `t`.
+When the loop ends `t` prints 4.
+
+```
+0t! 2(2(\\i@ \\j@ + t@ + t! )) t@ .
+```
+
 ## <a name='conditional-code'></a>Conditional code
 
-Code blocks are useful when it comes to conditional code in MINT.
+MINT's looping mechanism can also be used to exeute code conditionally. In MINT boolean `false` is represented
+by 0 and `true` is represented by 1.
 
-The syntax for a MINT IF-THEN-ELSE or "if...else" operator in MINT is:
+The following tests if `x` is less that 5.
 
 ```
-condition code-block-then code-block-else ?
+3 x!
+x@ 5 < (`true`)
 ```
 
-If the condition is true, then code-block-then is evaluated and its value is returned.
-Otherwise, code-block-else is evaluated and its value is returned.
+The syntax for a MINT IF-THEN-ELSE or "if...else" operator in MINT is and extension of the loop syntax.
+
+```
+boolean (code-block-then)(code-block-else)
+```
+
+If the condition is true, then code-block-then is executed. Otherwise, code-block-else is executed.
+The only syntax rule is that the code-block-else follows the code-block-then block with no spaces between.
 
 Here is an example of a "if...else" operator in MINT:
 
@@ -239,7 +346,9 @@ x@ y@ > ( `x is greater than y` )( `y is greater than x` )
 
 ```
 
-In this example, the variable x is assigned the value 10 and the variable y is assigned the value 20. The "if...else" operator then checks to see if x is greater than y. If it is, then the string "x is greater than y" is returned. Otherwise, the string "y is greater than x" is returned. The value of the "if...else" operator is then assigned to the variable z. Finally, the value of z is printed to the console.
+In this example, the variable x is assigned the value 10 and the variable y is assigned the value 20.
+The "if...else" operator then checks to see if x is greater than y. If it is, then the string
+"x is greater than y" is returned. Otherwise, the string "y is greater than x" is returned.
 
 Here is another example of the "if...else" operator in MINT. This time, instead of creating a string just to print it, the following
 code conditionally prints text straight to the console.
@@ -247,12 +356,12 @@ code conditionally prints text straight to the console.
 ```
 18 a !
 
-`This person` a@ 18 > (`can`)(`cannot`) `vote`
+`This person` a@ 17 > (`can`)(`cannot`) `vote`
 ```
 
 In this example, the variable a is assigned the value 18. The "if...else" operator
-then checks to see if age is greater than or equal to the voting age of 18. If it is,
-then the text "can" is printed to the console. Otherwise, the string "cannot" is printed to the console.
+then checks to see if age is greater than 17. If it is,
+then the text "can" is printed to the console. Otherwise, the string "cannot" is printed.
 
 ## <a name='functions-in-mint'></a>Functions in MINT
 
@@ -365,49 +474,6 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 
 ### <a name='anonymous-functions'></a>Anonymous Functions
 
-## <a name='arrays'></a>Arrays
-
-MINT arrays are a type of data structure that can be used to store a collection of elements. Arrays are indexed, which means that each element in the array has a unique number associated with it. This number is called the index of the element.
-In MINT, array indexes start at 0
-
-To create a MINT array, you can use the following syntax:
-
-_[ element1 element2 ... ]_
-
-for example
-
-```
-[ 1 2 3 ]
-```
-
-Arrays can be assigned to variables just like number values
-
-```
-[ 1 2 3 ] a !
-```
-
-An array of 16-bit numbers can be defined by enclosing them within square brackets:
-
-```
-[ 1 2 3 4 5 6 7 8 9 0 ]
-```
-
-Defining an array puts its start address onto the stack
-
-These can then be allocated to a variable, which acts as a pointer to the array in memory
-
-```
-[ 1 2 3 4 5 6 7 8 9 0 ] a !
-```
-
-To fetch the Nth member of the array, we can create use the index operator `_`
-
-```
-[ 1 2 3 ] 2 _ @
-```
-
-Nesting arrays...
-
 ## <a name='appendices'></a>Appendices
 
 ### <a name='system-variables'></a>SYSTEM VARIABLES
@@ -419,14 +485,6 @@ System variables contain values which MINT uses internally but are available for
 MINT was designed for for small Z80 based systems but specifically with the small memory configuration of the TEC-1 single board computer. It is only 2K to work with the original TEC-1 and interfaces to the serial interface via a simple adapter.
 
 On initialisation it will present a user prompt ">" followed by a CR and LF. It is now ready to accept commands from the keyboard.
-
-### <a name='loops'></a>Loops
-
-0(this code will not be executed but skipped)
-1(this code will be execute once)
-10(this code will execute 10 times)
-
-You can use the comparison operators < = and > to compare 2 values and conditionally execute the code between the brackets.
 
 ### <a name='list-of-operators'></a>List of operators
 
