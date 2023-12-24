@@ -2,14 +2,14 @@
 
 MINT is a minimalist character-based interpreter but one which aims at fast performance, readability and ease of use. It is written for the Z80 microprocessor and is 2K.
 
-<!-- vscode-markdown-toc -->
-
 - [Reverse Polish Notation (RPN)](<#reverse-polish-notation-(rpn)>)
 - [Numbers in MINT](#numbers-in-mint)
   - [Decimal numbers](#decimal-numbers)
   - [Hexadecimal numbers](#hexadecimal-numbers)
   - [Formatting numbers](#formatting-numbers)
-- [Printing text](#printing-text)
+- [Printing](#printing)
+  - [Printing numbers](#printing-numbers)
+  - [Printing text](#printing-text)
 - [Basic arithmetic operations](#basic-arithmetic-operations)
 - [Logical operators](#logical-operators)
 - [Variables](#variables)
@@ -43,8 +43,9 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 ## <a name='reverse-polish-notation-(rpn)'></a>Reverse Polish Notation (RPN)
 
 RPN is a [concatenative](https://concatenative.org/wiki/view/Concatenative%20language)
-way of writing expressions in which the operators come after their operands.
-This makes it very easy to evaluate expressions, since the operands are already on the stack.
+way of writing expressions in which the operators come after their operands. Concatenative
+languages make use of a stack which is uses to collect data to do work on. The results
+are pushed back on the stack.
 
 Here is an example of a simple MINT program that uses RPN:
 
@@ -52,9 +53,9 @@ Here is an example of a simple MINT program that uses RPN:
 10 20 + .
 ```
 
-This program pushes the numbers `10` and `20` are operands which are followed by an
-operator `+` which adds the two operands together. The result becomes operand for
-the `.` operator which prints the sum.
+As the interpreter encounters numbers it pushes them on to the stack. Then it encounters the
+`+` operator which is uses to add the two items on the stack and pushes the result back on the stack.
+The result becomes the data for the `.` operator which prints the number to the console.
 
 ## <a name='numbers-in-mint'></a>Numbers in MINT
 
@@ -77,12 +78,16 @@ to represent the digits `10` to `15`. Hexadecimal numbers are prefixed with a `#
 So for example, the hexadecimal number `1F3A` is represented as `#1F3A`.
 Unlike decimal numbers, hexadecimal numbers are assumed to be positive in MINT.
 
-### <a name='formatting-numbers'></a>Formatting numbers
+## <a name='printing'></a>Printing
 
-MINT provides commands for formatting hexadecimal and decimal numbers. The print
-operator `.` prints numbers in decimal. The `,` operator prints in hexadecimal.
+### <a name='printing-numbers'></a>Printing numbers
 
-## <a name='printing-text'></a>Printing text
+MINT provides commands for printing numbers in decimal and hexadecimal format.
+
+The `.` operator prints numbers to the console in decimal.
+The `,` operator prints numbers to the console in hexadecimal.
+
+### <a name='printing-text'></a>Printing text
 
 MINT allows the user to easily print literal text by using \` quotes.
 
@@ -524,13 +529,19 @@ b@ 2_@ \G
 
 ### <a name='using-mint-on-the-tec-1'></a>Using MINT on the TEC-1
 
-MINT was designed for for small Z80 based systems but specifically with the small memory configuration of the TEC-1 single board computer. It is only 2K to work with the original TEC-1 and interfaces to the serial interface via a simple adapter.
+MINT was designed for for small Z80 based systems but specifically with the small memory configuration
+of the TEC-1 single board computer. It is only 2K to work with the original TEC-1 and interfaces to the
+serial interface via a simple adapter.
 
-On initialisation it will present a user prompt ">" followed by a CR and LF. It is now ready to accept commands from the keyboard.
+On initialisation it will present a user prompt ">" followed by a CR and LF. It is now ready to accept
+commands from the keyboard.
 
 ### <a name='list-of-operators'></a>List of operators
 
-MINT is a bytecode interpreter - this means that all of its instructions are 1 byte long. However, the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications running on an 8-bit cpu.
+MINT is a bytecode interpreter - this means that all of its instructions are 1 byte long. However,
+the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly
+language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications
+running on an 8-bit cpu.
 
 ### <a name='maths-operators'></a>Maths Operators
 
@@ -540,18 +551,19 @@ MINT is a bytecode interpreter - this means that all of its instructions are 1 b
 | /      | 16-bit by 8-bit division DIV              | a b -- c |
 | +      | 16-bit integer addition ADD               | a b -- c |
 | \*     | 8-bit by 8-bit integer multiplication MUL | a b -- c |
-| \>     | 16-bit comparison GT                      | a b -- c |
-| <      | 16-bit comparison LT                      | a b -- c |
-| =      | 16 bit comparison EQ                      | a b -- c |
-| {      | shift left                                | --       |
-| }      | shift right                               | --       |
 
 ### <a name='logical-operators-1'></a>Logical Operators
 
-| Symbol | Description        | Effect   |
-| ------ | ------------------ | -------- |
-| \|     | 16-bit bitwise OR  | a b -- c |
-| &      | 16-bit bitwise AND | a b -- c |
+| Symbol | Description          | Effect   |
+| ------ | -------------------- | -------- |
+| \>     | 16-bit comparison GT | a b -- c |
+| <      | 16-bit comparison LT | a b -- c |
+| =      | 16 bit comparison EQ | a b -- c |
+| &      | 16-bit bitwise AND   | a b -- c |
+| \|     | 16-bit bitwise OR    | a b -- c |
+| ^      | 16-bit bitwise XOR   | a b -- c |
+| {      | shift left           | --       |
+| }      | shift right          | --       |
 
 Note: logical NOT can be achieved with 0=
 
@@ -589,7 +601,6 @@ Note: logical NOT can be achieved with 0=
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
-<NUM> is the namespace number. There are currently 5 namespaces numbered 0 - 4
 
 ### <a name='loops-and-conditional-execution'></a>Loops and conditional execution
 
@@ -601,8 +612,10 @@ NOTE:
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
-e.g. 0(`will not execute`)
+```
+0(`will not execute`)
 1(`will execute`)
+```
 
 NOTE 2: if you _immediately_ follow a code block with another code block, this second code block will execute
 if the condition is 0 (i.e. it is an ELSE clause)
