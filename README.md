@@ -2,6 +2,7 @@
 
 MINT is a minimalist character-based interpreter but one which aims at fast performance, readability and ease of use. It is written for the Z80 microprocessor and is 2K.
 
+- [What is MINT?](#what-is-mint)
 - [Reverse Polish Notation (RPN)](<#reverse-polish-notation-(rpn)>)
 - [Numbers in MINT](#numbers-in-mint)
   - [Decimal numbers](#decimal-numbers)
@@ -11,11 +12,11 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Printing numbers](#printing-numbers)
   - [Printing text](#printing-text)
 - [Stack Manipulation in MINT](#stack-maniplation-in-mint)
-    - [Duplicate](#duplicate)
-    - [Drop](#drop)
-    - [Swap](#swap)
-    - [Over](#over)
-    - [Rotate](#rotate)
+  - [Duplicate](#duplicate)
+  - [Drop](#drop)
+  - [Swap](#swap)
+  - [Over](#over)
+  - [Rotate](#rotate)
 - [Basic arithmetic operations](#basic-arithmetic-operations)
 - [Logical operators](#logical-operators)
 - [Variables](#variables)
@@ -45,6 +46,13 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Miscellaneous](#miscellaneous)
   - [Utility commands](#utility-commands)
   - [Control keys](#control-keys)
+
+## <a name='what-is-mint'></a>What is MINT?
+
+MINT is a bytecode interpreter - this means that all of its instructions are 1 byte long. However,
+the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly
+language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications
+running on an 8-bit cpu.
 
 ## <a name='reverse-polish-notation-(rpn)'></a>Reverse Polish Notation (RPN)
 
@@ -108,8 +116,8 @@ prints `The value of x is 100`
 
 ## <a name='stack-maniplation-in-mint'></a>Stack Manipulation in MINT
 
-In MINT, the stack is a central data structure that stores values temporarily. 
-It's essential to master stack manipulation to write effective code. Let's explore 
+In MINT, the stack is a central data structure that stores values temporarily.
+It's essential to master stack manipulation to write effective code. Let's explore
 some fundamental operator that help you manage the stack
 
 ### <a name='duplicate'></a>Duplicate
@@ -117,7 +125,7 @@ some fundamental operator that help you manage the stack
 The `"` or "dup" operator _duplicates_ the top element of the stack.
 
 ```
-10 " . .   
+10 " . .
 ```
 
 The code prints `10 10`
@@ -127,7 +135,7 @@ The code prints `10 10`
 The `'` or "drop" removes the top element of the stack.
 
 ```
-20 30 ' . 
+20 30 ' .
 ```
 
 The code prints `20`
@@ -137,29 +145,29 @@ The code prints `20`
 The `$` of "swap" operator exchanges the positions of the top two elements on the stack.
 
 ```
-40 50 $ . . 
+40 50 $ . .
 ```
 
 The code prints `50 40`
 
 ### <a name='over'></a>Over
 
-The `%` of "over" operator copies the second element from the top of the stack and 
+The `%` of "over" operator copies the second element from the top of the stack and
 places it on top.
 
 ```
-60 70 % . . . 
+60 70 % . . .
 ```
 
 The code prints `70 60 70`
 
 ### <a name='rotate'></a>Rotate
 
-The `~` or "rotate" operator rotates the top three elements of the stack, bringing 
+The `~` or "rotate" operator rotates the top three elements of the stack, bringing
 the third element to the top.
 
 ```
-80 90 100 rot . . . 
+80 90 100 rot . . .
 ```
 
 The code prints `100 80 90`
@@ -385,10 +393,10 @@ The following prints 2
 
 ## <a name='loops'></a>Loops
 
-Looping in MINT is of the form 
+Looping in MINT is of the form
 
 ```
-number (code to execute) 
+number (code to execute)
 ```
 
 The number represents the number of times the code between parentheses will be repeated. If the number is zero then the code will be skipped. If the number
@@ -496,7 +504,7 @@ then the text "can" is printed to the console. Otherwise, the string "cannot" is
 
 You can put any code inside `:` and `;` block which tells MINT to "execute this later".
 
-Functions are stored in variables with uppercase letters. There are 26 variables 
+Functions are stored in variables with uppercase letters. There are 26 variables
 for storing functions in MINT and use the uppercase letter A to Z.
 
 The following stores a function in the variable `Z`.
@@ -523,7 +531,7 @@ A basic function to square a value.
 :F " * ;
 ```
 
-The function stored in F duplicates the value on the stack and then multiplies them together. 
+The function stored in F duplicates the value on the stack and then multiplies them together.
 
 ```
 4 F .
@@ -570,8 +578,8 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 
 ### <a name='anonymous-functions'></a>Anonymous functions
 
-MINT code is not restricted to upper case variables. Functions an be declared without a 
-variable(i.e. anonymously) by using the `\:` operator. A function declared this way puts 
+MINT code is not restricted to upper case variables. Functions an be declared without a
+variable(i.e. anonymously) by using the `\:` operator. A function declared this way puts
 the address of the function on the stack.
 
 A function at an address can be executed with the `\G` operator.
@@ -608,11 +616,6 @@ On initialisation it will present a user prompt ">" followed by a CR and LF. It 
 commands from the keyboard.
 
 ### <a name='list-of-operators'></a>List of operators
-
-MINT is a bytecode interpreter - this means that all of its instructions are 1 byte long. However,
-the choice of instruction uses printable ASCII characters, as a human readable alternative to assembly
-language. The interpreter handles 16-bit integers and addresses which is sufficient for small applications
-running on an 8-bit cpu.
 
 ### <a name='maths-operators'></a>Maths Operators
 
