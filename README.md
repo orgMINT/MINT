@@ -10,6 +10,12 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
 - [Printing](#printing)
   - [Printing numbers](#printing-numbers)
   - [Printing text](#printing-text)
+- [Stack Manipulation in MINT](#stack-maniplation-in-mint)
+    - [Duplicate](#duplicate)
+    - [Drop](#drop)
+    - [Swap](#swap)
+    - [Over](#over)
+    - [Rotate](#rotate)
 - [Basic arithmetic operations](#basic-arithmetic-operations)
 - [Logical operators](#logical-operators)
 - [Variables](#variables)
@@ -100,6 +106,64 @@ For example
 
 prints `The value of x is 100`
 
+## <a name='stack-maniplation-in-mint'></a>Stack Manipulation in MINT
+
+In MINT, the stack is a central data structure that stores values temporarily. 
+It's essential to master stack manipulation to write effective code. Let's explore 
+some fundamental operator that help you manage the stack
+
+### <a name='duplicate'></a>Duplicate
+
+The `"` or "dup" operator _duplicates_ the top element of the stack.
+
+```
+10 " . .   
+```
+
+The code prints `10 10`
+
+### <a name='drop'></a>Drop
+
+The `'` or "drop" removes the top element of the stack.
+
+```
+20 30 ' . 
+```
+
+The code prints `20`
+
+### <a name='swap'></a>Swap
+
+The `$` of "swap" operator exchanges the positions of the top two elements on the stack.
+
+```
+40 50 $ . . 
+```
+
+The code prints `50 40`
+
+### <a name='over'></a>Over
+
+The `%` of "over" operator copies the second element from the top of the stack and 
+places it on top.
+
+```
+60 70 % . . . 
+```
+
+The code prints `70 60 70`
+
+### <a name='rotate'></a>Rotate
+
+The `~` or "rotate" operator rotates the top three elements of the stack, bringing 
+the third element to the top.
+
+```
+80 90 100 rot . . . 
+```
+
+The code prints `100 80 90`
+
 ## <a name='basic-arithmetic-operations'></a>Basic arithmetic operations
 
 ```
@@ -164,7 +228,7 @@ Here is an example of how to use the bitwise logical operators in MINT:
 Check if the first bit of the number 10 is set
 
 ```
-10 1 & ,
+11 1 & ,
 ```
 
 this will print 0001
@@ -177,10 +241,10 @@ Shift 1 three times to the left (i.e. multiple by 8) and then OR 1 with the leas
 
 prints 0009
 
-Shift 1 two times to the left (i.e. multiple by 4) and then XOR #0F and then mask with #0F.
+Shift 1 two times to the left (i.e. multiple by 4) and then XOR #000F and then mask with #000F.
 
 ```
-1 {{ #0F ^ #0F & ,
+1 {{ #F ^ #F & ,
 ```
 
 prints 000B
@@ -321,8 +385,13 @@ The following prints 2
 
 ## <a name='loops'></a>Loops
 
-Looping in MINT is of the form _number (code to execute)_. The number represents the number of times the
-code between parentheses will be repeated. If the number is zero then the code will be skipped. If the number
+Looping in MINT is of the form 
+
+```
+number (code to execute) 
+```
+
+The number represents the number of times the code between parentheses will be repeated. If the number is zero then the code will be skipped. If the number
 is ten it will be repeated ten times. If the number is -1 then the loop will repeat forever.
 
 ```
@@ -377,7 +446,7 @@ When the loop ends `t` prints 4.
 
 ## <a name='conditional-code'></a>Conditional code
 
-MINT's looping mechanism can also be used to exeute code conditionally. In MINT boolean `false` is represented
+MINT's looping mechanism can also be used to execute code conditionally. In MINT boolean `false` is represented
 by 0 and `true` is represented by 1.
 
 The following tests if `x` is less that 5.
@@ -427,15 +496,16 @@ then the text "can" is printed to the console. Otherwise, the string "cannot" is
 
 You can put any code inside `:` and `;` block which tells MINT to "execute this later".
 
-Functions are stored variables with uppercase letters.
+Functions are stored in variables with uppercase letters. There are 26 variables 
+for storing functions in MINT and use the uppercase letter A to Z.
 
-Storing a code block in the variable `Z`.
+The following stores a function in the variable `Z`.
 
 ```
 :Z `hello` 1. 2. 3. ;
 ```
 
-Running the code block by stored in uppercase `Z` by referring to it
+Running the function by stored in uppercase `Z` by referring to it
 
 ```
 Z
@@ -447,19 +517,19 @@ will print out.
 hello 1 2 3
 ```
 
-A basic function with a single argument is represented as follows:
+A basic function to square a value.
 
 ```
-:F a ! a@ . ;
+:F " * ;
 ```
 
-This function takes a single argument `a` and prints its value using the `.` operator.
-
-Example: a function to square a value a
+The function stored in F duplicates the value on the stack and then multiplies them together. 
 
 ```
-:F a ! a@ a@ * ;
+4 F .
 ```
+
+Calling the function with 4 returns 16 which is then printed.
 
 ### <a name='function-with-multiple-arguments'></a>Function with multiple arguments
 
@@ -500,8 +570,9 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 
 ### <a name='anonymous-functions'></a>Anonymous functions
 
-MINT code is not restricted to upper case variables. Functions an be declared anonymously using
-the `\:` operator. A function declared this way puts the address of the function on the stack.
+MINT code is not restricted to upper case variables. Functions an be declared without a 
+variable(i.e. anonymously) by using the `\:` operator. A function declared this way puts 
+the address of the function on the stack.
 
 A function at an address can be executed with the `\G` operator.
 
@@ -618,10 +689,12 @@ NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditio
 ```
 
 NOTE 2: if you _immediately_ follow a code block with another code block, this second code block will execute
-if the condition is 0 (i.e. it is an ELSE clause)
+the "else" condition.
 
-e.g. 0(`will not execute`)(`will execute`)
+```
+0(`will not execute`)(`will execute`)
 1(`will execute`)(`will not execute`)
+```
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 

@@ -659,17 +659,6 @@ fetch1:
     push de              
     jp (IY)           
 
-hex_:                                ;=26
-    ld hl,0	    		    ; Clear hl to accept the number
-    jp hex0
-
-key_:
-    call getchar
-    ld H,0
-    ld L,A
-    push hl
-    jp (IY)
-
 nop_:       
     jp NEXT             ; hardwire white space to always go to NEXT (important for arrays)
 
@@ -794,6 +783,16 @@ str2:
     dec BC
     jp   (IY) 
 
+hex_:
+    ld hl,0	    		    ; Clear hl to accept the number
+hex1:
+    inc BC
+    ld A,(BC)		    ; Get the character which is a numeral
+    BIT 6,A                     ; is it uppercase alpha?
+    jp Z, hex2                  ; no a decimal
+    SUB 7                       ; sub 7  to make $A - $F
+    jp hex2
+
 num_:   jp num
 begin_: jp begin
 arrDef_:jp arrDef    
@@ -821,6 +820,13 @@ alt2:
     ld hl,page6
     ld L,A                      
     jp (hl)                     ;       Jump to routine
+
+key_:
+    call getchar
+    ld H,0
+    ld L,A
+    push hl
+    jp (IY)
 
 arrIndex:
     pop hl                              ; hl = index  
@@ -1374,13 +1380,7 @@ arrayEnd2:
     ld bc,(vTemp1)              ; restore IP
     jp (iy)
 
-hex0:
-hex1:
-    inc BC
-    ld A,(BC)		    ; Get the character which is a numeral
-    BIT 6,A                     ; is it uppercase alpha?
-    jr Z, hex2                  ; no a decimal
-    SUB 7                       ; sub 7  to make $A - $F
+; hex continued
 hex2:
     SUB $30                     ; Form decimal digit
     jp C,num2
@@ -1392,7 +1392,7 @@ hex2:
     add hl,hl                   ; 16X     
     add A,L                     ; add into bottom of hl
     ld  L,A                     ;   
-    jr  hex1
+    jp  hex1
 
 
 

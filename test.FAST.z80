@@ -16,11 +16,11 @@
 
 testsStart:
 
-    ; test "[\\: 10 ; \\: 20 ; \\: 30 ;] 2_@ \\G",30
+    test "#10", $10
 
-    ; CALL printStr
-    ; .cstr "Done!!\r\n"
-    ; HALT
+    CALL printStr
+    .cstr "Done!!\r\n"
+    HALT
 
     test "1", 1
     test "0", 0
