@@ -9,7 +9,7 @@
     ; CALL init
     JP testsStart
     
-    .include "MINT.asm"
+    .include "MAIN.asm"
     .include "ram.asm"
     
     .org $4000
