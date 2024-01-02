@@ -51,14 +51,14 @@ altVars:
 vS0:        DS 2                ; a
 vBase16:    DS 2                ; b
 vCarry:     DS 2                ; c
-vNS:        DS 2                ; d
-vLastDef:   DS 2                ; e
-            DS 2                ; f
+            DS 2                ; d
+vElse:      DS 2                ; e
+vFalse:     DS 2                ; f
             DS 2                ; g
 vHeapPtr:   DS 2                ; h
             DS 2                ; i
             DS 2                ; j
-            DS 2                ; k
+vTIBPtr:    DS 2                ; k
             DS 2                ; l  
             DS 2                ; m  
             DS 2                ; n
@@ -67,13 +67,13 @@ vHeapPtr:   DS 2                ; h
             DS 2                ; q
             DS 2                ; r     
             DS 2                ; s
-vTIBPtr:    DS 2                ; t
-            DS 2                ; u
+vTrue:      DS 2                ; t
+vUnlimited: DS 2                ; u
             DS 2                ; v
             DS 2                ; w
             DS 2                ; x     
             DS 2                ; y
-            DS 2                ; z
+vLastDef:   DS 2                ; z
 
             ; .align $40
 VARS:   DS VARS_SIZE

@@ -56,7 +56,7 @@ list_:
     .cstr "\\N26(\\i@65+\\L\\t@0>(\\N))\\P;"
 
 printStack_:
-    .cstr "\\T\\P;"        
+    .cstr "`=> `\\a@2- \\- 1-(",$22,"@.2-)'\\N\\P;"        
 
 iOpcodes:
     LITDAT 15
@@ -111,7 +111,7 @@ iAltCodes:
     db     lsb(cstore_)     ;!  byte store     
     db     lsb(aNop_)       ;"  				
     db     lsb(aNop_)       ;#  edit definition 				
-    db     lsb(newln_)      ;$  prints a newline to output	
+    db     lsb(aNop_)       ;$  prints a newline to output	
 
     REPDAT 7, lsb(aNop_)
                             ; %
@@ -123,8 +123,8 @@ iAltCodes:
                             ; +
 
     LITDAT 2
-    db     lsb(emit_)       ;,  ( b -- ) prints a char              
-    db     lsb(depth_)      ;-  num items on stack
+    db     lsb(aNop_)       ;,  ( b -- ) prints a char              
+    db     lsb(aNop_)       ;-  num items on stack
 
     REPDAT 12, lsb(aNop_)
                             ;.              
@@ -153,7 +153,7 @@ iAltCodes:
     LITDAT 21
     db     lsb(cFetch_)     ;@      byte fetch
     db     lsb(aNop_)       ;A
-    db     lsb(break_)      ;B      conditional break from loop
+    db     lsb(aNop_)       ;B      
     db     lsb(aNop_)       ;C
     db     lsb(depth_)      ;D      num items on stack
     db     lsb(emit_)       ;E      emit a char
@@ -173,12 +173,12 @@ iAltCodes:
     db     lsb(arrSize_)    ;S      array size
     db     lsb(printStk_)   ;T      non-destructively prints stack
     
-    REPDAT 3, lsb(aNop_)
+    REPDAT 2, lsb(aNop_)
                             ;U
                             ;V
-                            ;W      
-    
-    LITDAT 1
+
+    LITDAT 2
+    db     lsb(while_)      ;W      conditional break from loop
     db     lsb(exec_)       ;X      execute machine code 
     
     REPDAT 2, lsb(aNop_)
@@ -195,24 +195,18 @@ iAltCodes:
                             ; _
                             ; `
 
-    REPDAT 8, lsb(altVar_)  ;a...h
-
-    LITDAT 2
-    db     lsb(i_)          ;i  returns index variable of current loop          
-    db     lsb(j_)          ;j  returns index variable of outer loop     \i+6     
-
-    REPDAT 16, lsb(altVar_) ;k...z
+    REPDAT 26, lsb(altVar_)  ;a...z
 
     ENDDAT 
 
 backSpace:
     ld a,c
     or b
-    jp z, interpret2
+    jr z, interpret2
     dec bc
     call printStr
     .cstr "\b \b"
-    jp interpret2
+    jr interpret2
     
 start:
     ld SP,DSTACK		; start of MINT
@@ -558,13 +552,6 @@ writeChar:                          ;=5
     inc hl
     jp putchar
 
-enter:                              ;=9
-    ld hl,BC
-    call rpush                      ; save Instruction Pointer
-    pop BC
-    dec BC
-    jp (IY)                    
-
 
 ; **********************************************************************			 
 ; Page 4 primitive routines 
@@ -783,25 +770,31 @@ str2:
     dec BC
     jp   (IY) 
 
+key_:
+    call getchar
+    ld H,0
+    ld L,A
+    push hl
+    jp (IY)
+
+num_:   
+    jp num
+begin_: 
+    jp begin
+arrDef_:
+    jp arrDef    
+arrEnd_:
+    jp arrEnd
+def_:   
+    jp def
+arrIndex_: 
+    jr arrIndex
 hex_:
-    ld hl,0	    		    ; Clear hl to accept the number
-hex1:
-    inc BC
-    ld A,(BC)		    ; Get the character which is a numeral
-    BIT 6,A                     ; is it uppercase alpha?
-    jp Z, hex2                  ; no a decimal
-    SUB 7                       ; sub 7  to make $A - $F
-    jp hex2
-
-num_:   jp num
-begin_: jp begin
-arrDef_:jp arrDef    
-arrEnd_:jp arrEnd
-def_:   jp def
-
-arrIndex_: jr arrIndex
-mul_:   jr mul      
-div_:   jr div
+    jr hex
+mul_:   
+    jr mul      
+div_:   
+    jr div
 alt_:   
 
 ;*******************************************************************
@@ -821,13 +814,6 @@ alt2:
     ld L,A                      
     jp (hl)                     ;       Jump to routine
 
-key_:
-    call getchar
-    ld H,0
-    ld L,A
-    push hl
-    jp (IY)
-
 arrIndex:
     pop hl                              ; hl = index  
     pop de                              ; de = array
@@ -835,6 +821,27 @@ arrIndex:
     add hl,de                           ; add addr
     push hl
     jp (iy)
+
+hex:
+    ld hl,0	    		    ; Clear hl to accept the number
+hex1:
+    inc BC
+    ld A,(BC)		    ; Get the character which is a numeral
+    BIT 6,A                     ; is it uppercase alpha?
+    jp Z, hex2                  ; no a decimal
+    SUB 7                       ; sub 7  to make $A - $F
+hex2:
+    SUB $30                     ; Form decimal digit
+    jp C,num2
+    CP $0F+1
+    jp NC,num2
+    add hl,hl                   ; 2X ; Multiply digit(s) in hl by 16
+    add hl,hl                   ; 4X
+    add hl,hl                   ; 8X
+    add hl,hl                   ; 16X     
+    add A,L                     ; add into bottom of hl
+    ld  L,A                     ;   
+    jp  hex1
 
 mul:                                ;=19
     pop  de                     ; get first value
@@ -918,77 +925,74 @@ div10:
     jp (iy)
 
     	                    ;=57                     
-begin:                              ; Left parentheses begins a loop
-    pop hl
-    ld A,L                      ; zero?
-    or H
-    jr Z,begin1
-    push IX
-    ld IX,(vLoopSP)
-    ld de,-6
-    add IX,de
-    ld (IX+0),0                 ; loop var
-    ld (IX+1),0                 
-    ld (IX+2),L                 ; loop limit
-    ld (IX+3),H                 
-    ld (IX+4),C                 ; loop address
-    ld (IX+5),B                 
-    ld (vLoopSP),IX
-    pop IX
-    jp (IY)
-begin1:
-    ld E,1
-begin2:
-    inc BC
-    ld A,(BC)
-    call nesting
-    XOR A
-    or E
-    jr NZ,begin2
-    ld hl,1
-begin3:
-    inc BC
-    ld A,(BC)
-    dec BC
-    CP "("
-    jr NZ,begin4
-    push hl
-begin4:        
-    jp (IY)
+begin:
+loopStart:
+    ld (vTemp1),bc              ; save start
+    ld e,1                      ; skip to loop end, nesting = 1
+loopStart1:
+    inc bc
+    ld a,(bc)
+    call nesting                ; affects zero flag
+    jr nz,loopStart1
+    pop de                      ; de = limit
+    ld a,e                      ; is it zero?
+    or d
+    jr nz,loopStart2
+    dec de                      ; de = TRUE
+    ld (vElse),de
+    jr loopStart4               ; yes continue after skip    
+loopStart2:
+    ld a,2                      ; is it TRUE
+    add a,e
+    add a,d
+    jr nz,loopStart3                
+    ld de,1                     ; yes make it 1
+loopStart3:    
+    ld hl,bc
+    call rpush                  ; rpush loop end
+    dec bc                      ; IP points to ")"
+    ld hl,(vTemp1)              ; restore start
+    call rpush                  ; rpush start
+    ex de,hl                    ; hl = limit
+    call rpush                  ; rpush limit
+    ld hl,-1                    ; hl = count = -1 
+    call rpush                  ; rpush count
+loopstart4:    
+    jp (iy)
 
-again:                              ;=72
-    push IX
-    ld IX,(vLoopSP)
-    ld E,(IX+0)                 ; peek loop var
-    ld D,(IX+1)                 
-    ld L,(IX+2)                 ; peek loop limit
-    ld H,(IX+3)                 
-    dec hl
-    or A
-    SBC hl,de
-    jr Z,again2
+again:
+loopEnd:    
+    ld e,(ix+2)                 ; de = limit
+    ld d,(ix+3)
+    ld a,e                      ; a = lsb(limit)
+    or d                        ; if limit 0 exit loop
+    jr z,loopEnd4                  
+    inc de                      ; is limit -2
     inc de
-    ld (IX+0),E                 ; poke loop var
-    ld (IX+1),D                 
-again1:
-    ld C,(IX+4)                 ; peek loop address
-    ld B,(IX+5)                 
-    jr again4
-again2:   
-    ld de,6                     ; drop loop frame
-again3:
-    add IX,de
-again4:
-    ld (vLoopSP),IX
-    pop IX
-    ld hl,0                     ; skip ELSE clause
-    jr begin3               
-
-carry:                              ;=10
-    ld hl,0
-    rl l
-    ld (vCarry),hl
-    jp (iy)              
+    ld a,e                      ; a = lsb(limit)
+    or d                        ; if limit 0 exit loop
+    jr z,loopEnd2               ; yes, loop again
+    dec de
+    dec de
+    dec de
+    ld (ix+2),e                  
+    ld (ix+3),d
+loopEnd2:
+    ld e,(ix+0)                 ; inc counter
+    ld d,(ix+1)
+    inc de
+    ld (ix+0),e                  
+    ld (ix+1),d
+loopEnd3:
+    ld de,FALSE                 ; if clause ran then vElse = FALSE    
+    ld (vElse),de
+    ld c,(ix+4)                 ; IP = start
+    ld b,(ix+5)
+    jp (iy)
+loopEnd4:    
+    ld de,2*4                   ; rpop frame
+    add ix,de
+    jp (iy)
 
 ; **************************************************************************
 ; Page 6 Alt primitives
@@ -999,6 +1003,12 @@ page6:
 
 altVar_:
     ld A,(BC)
+    cp "i"
+    ld l,0
+    jp z,loopVar
+    cp "j"
+    ld l,8
+    jp z,loopVar
     SUB "a" - ((altVars - mintVars)/2) 
     add A,A
     ld H,msb(mintVars)
@@ -1024,15 +1034,17 @@ arrSize:
     jp (iy)
 
 break_:
+while_:
+while:
     pop hl
-    ld A,L                      ; zero?
-    or H
-    jr NZ,break1
-    jp (IY)
-break1:
-    ld de,6                     ; drop loop frame
-    add IX,de
-    jp begin1                   ; skip to end of loop        
+    ld a,l
+    or h
+    jr nz,while2
+    ld c,(ix+6)                 ; IP = )
+    ld b,(ix+7)
+    jp loopEnd4
+while2:
+    jp (iy)
 
 cArrDef_:                           ; define a byte array
     ld A,TRUE
@@ -1120,18 +1132,6 @@ inPort_:			    ; \<
     push hl
     jp (IY)        
 
-i_:
-    ld hl,(vLoopSP)
-    push hl
-    jp (IY)
-
-j_:                                 ;=9  
-    ld hl,(vLoopSP)             ;the address of j is 6 bytes more than i
-    ld de,6
-    add hl,de
-    push hl
-    jp (IY)
-    
 newln_:
     call crlf
     jp (IY)        
@@ -1147,9 +1147,8 @@ outPort_:
 
 printStk_:
 printStk:                           ;=40
-    ; MINT: \a@2- \- 1- ("@ \b@ \(,)(.) 2-) '             
     call ENTER
-    .cstr "`=> `\\a@2- \\- 1-(",$22,"@.2-)'\\N"             
+    .cstr ""             
     jp (IY)
 
 ;*******************************************************************
@@ -1380,19 +1379,25 @@ arrayEnd2:
     ld bc,(vTemp1)              ; restore IP
     jp (iy)
 
-; hex continued
-hex2:
-    SUB $30                     ; Form decimal digit
-    jp C,num2
-    CP $0F+1
-    jp NC,num2
-    add hl,hl                   ; 2X ; Multiply digit(s) in hl by 16
-    add hl,hl                   ; 4X
-    add hl,hl                   ; 8X
-    add hl,hl                   ; 16X     
-    add A,L                     ; add into bottom of hl
-    ld  L,A                     ;   
-    jp  hex1
+loopVar:    
+    ld h,0
+    ld d,ixh
+    ld e,ixl
+    add hl,de
+    push hl
+    jp (iy)
 
+carry:                              ;=10
+    ld hl,0
+    rl l
+    ld (vCarry),hl
+    jp (iy)              
+
+enter:                              ;=9
+    ld hl,BC
+    call rpush                      ; save Instruction Pointer
+    pop BC
+    dec BC
+    jp (IY)                    
 
 

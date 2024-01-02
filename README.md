@@ -12,11 +12,11 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Printing numbers](#printing-numbers)
   - [Printing text](#printing-text)
 - [Stack Manipulation in MINT](#stack-maniplation-in-mint)
-    - [Duplicate](#duplicate)
-    - [Drop](#drop)
-    - [Swap](#swap)
-    - [Over](#over)
-    - [Rotate](#rotate)
+  - [Duplicate](#duplicate)
+  - [Drop](#drop)
+  - [Swap](#swap)
+  - [Over](#over)
+  - [Rotate](#rotate)
 - [Basic arithmetic operations](#basic-arithmetic-operations)
 - [Logical operators](#logical-operators)
 - [Variables](#variables)
@@ -46,7 +46,6 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Miscellaneous](#miscellaneous)
   - [Utility commands](#utility-commands)
   - [Control keys](#control-keys)
-
 
 ## <a name='what-is-mint'></a>What is MINT?
 
@@ -117,8 +116,8 @@ prints `The value of x is 100`
 
 ## <a name='stack-maniplation-in-mint'></a>Stack Manipulation in MINT
 
-In MINT, the stack is a central data structure that stores values temporarily. 
-It's essential to master stack manipulation to write effective code. Let's explore 
+In MINT, the stack is a central data structure that stores values temporarily.
+It's essential to master stack manipulation to write effective code. Let's explore
 some fundamental operator that help you manage the stack
 
 ### <a name='duplicate'></a>Duplicate
@@ -126,7 +125,7 @@ some fundamental operator that help you manage the stack
 The `"` or "dup" operator _duplicates_ the top element of the stack.
 
 ```
-10 " . .   
+10 " . .
 ```
 
 The code prints `10 10`
@@ -136,7 +135,7 @@ The code prints `10 10`
 The `'` or "drop" removes the top element of the stack.
 
 ```
-20 30 ' . 
+20 30 ' .
 ```
 
 The code prints `20`
@@ -146,29 +145,29 @@ The code prints `20`
 The `$` of "swap" operator exchanges the positions of the top two elements on the stack.
 
 ```
-40 50 $ . . 
+40 50 $ . .
 ```
 
 The code prints `50 40`
 
 ### <a name='over'></a>Over
 
-The `%` of "over" operator copies the second element from the top of the stack and 
+The `%` of "over" operator copies the second element from the top of the stack and
 places it on top.
 
 ```
-60 70 % . . . 
+60 70 % . . .
 ```
 
 The code prints `70 60 70`
 
 ### <a name='rotate'></a>Rotate
 
-The `~` or "rotate" operator rotates the top three elements of the stack, bringing 
+The `~` or "rotate" operator rotates the top three elements of the stack, bringing
 the third element to the top.
 
 ```
-80 90 100 rot . . . 
+80 90 100 rot . . .
 ```
 
 The code prints `100 80 90`
@@ -394,10 +393,10 @@ The following prints 2
 
 ## <a name='loops'></a>Loops
 
-Looping in MINT is of the form 
+Looping in Mondo is of the form
 
 ```
-number (code to execute) 
+number (code to execute)
 ```
 
 The number represents the number of times the code between parentheses will be repeated. If the number is zero then the code will be skipped. If the number
@@ -407,7 +406,9 @@ is ten it will be repeated ten times. If the number is -1 then the loop will rep
 0(this code will not be executed but skipped)
 1(this code will be execute once)
 10(this code will execute 10 times)
--1(this code will be execute forever)
+\f(this code will not be executed but skipped)
+\t(this code will be execute once)
+\u(this code will be execute forever)
 ```
 
 This code following prints ten x's.
@@ -420,19 +421,19 @@ The following code repeats ten times and adds 1 to the variable `t` each time.
 When the loop ends it prints the value of t which is 10.
 
 ```
-0t! 10( t@ 1+ t! ) t@ .
+0t! 10( t 1+ t! ) t .
 ```
 
-MINT provides a special variable `\i` which acts as a loop counter. The counter counts up from zero. Just before the
+Mondo provides a special variable `\i` which acts as a loop counter. The counter counts up from zero. Just before the
 counter reaches the limit number it terminates.
 
 This prints the numbers 0 to 9.
 
 ```
-10 ( \i@ . )
+10 ( \i . )
 ```
 
-Loops can also be terminated early with the conditional break operator `\B`
+Loops can repeat forever by specifying an "unlimited" loop with \u. These can be controlled with the "while" operator `\W`. Passing a false value to \W will terminate the loop.
 
 This code initialises `t` to zero and starts a loop to repeat 10 times.
 The code to repeat accesses the `\i` variable and compares it to 4. When `\i` exceeds 4 it breaks the loop.
@@ -441,7 +442,7 @@ Otherwise it accesses `t` and adds 1 to it.
 Finally when the loop ends it prints the value of t which is 5.
 
 ```
-0t! 10(\i@ 4 > \B \i@ t@ 1+ t!) t@ .
+0t! \u(\i 4 < \W \i t 1+ t!) t .
 ```
 
 Loops can be nested and then special `\j` variable is provided to access the counter of the outer loop.
@@ -450,37 +451,42 @@ The following has two nested loops with limits of 2. The two counter variables a
 When the loop ends `t` prints 4.
 
 ```
-0t! 2(2(\i@ \j@ + t@ + t! )) t@ .
+0t! 2(2(\i \j + t + t! )) t .
 ```
 
 ## <a name='conditional-code'></a>Conditional code
 
-MINT's looping mechanism can also be used to execute code conditionally. In MINT boolean `false` is represented
+Mondo's looping mechanism can also be used to execute code conditionally. In Mondo boolean `false` is represented
 by 0 and `true` is represented by 1.
+
+```
+/f(this code will not be executed but skipped)
+/t(this code will be execute once)
+```
 
 The following tests if `x` is less that 5.
 
 ```
 3 x!
-x@ 5 < (`true`)
+x 5 < (`true`)
 ```
 
-The syntax for a MINT IF-THEN-ELSE or "if...else" operator in MINT is and extension of the loop syntax.
+The syntax for a Mondo IF-THEN-ELSE or "if...else" operator in Mondo is and
+extension of the loop syntax.
 
 ```
-boolean (code-block-then)(code-block-else)
+boolean (code-block-then) /e (code-block-else)
 ```
 
 If the condition is true, then code-block-then is executed. Otherwise, code-block-else is executed.
-The only syntax rule is that the code-block-else follows the code-block-then block with no spaces between.
 
-Here is an example of a "if...else" operator in MINT:
+Here is an example of a "if...else" operator in Mondo:
 
 ```
 10 x !
 20 y !
 
-x@ y@ > ( `x is greater than y` )( `y is greater than x` )
+x y > ( `x is greater than y` ) /e ( `y is greater than x` )
 
 ```
 
@@ -488,13 +494,13 @@ In this example, the variable x is assigned the value 10 and the variable y is a
 The "if...else" operator then checks to see if x is greater than y. If it is, then the string
 "x is greater than y" is returned. Otherwise, the string "y is greater than x" is returned.
 
-Here is another example of the "if...else" operator in MINT. This time, instead of creating a string just to print it, the following
+Here is another example of the "if...else" operator in Mondo. This time, instead of creating a string just to print it, the following
 code conditionally prints text straight to the console.
 
 ```
 18 a !
 
-`This person` a@ 17 > (`can`)(`cannot`) `vote`
+`This person` a 17 > (`can`) /e (`cannot`) `vote`
 ```
 
 In this example, the variable a is assigned the value 18. The "if...else" operator
@@ -505,7 +511,7 @@ then the text "can" is printed to the console. Otherwise, the string "cannot" is
 
 You can put any code inside `:` and `;` block which tells MINT to "execute this later".
 
-Functions are stored in variables with uppercase letters. There are 26 variables 
+Functions are stored in variables with uppercase letters. There are 26 variables
 for storing functions in MINT and use the uppercase letter A to Z.
 
 The following stores a function in the variable `Z`.
@@ -532,7 +538,7 @@ A basic function to square a value.
 :F " * ;
 ```
 
-The function stored in F duplicates the value on the stack and then multiplies them together. 
+The function stored in F duplicates the value on the stack and then multiplies them together.
 
 ```
 4 F .
@@ -579,8 +585,8 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 
 ### <a name='anonymous-functions'></a>Anonymous functions
 
-MINT code is not restricted to upper case variables. Functions an be declared without a 
-variable(i.e. anonymously) by using the `\:` operator. A function declared this way puts 
+MINT code is not restricted to upper case variables. Functions an be declared without a
+variable(i.e. anonymously) by using the `\:` operator. A function declared this way puts
 the address of the function on the stack.
 
 A function at an address can be executed with the `\G` operator.
@@ -726,10 +732,13 @@ the "else" condition.
 | \\a    | data stack start variable          | -- adr |
 | \\c    | carry flag variable                | -- adr |
 | \\d    | start of user definitions          | -- adr |
+| \\e    | else condition                     | -- b   |
+| \\f    | false condition                    | -- b   |
 | \\h    | heap pointer variable              | -- adr |
 | \\i    | loop counter variable              | -- adr |
 | \\j    | outer loop counter variable        | -- adr |
-| \\t    | text input buffer pointer variable | -- adr |
+| \\k    | text input buffer pointer variable | -- adr |
+| \\t    | true condition                     | -- b   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
@@ -744,7 +753,6 @@ the "else" condition.
 | \\N    | prints a CRLF | --      |
 | \\L    | edit command  | char -- |
 | \\P    | print prompt  | --      |
-| \\T    | print stack   | --      |
 
 ### <a name='control-keys'></a>Control keys
 
