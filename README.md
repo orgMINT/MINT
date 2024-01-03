@@ -665,14 +665,13 @@ Note: logical NOT can be achieved with 0=
 
 | Symbol | Description                                    | Effect      |
 | ------ | ---------------------------------------------- | ----------- |
-| ?      | read a char from input                         | -- val      |
 | .      | print the number on the stack as a decimal     | a --        |
 | ,      | print the number on the stack as a hexadecimal | a --        |
 | \`     | print the literal string between \` and \`     | --          |
 | \\C    | prints a character to output                   | val --      |
+| \\K    | read a char from input                         | -- val      |
 | \\O    | output to an I/O port                          | val port -- |
 | \\I    | input from a I/O port                          | port -- val |
-| #      | the following number is in hexadecimal         | a --        |
 | \\Y    | define string                                  | -- adr      |
 | \\Z    | print string                                   | adr --      |
 
@@ -701,16 +700,16 @@ NOTE:
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
 ```
-\F(`will not execute`)
-\T(`will execute`)
+0(`will not execute`)
+1(`will execute`)
 ```
 
 NOTE 2: if you _immediately_ follow a code block with another code block, this second code block will execute
 the "else" condition.
 
 ```
-\F(`will not execute`)(`will execute`)
-\T(`will execute`)(`will not execute`)
+0(`will not execute`) \E (`will execute`)
+1(`will execute`) \E (`will not execute`)
 ```
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
