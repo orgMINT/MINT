@@ -44,7 +44,7 @@ PUTCVEC:    DS 2                ;
             DS 26*2
 altVars:
 
-vS0:        DS 2                ; a
+            DS 2                ; a
 vBase16:    DS 2                ; b
 vCarry:     DS 2                ; c
             DS 2                ; d
@@ -62,7 +62,7 @@ vTIBPtr:    DS 2                ; k
             DS 2                ; p
             DS 2                ; q
             DS 2                ; r     
-            DS 2                ; s
+vS0:        DS 2                ; s
             DS 2                ; t
 vUnlimited: DS 2                ; u
             DS 2                ; v

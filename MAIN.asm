@@ -47,7 +47,7 @@
 macros:
 
 reedit_:
-    db "\\e\\@\\L;"			; remembers last line edited
+    db "\\z@\\L;"			; remembers last line edited
 
 edit_:
     .cstr "`?`?\\P\\L;"
@@ -56,7 +56,7 @@ list_:
     .cstr "\\N26(\\i@65+\\L\\t@0>(\\N))\\P;"
 
 printStack_:
-    .cstr "`=> `\\a@2- \\- 1-(",$22,"@.2-)'\\N\\P;"        
+    .cstr "`=> `\\s@2- \\D1-(",$22,"@,2-)'\\N\\P;"        
 
 iOpcodes:
     LITDAT 15
@@ -172,8 +172,8 @@ iAltCodes:
     db     lsb(aNop_)       ;V
     db     lsb(while_)      ;W      conditional break from loop
     db     lsb(exec_)       ;X      execute machine code 
-    db     lsb(aNop_)       ;Y
-    db     lsb(aNop_)       ;Z
+    db     lsb(strDef_)     ;Y
+    db     lsb(prnStr_)     ;Z
     db     lsb(cArrDef_)    ;[      byte array
     db     lsb(comment_)    ;\      comment text, skips reading until end of line
 
@@ -545,6 +545,12 @@ enter:                              ;=9
     dec BC
     jp (IY)                    
 
+carry:                              
+    ld hl,0
+    rl l
+    ld (vCarry),hl
+    jp (iy)              
+
 ; **********************************************************************			 
 ; Page 4 primitive routines 
 ; **********************************************************************
@@ -766,12 +772,13 @@ begin_:
     jp begin
 again_: 
     jp again		; close loop
-arrDef_:
-    jp arrDef    
 arrEnd_:
     jp arrEnd
 def_:   
     jp def
+
+arrDef_:
+    jr arrDef    
 arrIndex_: 
     jr arrIndex
 hex_:
@@ -798,6 +805,15 @@ alt2:
     ld hl,page6
     ld L,A                      
     jp (hl)                     ;       Jump to routine
+
+arrDef:                         
+    ld A,FALSE
+arrDef1:      
+    ld (vByteMode),A
+    ld hl,0
+    add hl,sp                   ; save 
+    call rpush
+    jp (iy)
 
 arrIndex:
     pop hl                              ; hl = index  
@@ -1151,6 +1167,34 @@ unlimited_:
     push hl
     jp (iy)
 
+;;;;;;;;;;;;;;;
+
+prnStr_:
+prnStr:
+    POP HL
+    CALL putStr
+    JP (IY)
+
+strDef_:                         ;= 21
+strDef:                         ;= 21
+    LD DE,(vHeapPtr)        ; HL = heap ptr
+    PUSH DE                 ; save start of string 
+    INC BC                  ; point to next char
+    JR strDef2
+strDef1:
+    LD (DE),A
+    INC DE                  ; increase count
+    INC BC                  ; point to next char
+strDef2:
+    LD A,(BC)
+    CP "`"                  ; ` is the string terminator
+    JR NZ,strDef1
+    XOR A                   ; write null to terminate string
+    LD (DE),A
+    INC DE
+    JP def3
+
+
 ;*******************************************************************
 ; Page 5 primitive routines continued
 ;*******************************************************************
@@ -1178,12 +1222,6 @@ def2:
 def3:
     ld (vHeapPtr),de            ; bump heap ptr to after definiton
     jp (IY)       
-
-carry:                              
-    ld hl,0
-    rl l
-    ld (vCarry),hl
-    jp (iy)              
 
 num:
 	ld hl,$0000				    ; Clear hl to accept the number
@@ -1307,15 +1345,6 @@ printDec6:
 printDec7:	    
     ld a,b
     jp putchar
-
-arrDef:                         
-    ld A,FALSE
-arrDef1:      
-    ld (vByteMode),A
-    ld hl,0
-    add hl,sp                   ; save 
-    call rpush
-    jp (iy)
 
 arrEnd:                       
     ld (vTemp1),bc              ; save IP

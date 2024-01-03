@@ -406,9 +406,9 @@ is ten it will be repeated ten times. If the number is -1 then the loop will rep
 0(this code will not be executed but skipped)
 1(this code will be execute once)
 10(this code will execute 10 times)
-\f(this code will not be executed but skipped)
-\t(this code will be execute once)
-\u(this code will be execute forever)
+\\F(this code will not be executed but skipped)
+\\T(this code will be execute once)
+\\U(this code will be execute forever)
 ```
 
 This code following prints ten x's.
@@ -460,8 +460,8 @@ Mondo's looping mechanism can also be used to execute code conditionally. In Mon
 by 0 and `true` is represented by 1.
 
 ```
-/f(this code will not be executed but skipped)
-/t(this code will be execute once)
+\F(this code will not be executed but skipped)
+\T(this code will be execute once)
 ```
 
 The following tests if `x` is less that 5.
@@ -475,7 +475,7 @@ The syntax for a Mondo IF-THEN-ELSE or "if...else" operator in Mondo is and
 extension of the loop syntax.
 
 ```
-boolean (code-block-then) /e (code-block-else)
+boolean (code-block-then) \E (code-block-else)
 ```
 
 If the condition is true, then code-block-then is executed. Otherwise, code-block-else is executed.
@@ -486,7 +486,7 @@ Here is an example of a "if...else" operator in Mondo:
 10 x !
 20 y !
 
-x y > ( `x is greater than y` ) /e ( `y is greater than x` )
+x y > ( `x is greater than y` ) \E ( `y is greater than x` )
 
 ```
 
@@ -500,7 +500,7 @@ code conditionally prints text straight to the console.
 ```
 18 a !
 
-`This person` a 17 > (`can`) /e (`cannot`) `vote`
+`This person` a 17 > (`can`) \E (`cannot`) `vote`
 ```
 
 In this example, the variable a is assigned the value 18. The "if...else" operator
@@ -645,6 +645,8 @@ commands from the keyboard.
 | ^      | 16-bit bitwise XOR   | a b -- c |
 | {      | shift left           | --       |
 | }      | shift right          | --       |
+| \\F    | false condition      | -- b     |
+| \\T    | true condition       | -- b     |
 
 Note: logical NOT can be achieved with 0=
 
@@ -667,10 +669,12 @@ Note: logical NOT can be achieved with 0=
 | .      | print the number on the stack as a decimal     | a --        |
 | ,      | print the number on the stack as a hexadecimal | a --        |
 | \`     | print the literal string between \` and \`     | --          |
-| \\E    | prints a character to output                   | val --      |
+| \\C    | prints a character to output                   | val --      |
 | \\O    | output to an I/O port                          | val port -- |
 | \\I    | input from a I/O port                          | port -- val |
 | #      | the following number is in hexadecimal         | a --        |
+| \\Y    | define string                                  | -- adr      |
+| \\Z    | print string                                   | adr --      |
 
 | Symbol  | Description                     | Effect   |
 | ------- | ------------------------------- | -------- |
@@ -689,7 +693,10 @@ NOTE:
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| \\B    | if false break out of loop             | b --   |
+| \\i    | loop counter variable              | -- adr |
+| \\j    | outer loop counter variable        | -- adr |
+| \\W    | if false break out of loop             | b --   |
+| \\E    | else condition                     | -- b   |
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
@@ -729,16 +736,10 @@ the "else" condition.
 
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
-| \\a    | data stack start variable          | -- adr |
 | \\c    | carry flag variable                | -- adr |
-| \\d    | start of user definitions          | -- adr |
-| \\e    | else condition                     | -- b   |
-| \\f    | false condition                    | -- b   |
 | \\h    | heap pointer variable              | -- adr |
-| \\i    | loop counter variable              | -- adr |
-| \\j    | outer loop counter variable        | -- adr |
 | \\k    | text input buffer pointer variable | -- adr |
-| \\t    | true condition                     | -- b   |
+| \\s    | data stack start variable          | -- adr |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
