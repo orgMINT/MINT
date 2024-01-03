@@ -5,8 +5,6 @@
     
     .include "IOSerial.asm"
     
-    LD SP,DSTACK
-    ; CALL init
     JP testsStart
     
     .include "MAIN.asm"
@@ -15,8 +13,6 @@
     .org $4000
 
 testsStart:
-
-    ; test "#10", $10
 
     ; CALL printStr
     ; .cstr "Done!!\r\n"
@@ -91,17 +87,22 @@ testsStart:
     test "0 2(1(1+))", 2
     test "0 2(2(1+))", 4
     test "0 1(\\i@+)", 0
-    test "0 2(\\i@+)", 1
-    test "0 3(\\i@+)", 3
+    test "0 0(\\i@+)", 0
+    test "0 5(\\i@+)", 10
+    test "0 \\U(\\i@5<\\W 1+)", 5
+    test "0 \\U(1+\\i@4<\\W)", 5
     test "0t! 10(1 t@+t!) t@",10
     test "0t! 2(2(\\i@ \\j@ + t@ + t! )) t@", 4
-    test "0(100)(200)",200
-    test "1(100)(200)",100
-    test "0t! 10(\\i@ 4>\\B \\i@ 1 t@+t!) t@",5
-    test "0t! [1 2 3] a! a@\\S ( a@ \\i@ _ @ t@+t! ) t@", 6
+    test "\\F(100)\\E(200)",200
+    test "\\T(100)\\E(200)",100
+    test "0t! 10(t@1+t!) t@",10
+    test "0t! 2(2(\\i@ \\j@ + t@ + t! )) t@", 4
+    test "0t! 10(\\i@ 5<\\W \\i@ 1 t@+t!) t@",5
+    test "0t! [1 2 3] a! a@\\S (a@ \\i@_@ t@+t!) t@", 6
     test "\\: 1 ; \\G", 1
     test "[\\: 10 ;] 0_@ \\G", 10
     test "[\\: 10 ; \\: 20 ; \\: 30 ;] 2_@ \\G",30
+    test "1 2 \\D", 2
 
     CALL enter
     .cstr "`Done!`"

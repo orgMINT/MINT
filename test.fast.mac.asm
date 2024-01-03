@@ -10,7 +10,7 @@
     JR Z,expect%%M
 
     CALL printStr
-    .cstr msg1,"\r\nActual: "
+    .cstr "\r\n\r\n",msg1,"\r\nActual: "
     CALL printdec
 
     CALL printStr
@@ -24,6 +24,7 @@ expect%%M:
 .endm
 
 .macro test,code1,val1
+    LD SP,DSTACK
     CALL init
     CALL enter
     .cstr code1

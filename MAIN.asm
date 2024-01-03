@@ -9,9 +9,9 @@
 ;       see the LICENSE file in this repo for more information 
 ;
 ; *****************************************************************************
-    TRUE        EQU 1		; not FF, for MINT
+    TRUE        EQU 1		
     FALSE       EQU 0
-    EMPTY       EQU 0		; for an empty macro, ctrl-<something>=macro, ie ctrl-h = backspace macros (in MINT)
+    UNLIMITED   EQU -1		
 
     CTRL_C      equ 3
     CTRL_E      equ 5
@@ -107,26 +107,22 @@ iOpcodes:
 
 iAltCodes:
 
-    LITDAT 4
+    LITDAT 1
     db     lsb(cstore_)     ;!  byte store     
-    db     lsb(aNop_)       ;"  				
-    db     lsb(aNop_)       ;#  edit definition 				
-    db     lsb(aNop_)       ;$  prints a newline to output	
 
-    REPDAT 7, lsb(aNop_)
-                            ; %
-                            ; &
-                            ; '
-                            ; (
-                            ; )
-                            ; *
-                            ; +
-
-    LITDAT 2
-    db     lsb(aNop_)       ;,  ( b -- ) prints a char              
-    db     lsb(aNop_)       ;-  num items on stack
-
-    REPDAT 12, lsb(aNop_)
+    REPDAT 24, lsb(aNop_)
+                            ;"
+                            ;#
+                            ;$
+                            ;%
+                            ;&
+                            ;'
+                            ;(
+                            ;)
+                            ;*
+                            ;+
+                            ;,
+                            ;-
                             ;.              
                             ;/                
                             ;0
@@ -150,14 +146,14 @@ iAltCodes:
                             ;>  
                             ;?  
 
-    LITDAT 21
+    LITDAT 29
     db     lsb(cFetch_)     ;@      byte fetch
     db     lsb(aNop_)       ;A
     db     lsb(aNop_)       ;B      
-    db     lsb(aNop_)       ;C
+    db     lsb(printChar_)  ;C      print a char
     db     lsb(depth_)      ;D      num items on stack
-    db     lsb(emit_)       ;E      emit a char
-    db     lsb(aNop_)       ;F
+    db     lsb(else_)       ;E      
+    db     lsb(false_)      ;F
     db     lsb(go_)         ;G      execute mint code
     db     lsb(aNop_)       ;H
     db     lsb(inPort_)     ;I      input from port
@@ -171,21 +167,13 @@ iAltCodes:
     db     lsb(aNop_)       ;Q
     db     lsb(aNop_)       ;R
     db     lsb(arrSize_)    ;S      array size
-    db     lsb(printStk_)   ;T      non-destructively prints stack
-    
-    REPDAT 2, lsb(aNop_)
-                            ;U
-                            ;V
-
-    LITDAT 2
+    db     lsb(true_)       ;T      non-destructively prints stack
+    db     lsb(unlimited_)  ;U
+    db     lsb(aNop_)       ;V
     db     lsb(while_)      ;W      conditional break from loop
     db     lsb(exec_)       ;X      execute machine code 
-    
-    REPDAT 2, lsb(aNop_)
-                            ;Y
-                            ;Z
-
-    LITDAT 2
+    db     lsb(aNop_)       ;Y
+    db     lsb(aNop_)       ;Z
     db     lsb(cArrDef_)    ;[      byte array
     db     lsb(comment_)    ;\      comment text, skips reading until end of line
 
@@ -360,8 +348,6 @@ etx1:
     jp interpret
 
 init:                           ;=68
-    ld hl,LSTACK
-    ld (vLoopSP),hl         ; Loop stack pointer stored in memory
     ld IX,RSTACK
     ld IY,NEXT		; IY provides a faster jump to NEXT
 
@@ -394,7 +380,7 @@ initOps1:
     ld A,(hl)
     inc hl
     SLA A                     
-    RET Z
+    ret Z
     jr C, initOps2
     SRL A
     ld C,A
@@ -436,7 +422,7 @@ lookupRef3:
     ld H,A
     XOR A
     or E                        ; sets Z flag if A-Z
-    RET
+    ret
 
 printhex:                           ;=31  
                                 ; Display hl as a 16-bit number in hex.
@@ -446,7 +432,7 @@ printhex:                           ;=31
     ld A,L
     call printhex2
     pop BC
-    RET
+    ret
 printhex2:		                    
     ld	C,A
 	RRA 
@@ -479,13 +465,13 @@ nesting:                        ;=44
     BIT 7,E
     jr Z,nesting1a
     RES 7,E
-    RET
+    ret
 nesting1a: 
     SET 7,E
-    RET
+    ret
 nesting1:
     BIT 7,E             
-    RET NZ             
+    ret NZ             
     CP ':'
     jr Z,nesting2
     CP '['
@@ -494,34 +480,34 @@ nesting1:
     jr NZ,nesting3
 nesting2:
     inc E
-    RET
+    ret
 nesting3:
     CP ';'
     jr Z,nesting4
     CP ']'
     jr Z,nesting4
     CP ')'
-    RET NZ
+    ret NZ
 nesting4:
     dec E
-    RET 
+    ret 
 
 prompt:                             ;=9
     call printStr
     .cstr "\r\n> "
-    RET
+    ret
 
 crlf:                               ;=7
     call printStr
     .cstr "\r\n"
-    RET
+    ret
 
 printStr:                           ;=7
     EX (SP),hl		                ; swap			
     call putStr		
     inc hl			                ; inc past null
     EX (SP),hl		                ; put it back	
-    RET
+    ret
 
 putStr0:                            ;=9
     call putchar
@@ -530,14 +516,14 @@ putStr:
     ld A,(hl)
     or A
     jr NZ,putStr0
-    RET
+    ret
 
 rpush:                              ;=11
     dec IX                  
     ld (IX+0),H
     dec IX
     ld (IX+0),L
-    RET
+    ret
 
 rpop:                               ;=11
     ld L,(IX+0)         
@@ -545,13 +531,19 @@ rpop:                               ;=11
     ld H,(IX+0)
     inc IX                  
 rpop2:
-    RET
+    ret
 
 writeChar:                          ;=5
     ld (hl),A
     inc hl
     jp putchar
 
+enter:                              ;=9
+    ld hl,BC
+    call rpush                      ; save Instruction Pointer
+    pop BC
+    dec BC
+    jp (IY)                    
 
 ; **********************************************************************			 
 ; Page 4 primitive routines 
@@ -605,8 +597,6 @@ add_:                           ; add the top 2 members of the stack
     push    hl                 
     jp carry              
                              
-again_: jp again		; close loop
-
 call_:
     ld A,(BC)
     call lookupRef1
@@ -722,32 +712,25 @@ sub2:
 eq_:    
     pop hl
     pop de
-    and A              ; reset the carry flag
-    SBC hl,de          ; only equality sets hl=0 here
-    jr Z, equal
-    ld hl, 0
-    jr less           ; hl = 1    
+    or a               ; reset the carry flag
+    sbc hl,de          ; only equality sets hl=0 here
+    jp z,true_
+    jp false_
 
 gt_:    
-    pop de
     pop hl
-    jr cmp_
+    pop de
+    jr lt1_
     
 lt_:    
-    pop hl
     pop de
+    pop hl
     
-cmp_:   
-    and A              ; reset the carry flag
-    SBC hl,de          ; only equality sets hl=0 here
-jr Z,less          ; equality returns 0  KB 25/11/21
-    ld hl, 0
-    jp M,less
-equal:  
-    inc L              ; hl = 1    
-less:     
-    push hl
-    jp (IY) 
+lt1_:   
+    or a                ; reset the carry flag
+    sbc hl,de           ; only equality sets hl=0 here
+    jp c,true_
+    jp false_
     
 var_:
     ld A,(BC)
@@ -781,6 +764,8 @@ num_:
     jp num
 begin_: 
     jp begin
+again_: 
+    jp again		; close loop
 arrDef_:
     jp arrDef    
 arrEnd_:
@@ -938,17 +923,12 @@ loopStart1:
     ld a,e                      ; is it zero?
     or d
     jr nz,loopStart2
-    dec de                      ; de = TRUE
+    inc de                      ; de = TRUE
     ld (vElse),de
-    jr loopStart4               ; yes continue after skip    
+    jp (iy)                     ; yes continue after skip    
+
 loopStart2:
-    ld a,2                      ; is it TRUE
-    add a,e
-    add a,d
-    jr nz,loopStart3                
-    ld de,1                     ; yes make it 1
-loopStart3:    
-    ld hl,bc
+    ld hl,bc                    ; rpush loop frame
     call rpush                  ; rpush loop end
     dec bc                      ; IP points to ")"
     ld hl,(vTemp1)              ; restore start
@@ -957,7 +937,7 @@ loopStart3:
     call rpush                  ; rpush limit
     ld hl,-1                    ; hl = count = -1 
     call rpush                  ; rpush count
-loopstart4:    
+loopStart3:    
     jp (iy)
 
 again:
@@ -967,15 +947,13 @@ loopEnd:
     ld a,e                      ; a = lsb(limit)
     or d                        ; if limit 0 exit loop
     jr z,loopEnd4                  
-    inc de                      ; is limit -2
     inc de
     ld a,e                      ; a = lsb(limit)
     or d                        ; if limit 0 exit loop
     jr z,loopEnd2               ; yes, loop again
-    dec de
-    dec de
-    dec de
-    ld (ix+2),e                  
+    dec de                      ; restore de
+    dec de                      ; dec limit
+    ld (ix+2),e                 ; update frame 
     ld (ix+3),d
 loopEnd2:
     ld e,(ix+0)                 ; inc counter
@@ -1008,7 +986,7 @@ altVar_:
     jp z,loopVar
     cp "j"
     ld l,8
-    jp z,loopVar
+    jr z,loopVar
     SUB "a" - ((altVars - mintVars)/2) 
     add A,A
     ld H,msb(mintVars)
@@ -1016,6 +994,14 @@ altVar_:
     push hl
 anop_:
     jp (IY)                    
+
+loopVar:    
+    ld h,0
+    ld d,ixh
+    ld e,ixl
+    add hl,de
+    push hl
+    jp (iy)
 
 anonDef_:                           ;= 7        
     inc BC
@@ -1081,7 +1067,7 @@ depth:
     SBC hl,de
     jp shr1
 
-emit_:
+printChar_:
     pop hl
     ld A,L
     call putchar
@@ -1145,28 +1131,60 @@ outPort_:
     ld C,E
     jp (IY)        
 
-printStk_:
-printStk:                           ;=40
-    call ENTER
-    .cstr ""             
-    jp (IY)
+else_:
+    ld hl,(vElse)
+    push hl
+    jp (iy)
+
+false_:
+    ld hl,FALSE
+    push hl
+    jp (iy)
+
+true_:
+    ld hl,TRUE
+    push hl
+    jp (iy)
+
+unlimited_:
+    ld hl,UNLIMITED
+    push hl
+    jp (iy)
 
 ;*******************************************************************
 ; Page 5 primitive routines continued
 ;*******************************************************************
 
-; ********************************************************************************
-; Number Handling Routine - converts numeric ascii string to a 16-bit number in hl
-; Read the first character. 
-;			
-; Number characters ($30 to $39) are converted to digits by subtracting $30
-; and then added into the L register. (hl forms a 16-bit accumulator)
-; Fetch the next character, if it is a number, multiply contents of hl by 10
-; and then add in the next digit. Repeat this until a non-number character is 
-; detected. add in the final digit so that hl contains the converted number.
-; push hl onto the stack and proceed to the dispatch routine.
-; ********************************************************************************
-     
+def:                                ; Create a colon definition
+    inc BC
+    ld  A,(BC)                  ; Get the next character
+    ld (vLastDef),A
+    call lookupRef
+    ld de,(vHeapPtr)            ; start of defintion
+    ld (hl),E                   ; Save low byte of address in CFA
+    inc hl              
+    ld (hl),D                   ; Save high byte of address in CFA+1
+    inc BC
+def1:                               ; Skip to end of definition   
+    ld A,(BC)                   ; Get the next character
+    inc BC                      ; Point to next character
+    ld (de),A
+    inc de
+    CP ";"                      ; Is it a semicolon 
+    jr Z, def2                  ; end the definition
+    jr  def1                    ; get the next element
+def2:    
+    dec BC
+def3:
+    ld (vHeapPtr),de            ; bump heap ptr to after definiton
+    jp (IY)       
+
+carry:                              
+    ld hl,0
+    rl l
+    ld (vCarry),hl
+    jp (iy)              
+
 num:
 	ld hl,$0000				    ; Clear hl to accept the number
 	ld a,(bc)				    ; Get numeral or -
@@ -1240,40 +1258,7 @@ editDef3:
     or A
     SBC hl,de
     ld (vTIBPtr),hl
-    RET
-
-; **************************************************************************             
-; def is used to create a colon definition
-; When a colon is detected, the next character (usually uppercase alpha)
-; is looked up in the vector table to get its associated code field address
-; This CFA is updated to point to the character after uppercase alpha
-; The remainder of the characters are then skipped until after a semicolon  
-; is found.
-; ***************************************************************************
-
-def:                                ; Create a colon definition
-    inc BC
-    ld  A,(BC)                  ; Get the next character
-    ld (vLastDef),A
-    call lookupRef
-    ld de,(vHeapPtr)            ; start of defintion
-    ld (hl),E                   ; Save low byte of address in CFA
-    inc hl              
-    ld (hl),D                   ; Save high byte of address in CFA+1
-    inc BC
-def1:                               ; Skip to end of definition   
-    ld A,(BC)                   ; Get the next character
-    inc BC                      ; Point to next character
-    ld (de),A
-    inc de
-    CP ";"                      ; Is it a semicolon 
-    jr Z, def2                  ; end the definition
-    jr  def1                    ; get the next element
-def2:    
-    dec BC
-def3:
-    ld (vHeapPtr),de            ; bump heap ptr to after definiton
-    jp (IY)       
+    ret
 
 ; hl = value
 printDec:    
@@ -1378,26 +1363,5 @@ arrayEnd2:
     ld (vHeapPtr),de            ; move heap* to end of array
     ld bc,(vTemp1)              ; restore IP
     jp (iy)
-
-loopVar:    
-    ld h,0
-    ld d,ixh
-    ld e,ixl
-    add hl,de
-    push hl
-    jp (iy)
-
-carry:                              ;=10
-    ld hl,0
-    rl l
-    ld (vCarry),hl
-    jp (iy)              
-
-enter:                              ;=9
-    ld hl,BC
-    call rpush                      ; save Instruction Pointer
-    pop BC
-    dec BC
-    jp (IY)                    
 
 
