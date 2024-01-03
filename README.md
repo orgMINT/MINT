@@ -421,7 +421,7 @@ The following code repeats ten times and adds 1 to the variable `t` each time.
 When the loop ends it prints the value of t which is 10.
 
 ```
-0t! 10( t 1+ t! ) t .
+0t! 10( t@ 1+ t! ) t@ .
 ```
 
 Mondo provides a special variable `\i` which acts as a loop counter. The counter counts up from zero. Just before the
@@ -430,10 +430,10 @@ counter reaches the limit number it terminates.
 This prints the numbers 0 to 9.
 
 ```
-10 ( \i . )
+10 ( \i@ . )
 ```
 
-Loops can repeat forever by specifying an "unlimited" loop with \u. These can be controlled with the "while" operator `\W`. Passing a false value to \W will terminate the loop.
+Loops can repeat forever by specifying an "unlimited" loop with \U. These can be controlled with the "while" operator `\W`. Passing a false value to \W will terminate the loop.
 
 This code initialises `t` to zero and starts a loop to repeat 10 times.
 The code to repeat accesses the `\i` variable and compares it to 4. When `\i` exceeds 4 it breaks the loop.
@@ -442,7 +442,7 @@ Otherwise it accesses `t` and adds 1 to it.
 Finally when the loop ends it prints the value of t which is 5.
 
 ```
-0t! \u(\i 4 < \W \i t 1+ t!) t .
+0t! \U(\i@ 4 < \W \i@ t@ 1+ t!) t@ .
 ```
 
 Loops can be nested and then special `\j` variable is provided to access the counter of the outer loop.
@@ -451,13 +451,13 @@ The following has two nested loops with limits of 2. The two counter variables a
 When the loop ends `t` prints 4.
 
 ```
-0t! 2(2(\i \j + t + t! )) t .
+0t! 2(2(\i@ \j@ + t@ + t! )) t@ .
 ```
 
 ## <a name='conditional-code'></a>Conditional code
 
 Mondo's looping mechanism can also be used to execute code conditionally. In Mondo boolean `false` is represented
-by 0 and `true` is represented by 1.
+by 0 or `\F` and `true` is represented by 1 or `\T`.
 
 ```
 \F(this code will not be executed but skipped)
@@ -693,10 +693,10 @@ NOTE:
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| \\i    | loop counter variable              | -- adr |
-| \\j    | outer loop counter variable        | -- adr |
+| \\i    | loop counter variable                  | -- adr |
+| \\j    | outer loop counter variable            | -- adr |
 | \\W    | if false break out of loop             | b --   |
-| \\E    | else condition                     | -- b   |
+| \\E    | else condition                         | -- b   |
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
