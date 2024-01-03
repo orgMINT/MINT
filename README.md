@@ -701,16 +701,16 @@ NOTE:
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
 ```
-0(`will not execute`)
-1(`will execute`)
+\F(`will not execute`)
+\T(`will execute`)
 ```
 
 NOTE 2: if you _immediately_ follow a code block with another code block, this second code block will execute
 the "else" condition.
 
 ```
-0(`will not execute`)(`will execute`)
-1(`will execute`)(`will not execute`)
+\F(`will not execute`)(`will execute`)
+\T(`will execute`)(`will not execute`)
 ```
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
