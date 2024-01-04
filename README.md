@@ -197,17 +197,24 @@ This program subtracts `20` from `10` which results in the negative value `-10`
 The `.` operator prints the difference.
 
 ```
-5 4 / . .
+5 4 / .
 ```
 
-This program divides 5 with 4 prints the remainder and the quotient.
+This program divides 5 with 4 prints the result.
+
+The remainder of the last division operation is available in the /r
+system variable.
+
+```
+/r .
+```
 
 ## <a name='logical-operators'></a>Logical operators
 
 MINT uses numbers to define boolean values.
 
-- false is represented by the number `0` or `\\F`
-- true is represented by the number `1` or `\\T`
+- false is represented by the number `0` or `/F`
+- true is represented by the number `1` or `/T`
 
 ```
 3 0 = .
@@ -413,9 +420,9 @@ is ten it will be repeated ten times. If the number is -1 then the loop will rep
 0(this code will not be executed but skipped)
 1(this code will be execute once)
 10(this code will execute 10 times)
-\\F(this code will not be executed but skipped)
-\\T(this code will be execute once)
-\\U(this code will be execute forever)
+/F(this code will not be executed but skipped)
+/T(this code will be execute once)
+/U(this code will be execute forever)
 ```
 
 This code following prints ten x's.
@@ -582,8 +589,8 @@ Once you've assigned functions to variables, you can use them in your MINT code.
 Example:
 
 ```
-10 A       \\ prints 10
-3 7 B      \\ prints 10, the sum of 3 and 7
+10 A       / prints 10
+3 7 B      / prints 10, the sum of 3 and 7
 ```
 
 In the first line, we execute the function stored in variable `A` with the argument `10`,
@@ -593,7 +600,7 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 ### <a name='anonymous-functions'></a>Anonymous functions
 
 MINT code is not restricted to upper case variables. Functions an be declared without a
-variable(i.e. anonymously) by using the `\:` operator. A function declared this way puts
+variable(i.e. anonymously) by using the `::` operator. A function declared this way puts
 the address of the function on the stack.
 
 A function at an address can be executed with the `\G` operator.
@@ -605,7 +612,7 @@ The next line pushs the number 3 on the stack and executes the function in `a`.
 The function adds 1 and prints 4 to the console.
 
 ```
-\: 1+ ; a!
+:: 1+ ; a!
 3 a@ \G .
 ```
 
@@ -614,7 +621,7 @@ This code declares an array containing 3 anonymous functions. The next line acce
 index 2 and runs it. "two" is printed to the console.
 
 ```
-[\: `zero` ; \: `one` ; \: `two` ;] b!
+[:: `zero` ; :: `one` ; :: `two` ;] b!
 b@ 2?@ \G
 ```
 
@@ -652,8 +659,8 @@ commands from the keyboard.
 | ^      | 16-bit bitwise XOR   | a b -- c |
 | {      | shift left           | --       |
 | }      | shift right          | --       |
-| \\F    | false condition      | -- b     |
-| \\T    | true condition       | -- b     |
+| /F     | false condition      | -- b     |
+| /T     | true condition       | -- b     |
 
 Note: logical NOT can be achieved with 0=
 
@@ -675,20 +682,20 @@ Note: logical NOT can be achieved with 0=
 | .      | print the number on the stack as a decimal     | a --        |
 | ,      | print the number on the stack as a hexadecimal | a --        |
 | \`     | print the literal string between \` and \`     | --          |
-| \\C    | prints a character to output                   | val --      |
-| \\K    | read a char from input                         | -- val      |
-| \\O    | output to an I/O port                          | val port -- |
-| \\I    | input from a I/O port                          | port -- val |
-| \\Y    | define string                                  | -- adr      |
-| \\Z    | print string                                   | adr --      |
+| /C     | prints a character to output                   | val --      |
+| /K     | read a char from input                         | -- val      |
+| /O     | output to an I/O port                          | val port -- |
+| /I     | input from a I/O port                          | port -- val |
+| /Y     | define string                                  | -- adr      |
+| /Z     | print string                                   | adr --      |
 
 | Symbol  | Description                     | Effect   |
 | ------- | ------------------------------- | -------- |
 | ;       | end of user definition END      |          |
 | :<CHAR> | define a new command DEF        |          |
-| \\:     | define an anonymous command DEF | -- adr   |
-| \\G     | execute mint code at address    | adr -- ? |
-| \\X     | execute machine code at address | adr -- ? |
+| ::      | define an anonymous command DEF | -- adr   |
+| /G      | execute mint code at address    | adr -- ? |
+| /X      | execute machine code at address | adr -- ? |
 
 NOTE:
 <CHAR> is an uppercase letter immediately following operation which is the name of the definition
@@ -699,10 +706,10 @@ NOTE:
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| \\i    | loop counter variable                  | -- adr |
-| \\j    | outer loop counter variable            | -- adr |
-| \\W    | if false break out of loop             | b --   |
-| \\E    | else condition                         | -- b   |
+| /i     | loop counter variable                  | -- adr |
+| /j     | outer loop counter variable            | -- adr |
+| /W     | if false break out of loop             | b --   |
+| /E     | else condition                         | -- b   |
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
@@ -725,8 +732,8 @@ the "else" condition.
 | ------ | ------------------------- | ---------- |
 | !      | STORE a value to memory   | val adr -- |
 | @      | FETCH a value from memory | adr -- val |
-| \\!    | STORE a byte to memory    | val adr -- |
-| \\@    | FETCH a byte from memory  | -- val     |
+| /!     | STORE a byte to memory    | val adr -- |
+| /@     | FETCH a byte from memory  | -- val     |
 
 ### <a name='array-operations'></a>Array Operations
 
@@ -735,31 +742,31 @@ the "else" condition.
 | [      | begin an array definition     | --             |
 | ]      | end an array definition       | -- adr         |
 | ?      | get address of array item     | adr idx -- adr |
-| \\S    | array size                    | adr -- val     |
-| \\[    | begin a byte array definition | --             |
+| /S     | array size                    | adr -- val     |
+| /[     | begin a byte array definition | --             |
 
 ### <a name='system-variables-1'></a>System Variables
 
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
-| \\c    | carry flag variable                | -- adr |
-| \\h    | heap pointer variable              | -- adr |
-| \\k    | text input buffer pointer variable | -- adr |
-| \\s    | data stack start variable          | -- adr |
+| /c     | carry flag variable                | -- adr |
+| /h     | heap pointer variable              | -- adr |
+| /k     | text input buffer pointer variable | -- adr |
+| /s     | data stack start variable          | -- adr |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
 | Symbol | Description                                   | Effect |
 | ------ | --------------------------------------------- | ------ |
-| \\\\   | comment text, skips reading until end of line | --     |
+| //     | comment text, skips reading until end of line | --     |
 
 ### <a name='utility-commands'></a>Utility commands
 
 | Symbol | Description   | Effect  |
 | ------ | ------------- | ------- |
-| \\N    | prints a CRLF | --      |
-| \\L    | edit command  | char -- |
-| \\P    | print prompt  | --      |
+| /N     | prints a CRLF | --      |
+| /L     | edit command  | char -- |
+| /P     | print prompt  | --      |
 
 ### <a name='control-keys'></a>Control keys
 
