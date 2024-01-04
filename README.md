@@ -56,7 +56,7 @@ running on an 8-bit cpu.
 
 ## <a name='reverse-polish-notation-(rpn)'></a>Reverse Polish Notation (RPN)
 
-RPN is a [concatenative](https://concatenative.org/wiki/view/Concatenative%20language)
+RPN is a [concatenative](https:\concatenative.org/wiki/view/Concatenative%20language)
 way of writing expressions in which the operators come after their operands. Concatenative
 languages make use of a stack which is uses to collect data to do work on. The results
 are pushed back on the stack.
@@ -175,6 +175,13 @@ The code prints `100 80 90`
 ## <a name='basic-arithmetic-operations'></a>Basic arithmetic operations
 
 ```
+10 20 + .
+```
+
+This program adds `20` from `10` which results in the value `30`
+The `.` operator prints the sum.
+
+```
 5 4 * .
 ```
 
@@ -199,8 +206,8 @@ This program divides 5 with 4 prints the remainder and the quotient.
 
 MINT uses numbers to define boolean values.
 
-- false is represented by the number `0`
-- true is represented by the number `1`.
+- false is represented by the number `0` or `\\F`
+- true is represented by the number `1` or `\\T`
 
 ```
 3 0 = .
@@ -335,12 +342,12 @@ These can then be allocated to a variable, which acts as a pointer to the array 
 [ 1 2 3 4 5 6 7 8 9 0 ] a !
 ```
 
-To fetch the Nth member of the array, we can create use the index operator `_`
+To fetch the Nth member of the array, we can create use the index operator `?`
 
 The following prints the item at index 2 (which is 3).
 
 ```
-[ 1 2 3 ] 2_ @ .
+[ 1 2 3 ] 2? @ .
 ```
 
 ### <a name='array-size'></a>Array size
@@ -359,11 +366,11 @@ The following prints 5 on the console.
 In MINT arrays can be nested inside one another.
 
 The following code shows an array with another array as its second item.
-This code accesses the second item of the first array with `1_ @`. It then accesses
-the first item of the inner array with `0_ @` and prints the result (which is 2).
+This code accesses the second item of the first array with `1? @`. It then accesses
+the first item of the inner array with `0? @` and prints the result (which is 2).
 
 ```
-[1 [2 3]] 1_ @ 0_ @ .
+[1 [2 3]] 1? @ 0? @ .
 ```
 
 ### <a name='byte-arrays'></a>Byte arrays
@@ -383,7 +390,7 @@ The following code prints 3.
 ```
 
 A byte value can be read from an address with `\@` however to access an item in a byte array
-use `+` instead of `_` to get the address of the indexed item.
+use `+` instead of `?` to get the address of the indexed item.
 
 The following prints 2
 
@@ -393,7 +400,7 @@ The following prints 2
 
 ## <a name='loops'></a>Loops
 
-Looping in Mondo is of the form
+Looping in MINT is of the form
 
 ```
 number (code to execute)
@@ -424,7 +431,7 @@ When the loop ends it prints the value of t which is 10.
 0t! 10( t@ 1+ t! ) t@ .
 ```
 
-Mondo provides a special variable `\i` which acts as a loop counter. The counter counts up from zero. Just before the
+MINT provides a special variable `\i` which acts as a loop counter. The counter counts up from zero. Just before the
 counter reaches the limit number it terminates.
 
 This prints the numbers 0 to 9.
@@ -456,7 +463,7 @@ When the loop ends `t` prints 4.
 
 ## <a name='conditional-code'></a>Conditional code
 
-Mondo's looping mechanism can also be used to execute code conditionally. In Mondo boolean `false` is represented
+MINT's looping mechanism can also be used to execute code conditionally. In MINT boolean `false` is represented
 by 0 or `\F` and `true` is represented by 1 or `\T`.
 
 ```
@@ -471,7 +478,7 @@ The following tests if `x` is less that 5.
 x 5 < (`true`)
 ```
 
-The syntax for a Mondo IF-THEN-ELSE or "if...else" operator in Mondo is and
+The syntax for a MINT IF-THEN-ELSE or "if...else" operator in MINT is and
 extension of the loop syntax.
 
 ```
@@ -480,7 +487,7 @@ boolean (code-block-then) \E (code-block-else)
 
 If the condition is true, then code-block-then is executed. Otherwise, code-block-else is executed.
 
-Here is an example of a "if...else" operator in Mondo:
+Here is an example of a "if...else" operator in MINT:
 
 ```
 10 x !
@@ -494,7 +501,7 @@ In this example, the variable x is assigned the value 10 and the variable y is a
 The "if...else" operator then checks to see if x is greater than y. If it is, then the string
 "x is greater than y" is returned. Otherwise, the string "y is greater than x" is returned.
 
-Here is another example of the "if...else" operator in Mondo. This time, instead of creating a string just to print it, the following
+Here is another example of the "if...else" operator in MINT. This time, instead of creating a string just to print it, the following
 code conditionally prints text straight to the console.
 
 ```
@@ -575,8 +582,8 @@ Once you've assigned functions to variables, you can use them in your MINT code.
 Example:
 
 ```
-10 A       // prints 10
-3 7 B      // prints 10, the sum of 3 and 7
+10 A       \\ prints 10
+3 7 B      \\ prints 10, the sum of 3 and 7
 ```
 
 In the first line, we execute the function stored in variable `A` with the argument `10`,
@@ -608,7 +615,7 @@ index 2 and runs it. "two" is printed to the console.
 
 ```
 [\: `zero` ; \: `one` ; \: `two` ;] b!
-b@ 2_@ \G
+b@ 2?@ \G
 ```
 
 ## <a name='appendices'></a>Appendices
@@ -727,7 +734,7 @@ the "else" condition.
 | ------ | ----------------------------- | -------------- |
 | [      | begin an array definition     | --             |
 | ]      | end an array definition       | -- adr         |
-| \_     | get address of array item     | adr idx -- adr |
+| ?      | get address of array item     | adr idx -- adr |
 | \\S    | array size                    | adr -- val     |
 | \\[    | begin a byte array definition | --             |
 

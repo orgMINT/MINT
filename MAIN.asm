@@ -642,7 +642,7 @@ fetch1:
     push de              
     jp (IY)           
 
-question_:
+underscore_: 
 nop_:       
     jp NEXT             ; hardwire white space to always go to NEXT (important for arrays)
 
@@ -770,7 +770,7 @@ arrDef1:
     call rpush
     jp (iy)
 
-underscore_: 
+question_:
 arrIndex:
     pop hl                              ; hl = index  
     pop de                              ; de = array
@@ -784,7 +784,7 @@ num_:
 lparen_: 
     jp begin
 rparen_: 
-    jp again		; close loop
+    jp again		            ; close loop
 rbrack_:
     jp arrEnd
 colon_:   
@@ -816,10 +816,10 @@ alt2:
     jp (hl)                     ;       Jump to routine
 
 hex:
-    ld hl,0	    		    ; Clear hl to accept the number
+    ld hl,0	    		        ; Clear hl to accept the number
 hex1:
     inc BC
-    ld A,(BC)		    ; Get the character which is a numeral
+    ld A,(BC)		            ; Get the character which is a numeral
     BIT 6,A                     ; is it uppercase alpha?
     jp Z, hex2                  ; no a decimal
     SUB 7                       ; sub 7  to make $A - $F
