@@ -42,7 +42,6 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Loops and conditional execution](#loops-and-conditional-execution)
   - [Memory and Variable Operations](#memory-and-variable-operations)
   - [Array Operations](#array-operations)
-  - [System Variables](#system-variables-1)
   - [Miscellaneous](#miscellaneous)
   - [Utility commands](#utility-commands)
   - [Control keys](#control-keys)
@@ -628,62 +627,59 @@ commands from the keyboard.
 
 | Symbol | Description                               | Effect   |
 | ------ | ----------------------------------------- | -------- |
-| -      | 16-bit integer subtraction SUB            | a b -- c |
-| /      | 16-bit by 8-bit division DIV              | a b -- c |
-| +      | 16-bit integer addition ADD               | a b -- c |
-| \*     | 8-bit by 8-bit integer multiplication MUL | a b -- c |
+| -      | 16-bit integer subtraction SUB            | n n -- n |
+| /      | 16-bit by 8-bit division DIV              | n n -- n |
+| +      | 16-bit integer addition ADD               | n n -- n |
+| \*     | 8-bit by 8-bit integer multiplication MUL | n n -- n |
+| /c     | carry variable                            | -- n     |
 
 ### <a name='logical-operators-1'></a>Logical Operators
 
-| Symbol | Description          | Effect            |          |
-| ------ | -------------------- | ----------------- | -------- |
-| />     | 16-bit comparison GT | a b -- c          |          |
-| <      | 16-bit comparison LT | a b -- c          |          |
-| =      | 16 bit comparison EQ | a b -- c          |          |
-| &      | 16-bit bitwise AND   | a b -- c          |          |
-| \|     |                      | 16-bit bitwise OR | a b -- c |
-| ^      | 16-bit bitwise XOR   | a b -- c          |          |
-| {      | shift left           | --                |          |
-| }      | shift right          | --                |          |
-| /f     | false condition      | -- b              |          |
-| /t     | true condition       | -- b              |          |
-
-Note: logical NOT can be achieved with 0=
+| Symbol | Description          | Effect   |
+| ------ | -------------------- | -------- |
+| />     | 16-bit comparison GT | n n -- b |
+| <      | 16-bit comparison LT | n n -- b |
+| =      | 16 bit comparison EQ | n n -- b |
+| &      | 16-bit bitwise AND   | n n -- b |
+| \|     | 16-bit bitwise OR    | n n -- b |
+| ^      | 16-bit bitwise XOR   | n n -- b |
+| ~      | 16-bit NOT           | n -- n   |
+| {      | shift left           | n -- n   |
+| }      | shift right          | --       |
+| /f     | false condition      | -- b     |
+| /t     | true condition       | -- b     |
 
 ### <a name='stack-operations'></a>Stack Operations
 
 | Symbol | Description                                                          | Effect       |
 | ------ | -------------------------------------------------------------------- | ------------ |
-| '      | drop the top member of the stack DROP                                | a a -- a     |
-| "      | duplicate the top member of the stack DUP                            | a -- a a     |
-| %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a |
-| $      | swap the top 2 members of the stack SWAP                             | a b -- b a   |
-| /D     | stack depth                                                          | -- val       |
+| '      | drop the top member of the stack DROP                                | m n -- m     |
+| "      | duplicate the top member of the stack DUP                            | n -- n n     |
+| %      | over - take the 2nd member of the stack and copy to top of the stack | m n -- m n m |
+| $      | swap the top 2 members of the stack SWAP                             | m n -- n m   |
+| /D     | stack depth                                                          | -- n         |
+| /s     | stack start                                                          | -- a         |
 
 ### <a name='input-&-output-operations'></a>Input & Output Operations
 
-| Symbol | Description                                    | Effect      |
-| ------ | ---------------------------------------------- | ----------- |
-| .      | print the number on the stack as a decimal     | a --        |
-| ,      | print the number on the stack as a hexadecimal | a --        |
-| /`     | print the literal string between /` and /`     | --          |
-| /C     | prints a character to output                   | val --      |
-| /K     | read a char from input                         | -- val      |
-| /O     | output to an I/O port                          | val port -- |
-| /I     | input from a I/O port                          | port -- val |
-| /Y     | define string                                  | -- adr      |
-| /Z     | print string                                   | adr --      |
+| Symbol | Description                                    | Effect |
+| ------ | ---------------------------------------------- | ------ |
+| .      | print the number on the stack as a decimal     | n --   |
+| ,      | print the number on the stack as a hexadecimal | n --   |
+| /`     | print the literal string between /` and /`     | --     |
+| /C     | prints a character to output                   | n --   |
+| /K     | read a char from input                         | -- n   |
+| /O     | output to an I/O port                          | n p -- |
+| /I     | input from a I/O port                          | p -- n |
+| /k     | text input buffer pointer variable             | -- a   |
 
-| Symbol  | Description                     | Effect   |
-| ------- | ------------------------------- | -------- |
-| ;       | end of user definition END      |          |
-| :<CHAR> | define a new command DEF        |          |
-| ::      | define an anonymous command DEF | -- adr   |
-| /G      | execute mint code at address    | adr -- ? |
-| /X      | execute machine code at address | adr -- ? |
-
-NOTE:
-<CHAR> is an uppercase letter immediately following operation which is the name of the definition
+| Symbol | Description                     | Effect |
+| ------ | ------------------------------- | ------ |
+| ;      | end of user definition END      | --     |
+| :      | define a new command DEF        | --     |
+| ::     | define an anonymous command DEF | -- a   |
+| /G     | execute mint code at address    | a -- ? |
+| /X     | execute machine code at address | a -- ? |
 
 ### <a name='loops-and-conditional-execution'></a>Loops and conditional execution
 
@@ -691,50 +687,27 @@ NOTE:
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| /i     | loop counter variable                  | -- adr |
-| /j     | outer loop counter variable            | -- adr |
+| /i     | loop counter variable                  | -- n   |
+| /j     | outer loop counter variable            | -- n   |
 | /W     | if false break out of loop             | b --   |
 | /e     | else condition                         | -- b   |
 
-NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
-
-```
-/f(`will not execute`)
-/t(`will execute`)
-```
-
-NOTE 2: if you _immediately_ follow a code block with another code block, this second code block will execute
-the "else" condition.
-
-```
-/f(`will not execute`) /e (`will execute`)
-/t(`will execute`) /e (`will not execute`)
-```
-
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
-| Symbol | Description             | Effect     |
-| ------ | ----------------------- | ---------- |
-| !      | STORE a value to memory | val adr -- |
+| Symbol | Description                       | Effect |
+| ------ | --------------------------------- | ------ |
+| !      | STORE a value to memory           | n a -- |
+| /p     | address of last accessed variable | -- a   |
+| /h     | heap pointer variable             | -- a   |
 
 ### <a name='array-operations'></a>Array Operations
 
-| Symbol | Description                   | Effect         |
-| ------ | ----------------------------- | -------------- |
-| [      | begin an array definition     | --             |
-| ]      | end an array definition       | -- adr         |
-| ?      | get address of array item     | adr idx -- adr |
-| /S     | array size                    | adr -- val     |
-| /[     | begin a byte array definition | --             |
-
-### <a name='system-variables-1'></a>System Variables
-
-| Symbol | Description                        | Effect |
-| ------ | ---------------------------------- | ------ |
-| /c     | carry variable                     | -- adr |
-| /h     | heap pointer variable              | -- adr |
-| /k     | text input buffer pointer variable | -- adr |
-| /s     | data stack start variable          | -- adr |
+| Symbol | Description               | Effect   |
+| ------ | ------------------------- | -------- |
+| [      | begin an array definition | --       |
+| ]      | end an array definition   | -- a     |
+| ?      | get array item            | a n -- n |
+| /S     | array size                | a -- n   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
@@ -744,11 +717,11 @@ the "else" condition.
 
 ### <a name='utility-commands'></a>Utility commands
 
-| Symbol | Description   | Effect  |
-| ------ | ------------- | ------- |
-| /N     | prints a CRLF | --      |
-| /L     | edit command  | char -- |
-| /P     | print prompt  | --      |
+| Symbol | Description   | Effect |
+| ------ | ------------- | ------ |
+| /N     | prints a CRLF | --     |
+| /L     | edit command  | --     |
+| /P     | print prompt  | --     |
 
 ### <a name='control-keys'></a>Control keys
 
