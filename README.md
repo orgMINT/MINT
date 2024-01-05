@@ -56,7 +56,7 @@ running on an 8-bit cpu.
 
 ## <a name='reverse-polish-notation-(rpn)'></a>Reverse Polish Notation (RPN)
 
-RPN is a [concatenative](https:\concatenative.org/wiki/view/Concatenative%20language)
+RPN is a [concatenative](https:/concatenative.org/wiki/view/Concatenative%20language)
 way of writing expressions in which the operators come after their operands. Concatenative
 languages make use of a stack which is uses to collect data to do work on. The results
 are pushed back on the stack.
@@ -103,7 +103,7 @@ The `,` operator prints numbers to the console in hexadecimal.
 
 ### <a name='printing-text'></a>Printing text
 
-MINT allows the user to easily print literal text by using \` quotes.
+MINT allows the user to easily print literal text by using /` quotes.
 
 For example
 
@@ -275,11 +275,11 @@ To assign the value `10` to the global variable `x` use the `!` operator.
 
 In this example, the number `10` is assigned to the variable `x`
 
-To access a value in a variable `x`, use the `@` operator.
+To access a value in a variable `x`, simply refer to it in your code.
 The code below adds `3` to the value stored in variable `x` and then prints it.
 
 ```
-3 x@ + .
+3 x + .
 ```
 
 The following code assigns the hexadecimal number `#3FFF` to variable `a`
@@ -287,7 +287,7 @@ The second line fetches the value stored in `a` and prints it.
 
 ```
 #3FFF a !
-a@ .
+a .
 ```
 
 In this longer example, the number 10 is stored in `a` and the number `20` is
@@ -297,8 +297,8 @@ stored in `b`. The values in these two variables are then added together and the
 ```
 10 a !
 20 b !
-a@ b@ + z !
-z@ .
+a b + z !
+z .
 ```
 
 ## <a name='arrays'></a>Arrays
@@ -343,18 +343,18 @@ To fetch the Nth member of the array, we can create use the index operator `?`
 The following prints the item at index 2 (which is 3).
 
 ```
-[ 1 2 3 ] 2? @ .
+[ 1 2 3 ] 2?  .
 ```
 
 ### <a name='array-size'></a>Array size
 
-The size of an array can be determined with the `\S` operator which puts the number
+The size of an array can be determined with the `/S` operator which puts the number
 of items in the array on the stack.
 
 The following prints 5 on the console.
 
 ```
-[ 1 2 3 4 5 ] \S .
+[ 1 2 3 4 5 ] /S .
 ```
 
 ### <a name='nested-arrays'></a>Nested arrays
@@ -362,36 +362,33 @@ The following prints 5 on the console.
 In MINT arrays can be nested inside one another.
 
 The following code shows an array with another array as its second item.
-This code accesses the second item of the first array with `1? @`. It then accesses
-the first item of the inner array with `0? @` and prints the result (which is 2).
+This code accesses the second item of the first array with `1?`. It then accesses
+the first item of the inner array with `0?` and prints the result (which is 2).
 
 ```
-[1 [2 3]] 1? @ 0? @ .
+[1 [2 3]] 1?  0?  .
 ```
 
 ### <a name='byte-arrays'></a>Byte arrays
 
 MINT by default declares arrays of 16 bit words however it is also possible to declare
-and array of 8 bit byte values using `\[`
+and array of 8 bit byte values using `/[`
 
 ```
-\[1 2 3]
+/B[1 2 3]/B
 ```
 
-The size of a byte array can be determined with the `\S` operator.
+The size of a byte array can be determined with the `/S` operator.
 The following code prints 3.
 
 ```
-\[1 2 3]\S .
+/B[1 2 3]/S/B .
 ```
-
-A byte value can be read from an address with `\@` however to access an item in a byte array
-use `+` instead of `?` to get the address of the indexed item.
 
 The following prints 2
 
 ```
-\[1 2 3] 1+ \@ .
+/B[1 2 3] 1?/B .
 ```
 
 ## <a name='loops'></a>Loops
@@ -424,47 +421,47 @@ The following code repeats ten times and adds 1 to the variable `t` each time.
 When the loop ends it prints the value of t which is 10.
 
 ```
-0t! 10( t@ 1+ t! ) t@ .
+0t! 10( t 1+ t! ) t .
 ```
 
-MINT provides a special variable `\i` which acts as a loop counter. The counter counts up from zero. Just before the
+MINT provides a special variable `/i` which acts as a loop counter. The counter counts up from zero. Just before the
 counter reaches the limit number it terminates.
 
 This prints the numbers 0 to 9.
 
 ```
-10 ( \i@ . )
+10 ( /i . )
 ```
 
-Loops can repeat forever by specifying an "unlimited" loop with \U. These can be controlled with the "while" operator `\W`. Passing a false value to \W will terminate the loop.
+Loops can repeat forever by specifying an "unlimited" loop with /U. These can be controlled with the "while" operator `/W`. Passing a false value to /W will terminate the loop.
 
 This code initialises `t` to zero and starts a loop to repeat 10 times.
-The code to repeat accesses the `\i` variable and compares it to 4. When `\i` exceeds 4 it breaks the loop.
+The code to repeat accesses the `/i` variable and compares it to 4. When `/i` exceeds 4 it breaks the loop.
 Otherwise it accesses `t` and adds 1 to it.
 
 Finally when the loop ends it prints the value of t which is 5.
 
 ```
-0t! \U(\i@ 4 < \W \i@ t@ 1+ t!) t@ .
+0t! /U(/i 4 < /W /i t 1+ t!) t .
 ```
 
-Loops can be nested and then special `\j` variable is provided to access the counter of the outer loop.
+Loops can be nested and then special `/j` variable is provided to access the counter of the outer loop.
 
 The following has two nested loops with limits of 2. The two counter variables are summed and added to `t`.
 When the loop ends `t` prints 4.
 
 ```
-0t! 2(2(\i@ \j@ + t@ + t! )) t@ .
+0t! 2(2(/i /j + t + t! )) t .
 ```
 
 ## <a name='conditional-code'></a>Conditional code
 
 MINT's looping mechanism can also be used to execute code conditionally. In MINT boolean `false` is represented
-by 0 or `\F` and `true` is represented by 1 or `\T`.
+by 0 or `/F` and `true` is represented by 1 or `/T`.
 
 ```
-\F(this code will not be executed but skipped)
-\T(this code will be execute once)
+/F(this code will not be executed but skipped)
+/T(this code will be execute once)
 ```
 
 The following tests if `x` is less that 5.
@@ -478,7 +475,7 @@ The syntax for a MINT IF-THEN-ELSE or "if...else" operator in MINT is and
 extension of the loop syntax.
 
 ```
-boolean (code-block-then) \E (code-block-else)
+boolean (code-block-then) /e (code-block-else)
 ```
 
 If the condition is true, then code-block-then is executed. Otherwise, code-block-else is executed.
@@ -489,7 +486,7 @@ Here is an example of a "if...else" operator in MINT:
 10 x !
 20 y !
 
-x y > ( `x is greater than y` ) \E ( `y is greater than x` )
+x y > ( `x is greater than y` ) /e ( `y is greater than x` )
 
 ```
 
@@ -503,7 +500,7 @@ code conditionally prints text straight to the console.
 ```
 18 a !
 
-`This person` a 17 > (`can`) \E (`cannot`) `vote`
+`This person` a 17 > (`can`) /e (`cannot`) `vote`
 ```
 
 In this example, the variable a is assigned the value 18. The "if...else" operator
@@ -592,7 +589,7 @@ MINT code is not restricted to upper case variables. Functions an be declared wi
 variable(i.e. anonymously) by using the `::` operator. A function declared this way puts
 the address of the function on the stack.
 
-A function at an address can be executed with the `\G` operator.
+A function at an address can be executed with the `/G` operator.
 
 This code declares an anonymous function and stores its address in `a`. This function will
 increment its argument by 1.
@@ -602,7 +599,7 @@ The function adds 1 and prints 4 to the console.
 
 ```
 :: 1+ ; a!
-3 a@ \G .
+3 a /G .
 ```
 
 Anonymous functions can be stored in arrays and can even be used as a kind of "switch" statement.
@@ -611,7 +608,7 @@ index 2 and runs it. "two" is printed to the console.
 
 ```
 [:: `zero` ; :: `one` ; :: `two` ;] b!
-b@ 2?@ \G
+b 2? /G
 ```
 
 ## <a name='appendices'></a>Appendices
@@ -638,18 +635,18 @@ commands from the keyboard.
 
 ### <a name='logical-operators-1'></a>Logical Operators
 
-| Symbol | Description          | Effect   |
-| ------ | -------------------- | -------- |
-| \>     | 16-bit comparison GT | a b -- c |
-| <      | 16-bit comparison LT | a b -- c |
-| =      | 16 bit comparison EQ | a b -- c |
-| &      | 16-bit bitwise AND   | a b -- c |
-| \|     | 16-bit bitwise OR    | a b -- c |
-| ^      | 16-bit bitwise XOR   | a b -- c |
-| {      | shift left           | --       |
-| }      | shift right          | --       |
-| /f     | false condition      | -- b     |
-| /t     | true condition       | -- b     |
+| Symbol | Description          | Effect            |          |
+| ------ | -------------------- | ----------------- | -------- |
+| />     | 16-bit comparison GT | a b -- c          |          |
+| <      | 16-bit comparison LT | a b -- c          |          |
+| =      | 16 bit comparison EQ | a b -- c          |          |
+| &      | 16-bit bitwise AND   | a b -- c          |          |
+| \|     |                      | 16-bit bitwise OR | a b -- c |
+| ^      | 16-bit bitwise XOR   | a b -- c          |          |
+| {      | shift left           | --                |          |
+| }      | shift right          | --                |          |
+| /f     | false condition      | -- b              |          |
+| /t     | true condition       | -- b              |          |
 
 Note: logical NOT can be achieved with 0=
 
@@ -661,7 +658,7 @@ Note: logical NOT can be achieved with 0=
 | "      | duplicate the top member of the stack DUP                            | a -- a a     |
 | %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a |
 | $      | swap the top 2 members of the stack SWAP                             | a b -- b a   |
-| \D     | stack depth                                                          | -- val       |
+| /D     | stack depth                                                          | -- val       |
 
 ### <a name='input-&-output-operations'></a>Input & Output Operations
 
@@ -669,7 +666,7 @@ Note: logical NOT can be achieved with 0=
 | ------ | ---------------------------------------------- | ----------- |
 | .      | print the number on the stack as a decimal     | a --        |
 | ,      | print the number on the stack as a hexadecimal | a --        |
-| \`     | print the literal string between \` and \`     | --          |
+| /`     | print the literal string between /` and /`     | --          |
 | /C     | prints a character to output                   | val --      |
 | /K     | read a char from input                         | -- val      |
 | /O     | output to an I/O port                          | val port -- |
@@ -702,23 +699,23 @@ NOTE:
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
 ```
-0(`will not execute`)
-1(`will execute`)
+/f(`will not execute`)
+/t(`will execute`)
 ```
 
 NOTE 2: if you _immediately_ follow a code block with another code block, this second code block will execute
 the "else" condition.
 
 ```
-0(`will not execute`) \E (`will execute`)
-1(`will execute`) \E (`will not execute`)
+/f(`will not execute`) /e (`will execute`)
+/t(`will execute`) /e (`will not execute`)
 ```
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
-| Symbol | Description               | Effect     |
-| ------ | ------------------------- | ---------- |
-| !      | STORE a value to memory   | val adr -- |
+| Symbol | Description             | Effect     |
+| ------ | ----------------------- | ---------- |
+| !      | STORE a value to memory | val adr -- |
 
 ### <a name='array-operations'></a>Array Operations
 
