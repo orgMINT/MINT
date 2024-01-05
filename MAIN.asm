@@ -74,7 +74,7 @@ iOpcodes:
     db    lsb(rparen_)      ;   )
     db    lsb(star_)        ;   *            
     db    lsb(plus_)        ;   +
-    db    lsb(comma_)       ;    ,            
+    db    lsb(comma_)       ;   ,            
     db    lsb(minus_)       ;   -
     db    lsb(dot_)         ;   .
     db    lsb(slash_)       ;   /	
@@ -111,7 +111,7 @@ iOpcodes:
 iAltCodes:
 
     LITDAT 26
-    db     lsb(aNop_)       ;A
+    db     lsb(alloc_)      ;A      allocate some heap memory
     db     lsb(bmode_)      ;B      toggle byte mode  
     db     lsb(printChar_)  ;C      print a char
     db     lsb(depth_)      ;D      depth of stack
@@ -701,14 +701,14 @@ arrDef:
 
 num_:   
     jp num
-lparen_: 
-    jp begin
 rparen_: 
     jp again		            ; close loop
 rbrack_:
     jp arrEnd
 colon_:   
     jp def
+lparen_: 
+    jp begin
 
 question_:
     jr arrAccess
@@ -907,6 +907,18 @@ loopEnd4:
     .align $100
 page6:
 
+; allocates raw heap memory in bytes (ignores byte mode)
+; n -- a
+alloc_:
+    pop de
+    ld hl,(vHeapPtr)
+    push hl
+    add hl,de
+    ld (vHeapPtr),hl
+aNop_:
+    jp (iy)    
+
+; a -- n
 arrSize_:
 arrSize:
     pop hl
@@ -915,7 +927,6 @@ arrSize:
     dec hl                      ; lsb size 
     ld e,(hl)
     push de
-anop_:
     jp (iy)
 
 bmode_:

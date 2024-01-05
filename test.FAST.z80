@@ -78,6 +78,7 @@ testsStart:
     test "/B[1 2 3]1?/B", 2
     test "/h/B[1 2 3]'/B/h$-", 5
     test "/h/B[1]'/B/h$-", 3
+    test "/h/B1000/A'/B/h$-", 1000
     test "0 0(1+)", 0
     test "0 1(1+)", 1
     test "0 2(1+)", 2

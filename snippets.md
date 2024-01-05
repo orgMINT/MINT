@@ -18,6 +18,10 @@ strDef2:
     INC DE
     JP def3
 
+def3:
+    ld (vHeapPtr),de            ; bump heap ptr to after definiton
+    jp (IY)       
+
 prnStr_:
 prnStr:
     POP HL

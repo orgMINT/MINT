@@ -687,10 +687,11 @@ commands from the keyboard.
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| /i     | loop counter variable                  | -- n   |
-| /j     | outer loop counter variable            | -- n   |
+| /i     | loop variable                          | -- n   |
+| /j     | outer loop variable                    | -- n   |
 | /W     | if false break out of loop             | b --   |
 | /e     | else condition                         | -- b   |
+| /u     | unlimited loop                         | -- b   |
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
@@ -708,6 +709,7 @@ commands from the keyboard.
 | ]      | end an array definition   | -- a     |
 | ?      | get array item            | a n -- n |
 | /S     | array size                | a -- n   |
+| /A     | allocate heap memory      | n -- a   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
