@@ -25,6 +25,7 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Array size](#array-size)
   - [Nested arrays](#nested-arrays)
   - [Byte arrays](#byte-arrays)
+  - [Memory allocation](#memory-allocation)
 - [Loops](#loops)
 - [Conditional code](#conditional-code)
 - [Functions in MINT](#functions-in-mint)
@@ -374,21 +375,33 @@ MINT by default declares arrays of 16 bit words however it is also possible to d
 and array of 8 bit byte values using `/[`
 
 ```
-/B[1 2 3]/B
+ /B  [1 2 3] /B
 ```
 
 The size of a byte array can be determined with the `/S` operator.
 The following code prints 3.
 
 ```
-/B[1 2 3]/S/B .
+ /B  [1 2 3]/S /B   .
 ```
 
 The following prints 2
 
 ```
-/B[1 2 3] 1?/B .
+ /B  [1 2 3] 1? /B   .
 ```
+
+### <a name='memory-allocation'></a>Memory allocation
+
+The final kind of memory allocation in MINT is the simplest raw memory allocation on the heap.
+
+This type of allocation is similar to arrays of bytes and are created using the `/A` allocation operator.
+
+```
+1000 /A
+```
+
+This code allocates a 1000 byte block of uninitialized memory and returns a pointer to the start of this block.
 
 ## <a name='loops'></a>Loops
 
