@@ -1,6 +1,6 @@
 ; *************************************************************************
 ;
-;       MINT Minimal Interpreter for the Z80 
+;       MINT 1.3 Minimal Interpreter for the Z80 
 ;
 ;       Ken Boak, John Hardy and Craig Jones. 
 ;
@@ -16,9 +16,9 @@
     CTRL_C      equ 3
     CTRL_E      equ 5
     CTRL_H      equ 8
-    CTRL_J      equ 10
     CTRL_L      equ 12
-    CTRL_P      equ 16
+    CTRL_R      equ 18
+    CTRL_S      equ 19
 
     BSLASH      equ $5c
 
@@ -49,16 +49,16 @@
 macros:
 
 reedit_:
-    db "\\z@\\L;"			; remembers last line edited
+    db "/z@/L;"			; remembers last line edited
 
 edit_:
-    .cstr "`?`\\K\\P\\L;"
+    .cstr "`?`/K/P/L;"
 
 list_:
-    .cstr "\\N26(\\i@65+\\L\\t@0>(\\N))\\P;"
+    .cstr "/N26(/i@65+/L/t@0>(/N))/P;"
 
 printStack_:
-    .cstr "`=> `\\s@2- \\D1-(",$22,"@,2-)'\\N\\P;"        
+    .cstr "`=> `/s@2- /D1-(",$22,"@,2-)'/N/P;"        
 
 iOpcodes:
     LITDAT 15
@@ -198,13 +198,13 @@ waitchar:
     cp CTRL_E
     ld e,lsb(edit_)
     jr z,macro
-    cp CTRL_J
+    cp CTRL_R
     ld e,lsb(reedit_)
     jr z,macro
     cp CTRL_L
     ld e,lsb(list_)
     jr z,macro
-    cp CTRL_P
+    cp CTRL_S
     ld e,lsb(printStack_)
     jr z,macro
     jr interpret2
@@ -213,7 +213,7 @@ macro:                          ;=25
     ld (vTIBPtr),bc
     push de
     call ENTER		;mint go operation and jump to it
-    .cstr "\\G"
+    .cstr "/G"
     ld bc,(vTIBPtr)
     jr interpret2
 
@@ -1072,79 +1072,6 @@ unlimited_:
 
 
 ;*******************************************************************
-; Page 5 primitive routines continued
-;*******************************************************************
-
-def:                                ; Create a colon definition
-    inc bc
-    ld  a,(bc)                  ; Get the next character
-    cp ":"                      ; is it anonymouse
-    jr nz,def0
-    inc bc
-    ld de,(vHeapPtr)            ; return start of definition
-    push de
-    jr def1
-def0:    
-    ld (vLastDef),A
-    call lookupRef
-    ld de,(vHeapPtr)            ; start of defintion
-    ld (hl),E                   ; Save low byte of address in CFA
-    inc hl              
-    ld (hl),D                   ; Save high byte of address in CFA+1
-    inc bc
-def1:                               ; Skip to end of definition   
-    ld a,(bc)                   ; Get the next character
-    inc bc                      ; Point to next character
-    ld (de),A
-    inc de
-    CP ";"                      ; Is it a semicolon 
-    jr Z, def2                  ; end the definition
-    jr  def1                    ; get the next element
-def2:    
-    dec bc
-def3:
-    ld (vHeapPtr),de            ; bump heap ptr to after definiton
-    jp (IY)       
-
-num:
-	ld hl,$0000				    ; Clear hl to accept the number
-	ld a,(bc)				    ; Get numeral or -
-    cp '-'
-    jr nz,num0
-    inc bc                      ; move to next char, no flags affected
-num0:
-    ex af,af'                   ; save zero flag = 0 for later
-num1:
-    ld a,(bc)                   ; read digit    
-    sub "0"                     ; less than 0?
-    jr c, num2                  ; not a digit, exit loop 
-    cp 10                       ; greater that 9?
-    jr nc, num2                 ; not a digit, exit loop
-    inc bc                      ; inc IP
-    ld de,hl                    ; multiply hl * 10
-    add hl,hl    
-    add hl,hl    
-    add hl,de    
-    add hl,hl    
-    add a,l                     ; add digit in a to hl
-    ld l,a
-    ld a,0
-    adc a,h
-    ld h,a
-    jr num1 
-num2:
-    dec bc
-    ex af,af'                   ; restore zero flag
-    jr nz, num3
-    ex de,hl                    ; negate the value of hl
-    ld hl,0
-    or a                        ; jump to sub2
-    sbc hl,de    
-num3:
-    push hl                     ; Put the number on the stack
-    jp (iy)                     ; and process the next character
-
-;*******************************************************************
 ; Subroutines
 ;*******************************************************************
 
@@ -1229,6 +1156,79 @@ printDec7:
     ld a,b
     jp putchar
 
+;*******************************************************************
+; Page 5 primitive routines continued
+;*******************************************************************
+
+def:                                ; Create a colon definition
+    inc bc
+    ld  a,(bc)                  ; Get the next character
+    cp ":"                      ; is it anonymouse
+    jr nz,def0
+    inc bc
+    ld de,(vHeapPtr)            ; return start of definition
+    push de
+    jr def1
+def0:    
+    ld (vLastDef),A
+    call lookupRef
+    ld de,(vHeapPtr)            ; start of defintion
+    ld (hl),E                   ; Save low byte of address in CFA
+    inc hl              
+    ld (hl),D                   ; Save high byte of address in CFA+1
+    inc bc
+def1:                               ; Skip to end of definition   
+    ld a,(bc)                   ; Get the next character
+    inc bc                      ; Point to next character
+    ld (de),A
+    inc de
+    CP ";"                      ; Is it a semicolon 
+    jr Z, def2                  ; end the definition
+    jr  def1                    ; get the next element
+def2:    
+    dec bc
+def3:
+    ld (vHeapPtr),de            ; bump heap ptr to after definiton
+    jp (IY)       
+
+num:
+	ld hl,$0000				    ; Clear hl to accept the number
+	ld a,(bc)				    ; Get numeral or -
+    cp '-'
+    jr nz,num0
+    inc bc                      ; move to next char, no flags affected
+num0:
+    ex af,af'                   ; save zero flag = 0 for later
+num1:
+    ld a,(bc)                   ; read digit    
+    sub "0"                     ; less than 0?
+    jr c, num2                  ; not a digit, exit loop 
+    cp 10                       ; greater that 9?
+    jr nc, num2                 ; not a digit, exit loop
+    inc bc                      ; inc IP
+    ld de,hl                    ; multiply hl * 10
+    add hl,hl    
+    add hl,hl    
+    add hl,de    
+    add hl,hl    
+    add a,l                     ; add digit in a to hl
+    ld l,a
+    ld a,0
+    adc a,h
+    ld h,a
+    jr num1 
+num2:
+    dec bc
+    ex af,af'                   ; restore zero flag
+    jr nz, num3
+    ex de,hl                    ; negate the value of hl
+    ld hl,0
+    or a                        ; jump to sub2
+    sbc hl,de    
+num3:
+    push hl                     ; Put the number on the stack
+    jp (iy)                     ; and process the next character
+
 arrEnd:                       
     ld (vTemp1),bc              ; save IP
     call rpop
@@ -1288,14 +1288,6 @@ arrIndex1:
     push hl
     jp (iy)
 
-comment:
-    inc bc                      ; point to next char
-    ld a,(bc)
-    CP "\r"                     ; terminate at cr 
-    jr NZ,comment
-    dec bc
-    jp   (IY) 
-
 altVar:
     cp "i"
     ld l,0
@@ -1317,6 +1309,14 @@ loopVar:
     add hl,de
     push hl
     jp (iy)
+
+comment:
+    inc bc                      ; point to next char
+    ld a,(bc)
+    CP "\r"                     ; terminate at cr 
+    jr NZ,comment
+    dec bc
+    jp   (IY) 
 
 altCode:
     ld hl,altCodes
