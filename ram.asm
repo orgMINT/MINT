@@ -43,7 +43,7 @@ vByteMode:  DS 2                ; b
 vCarry:     DS 2                ; c
             DS 2                ; d
 vElse:      DS 2                ; e
-            DS 2                ; f
+vFalse:     DS 2                ; f
             DS 2                ; g
 vHeapPtr:   DS 2                ; h
             DS 2                ; i
@@ -53,11 +53,11 @@ vTIBPtr:    DS 2                ; k
             DS 2                ; m  
             DS 2                ; n
             DS 2                ; o
-            DS 2                ; p
+vPointer:   DS 2                ; p
             DS 2                ; q
 vRemain:    DS 2                ; r     
 vStkStart:  DS 2                ; s
-            DS 2                ; t
+vTrue:      DS 2                ; t
 vUnlimited: DS 2                ; u
             DS 2                ; v
             DS 2                ; w

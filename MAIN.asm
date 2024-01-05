@@ -1,15 +1,16 @@
 ; *************************************************************************
 ;
-;       MINT 1.3 Minimal Interpreter for the Z80 
+;       MINT 2.0 Minimal Interpreter for the Z80 
 ;
-;       Ken Boak, John Hardy and Craig Jones. 
+;       John Hardy and Ken Boak
+;       incorporates bit-bang serial routines by Craig Jones 
 ;
 ;       GNU GENERAL PUBLIC LICENSE                   Version 3, 29 June 2007
 ;
 ;       see the LICENSE file in this repo for more information 
 ;
 ; *****************************************************************************
-    TRUE        EQU 1		
+    TRUE        EQU -1		
     FALSE       EQU 0
     UNLIMITED   EQU -1		
 
@@ -49,16 +50,16 @@
 macros:
 
 reedit_:
-    db "/z@/L;"			; remembers last line edited
+    db "/z/L;"			; remembers last line edited
 
 edit_:
     .cstr "`?`/K/P/L;"
 
 list_:
-    .cstr "/N26(/i@65+/L/t@0>(/N))/P;"
+    .cstr "/N26(/i65+/L/k0>(/N))/P;"
 
 printStack_:
-    .cstr "`=> `/s@2- /D1-(",$22,"@,2-)'/N/P;"        
+    .cstr "`=> `/s2- /D1-(",$22,",2-)'/N/P;"        
 
 iOpcodes:
     LITDAT 15
@@ -114,7 +115,7 @@ iAltCodes:
     db     lsb(bmode_)      ;B      toggle byte mode  
     db     lsb(printChar_)  ;C      print a char
     db     lsb(depth_)      ;D      depth of stack
-    db     lsb(else_)       ;E      else condition
+    db     lsb(aNop_)       ;E      else condition
     db     lsb(false_)      ;F      false condition
     db     lsb(go_)         ;G      go execute mint code
     db     lsb(aNop_)       ;H
@@ -129,8 +130,8 @@ iAltCodes:
     db     lsb(aNop_)       ;Q
     db     lsb(aNop_)       ;R
     db     lsb(arrSize_)    ;S      array size
-    db     lsb(true_)       ;T      true condition
-    db     lsb(unlimited_)  ;U      unlimited endless loops
+    db     lsb(aNop_)       ;T      true condition
+    db     lsb(aNop_)       ;U      unlimited endless loops
     db     lsb(aNop_)       ;V
     db     lsb(while_)      ;W      conditional break from loop
     db     lsb(exec_)       ;X      execute machine code 
@@ -152,7 +153,7 @@ start:
     ld SP,DSTACK		; start of MINT
     call init		    ; setups
     call printStr		; prog count to stack, put code line 235 on stack then call print
-    .cstr "MINT1.3\r\n"
+    .cstr "MINT2.0\r\n"
 
 interpret:
     call prompt
@@ -178,11 +179,6 @@ interpret4:
     or B
     jr NZ, interpret3       ; if not loop
     pop bc                  ; restore offset into TIB
-; *******************************************************************         
-; Wait for a character from the serial input (keyboard) 
-; and store it in the text buffer. Keep accepting characters,
-; increasing the instruction pointer bc - until a newline received.
-; *******************************************************************
 
 waitchar:   
     call getchar            ; loop around waiting for character from serial port
@@ -209,7 +205,7 @@ waitchar:
     jr z,macro
     jr interpret2
 
-macro:                          ;=25
+macro:                          
     ld (vTIBPtr),bc
     push de
     call ENTER		;mint go operation and jump to it
@@ -247,28 +243,7 @@ waitchar4:
     ld bc,TIB               ; Instructions stored on heap at address HERE, we pressed enter
     dec bc
 
-; ********************************************************************************
-;
-; Dispatch Routine.
-;
-; Get the next character and form a 1 byte jump address
-;
-; This target jump address is loaded into hl, and using jp (hl) to quickly 
-; jump to the selected function.
-;
-; Individual handler routines will deal with each category:
-;
-; 1. Detect characters A-Z and jump to the User Command handler routine
-;
-; 2. Detect characters a-z and jump to the variable handler routine
-;
-; 3. All other characters are punctuation and cause a jump to the associated
-; primitive code.
-;
-; Instruction Pointer IP bc is incremented
-;
-; *********************************************************************************
-NEXT:                           ;      
+NEXT:                           
     inc bc                      ;       Increment the IP
     ld a, (bc)                  ;       Get the next character and dispatch
     or a                        ; is it NUL?       
@@ -291,7 +266,7 @@ exit:
     EX de,hl
     jp (hl)
 
-etx:                                ;=12
+etx:                                
     ld hl,-DSTACK               ; check if stack pointer is underwater
     add hl,SP
     jr NC,etx1
@@ -299,7 +274,7 @@ etx:                                ;=12
 etx1:
     jp interpret
 
-init:                           ;=68
+init:                           
     ld IX,RSTACK
     ld IY,NEXT		; IY provides a faster jump to NEXT
 
@@ -309,6 +284,10 @@ init1:
     ld (hl),0
     inc hl
     djnz init1
+    ld hl,TRUE                  ; hl = TRUE
+    ld (vTrue),hl
+    dec hl                      ; hl = Unlimited
+    ld (vUnlimited),hl
     ld hl,dStack
     ld (vStkStart),hl
     ld hl,65
@@ -376,7 +355,7 @@ lookupRef3:
     or E                        ; sets Z flag if A-Z
     ret
 
-printhex:                           ;=31  
+printhex:                           
                                 ; Display hl as a 16-bit number in hex.
     push bc                     ; preserve the IP
     ld a,H
@@ -411,7 +390,7 @@ printhex3:
 ; limited to 127 levels
 ; **************************************************************************             
 
-nesting:                        ;=44
+nesting:                        
     CP '`'
     jr NZ,nesting1
     BIT 7,E
@@ -444,24 +423,24 @@ nesting4:
     dec E
     ret 
 
-prompt:                             ;=9
+prompt:                            
     call printStr
     .cstr "\r\n> "
     ret
 
-crlf:                               ;=7
+crlf:                               
     call printStr
     .cstr "\r\n"
     ret
 
-printStr:                           ;=7
+printStr:                           
     EX (SP),hl		                ; swap			
     call putStr		
     inc hl			                ; inc past null
     EX (SP),hl		                ; put it back	
     ret
 
-putStr0:                            ;=9
+putStr0:                            
     call putchar
     inc hl
 putStr:
@@ -470,14 +449,14 @@ putStr:
     jr NZ,putStr0
     ret
 
-rpush:                              ;=11
+rpush:                              
     dec IX                  
     ld (IX+0),H
     dec IX
     ld (IX+0),L
     ret
 
-rpop:                               ;=11
+rpop:                               
     ld L,(IX+0)         
     inc IX              
     ld H,(IX+0)
@@ -485,12 +464,12 @@ rpop:                               ;=11
 rpop2:
     ret
 
-writeChar:                          ;=5
+writeChar:                          
     ld (hl),A
     inc hl
     jp putchar
 
-enter:                              ;=9
+enter:                              
     ld hl,bc
     call rpush                      ; save Instruction Pointer
     pop bc
@@ -509,20 +488,27 @@ carry:
     .align $100
 page4:
 
+quote_:                          ; Discard the top member of the stack
+    pop     hl
+at_:
+bslash_:   
+underscore_: 
+    jp (IY)
+
 amper_:        
     pop     de          ;     Bitwise and the top 2 elements of the stack
-    pop     hl          ;    
-    ld      a,E         ;   
-    and     L           ;   
-    ld      L,A         ;   
-    ld      a,D         ;   
-    and     H           ;   
+    pop     hl          
+    ld      a,E         
+    and     L           
+    ld      L,A         
+    ld      a,D         
+    and     H           
 and1:
-    ld      H,A         ;   
-    push    hl          ;    
-    jp (IY)        ;   
+    ld      H,A         
+    push    hl          
+    jp (IY)           
     
-                        ; 
+                        
 pipe_: 		 
     pop     de             ; Bitwise or the top 2 elements of the stack
     pop     hl
@@ -544,7 +530,8 @@ xor1:
     XOR     H
     jr and1
 
-inv_:				; Bitwise INVert the top member of the stack
+tilde_:                               
+invert:				        ; Bitwise INVert the top member of the stack
     ld de, $FFFF            ; by xoring with $FFFF
     jr xor1        
 
@@ -576,32 +563,12 @@ comma_:                          ; print hexadecimal
     call printhex
     jr   dot2
 
-quote_:                          ; Discard the top member of the stack
-    pop     hl
-    jp (IY)
-
 dquote_:        
     pop     hl              ; Duplicate the top member of the stack
     push    hl
     push    hl
     jp (IY)
-at_:                         ; Fetch the value from the address placed on the top of the stack      
-    pop hl              
-fetch1:
-    ld d,0
-    ld e,(hl)         
-    ld a,(vByteMode)                   
-    dec a                       ; is it byte?
-    jr z,fetch2
-    inc hl             
-    ld d,(hl)         
-fetch2:
-    push de              
-    jp (IY)           
 
-bslash_:   
-underscore_: 
-nop_:       
     jp NEXT             ; hardwire white space to always go to NEXT (important for arrays)
 
 percent_:  
@@ -617,20 +584,12 @@ semi_:
     ld bc,hl                
     jp (IY)             
 
-tilde_:                               ; a b c -- b c a
-    pop de                      ; a b                   de = c
-    pop hl                      ; a                     hl = b
-    EX (SP),hl                  ; b                     hl = a
-    push de                     ; b c             
-    push hl                     ; b c a                         
-    jp (IY)
-
 ;  Left shift { is multiply by 2		
 lbrace_:   
     pop hl                  ; Duplicate the top member of the stack
     add hl,hl
     push hl                 ; shift left fallthrough into plus_     
-    jp (IY)                 ;   
+    jp (IY)                 
 
 			;  Right shift } is a divide by 2		
 rbrace_:    
@@ -639,29 +598,31 @@ shr1:
     SRL H
     RR L
     push hl
-    jp (IY)                 ;   
+    jp (IY)                 
 
-bang_:                         ; Store the value at the address placed on the top of the stack
-    pop hl               
-    pop de               
+bang_:                      ; Store the value at the address placed on the top of the stack
+assign:
+    pop hl                  ; discard value of last accessed variable
+    pop de                  ; new value
+    ld hl,(vPointer)
     ld (hl),e          
     ld a,(vByteMode)                   
-    dec a                       ; is it byte?
-    jr z,bang1
+    inc a                   ; is it byte?
+    jr z,assign1
     inc hl              
     ld (hl),d          
-bang1:
+assign1:
     jp (IY)            
                               
-; $ swap                        ; a b -- b a Swap the top 2 elements of the stack
+; $ swap                    ; a b -- b a Swap the top 2 elements of the stack
 dollar_:        
     pop hl
     EX (SP),hl
     push hl
     jp (IY)
     
-minus_:       		    ; Subtract the value 2nd on stack from top of stack 
-    inc bc              ; check if sign of a number
+minus_:       		        ; Subtract the value 2nd on stack from top of stack 
+    inc bc                  ; check if sign of a number
     ld a,(bc)
     dec bc
     cp "0"
@@ -669,14 +630,14 @@ minus_:       		    ; Subtract the value 2nd on stack from top of stack
     cp "9"+1
     jp c,num    
 sub1:
-    pop de              ;    
-    pop hl              ;      Entry point for INVert
+    pop de                  
+    pop hl                  
 sub2:   
-    and A               ;      Entry point for NEGate
-    Sbc hl,de           ; 
-    push hl             ;    
+    and A                   
+    Sbc hl,de            
+    push hl                 
     jp carry               
-                            ; 5  
+                              
 eq_:    
     pop hl
     pop de
@@ -703,9 +664,19 @@ lt1_:
 var_:
     ld a,(bc)
     call lookupRef2
-    push hl
-    jp (IY)
-
+var1:
+    ld (vPointer),hl
+    ld d,0
+    ld e,(hl)
+    ld a,(vByteMode)                   
+    inc a                       ; is it byte?
+    jr z,var2
+    inc hl
+    ld d,(hl)
+var2:
+    push de
+    jp (iy)
+    
 grave_:                         
 str:                                                      
     inc bc
@@ -728,8 +699,6 @@ arrDef:
     call rpush
     jp (iy)
 
-question_:
-    jp arrIndex
 num_:   
     jp num
 lparen_: 
@@ -741,32 +710,83 @@ rbrack_:
 colon_:   
     jp def
 
+question_:
+    jr arrAccess
 hash_:
     jr hex
 star_:   
     jr mul      
 slash_:   
 
+alt_:                           ; falls through (must be on page 4) 
 ;*******************************************************************
 ; Page 5 primitive routines 
 ;*******************************************************************
-    ;falls through 
-alt:                                ;=11
+alt:                                
     inc bc
     ld a,(bc)
     cp "z"+1
     jr nc,alt1
     cp "a"
-    jp nc,altVar
+    jr nc,altVar
     cp BSLASH
-    jp z,comment
+    jr z,comment
     cp "Z"+1
     jr nc,alt1
     cp "A"
-    jp nc,altCode
+    jr nc,altCode
 alt1:
     dec bc
-    jr div
+    jp div
+
+altVar:
+    cp "i"
+    ld l,0
+    jp z,loopVar
+    cp "j"
+    ld l,8
+    jr z,loopVar
+    sub "a" 
+    add a,a
+    ld h,msb(altVars)
+    ld l,A
+    jp var1                    
+
+loopVar:    
+    ld h,0
+    ld d,ixh
+    ld e,ixl
+    add hl,de
+    jp var1
+
+comment:
+    inc bc                      ; point to next char
+    ld a,(bc)
+    CP "\r"                     ; terminate at cr 
+    jr NZ,comment
+    dec bc
+    jp   (IY) 
+
+altCode:
+    ld hl,altCodes
+    sub "A"
+    add a,L
+    ld L,A
+    ld a,(hl)                   ;       get low jump address
+    ld hl,page6
+    ld L,A                      
+    jp (hl)                     ;       Jump to routine
+
+arrAccess:
+    pop hl                      ; hl = index  
+    pop de                      ; de = array
+    ld a,(vByteMode)            ; a = data width
+    inc a
+    jr z,arrAccess1
+    add hl,hl                   ; if data width = 2 then double 
+arrAccess1:
+    add hl,de                   ; hl = addr
+    jp var1
 
 hex:
     ld hl,0	    		        ; Clear hl to accept the number
@@ -786,10 +806,10 @@ hex2:
     add hl,hl                   ; 8X
     add hl,hl                   ; 16X     
     add a,L                     ; add into bottom of hl
-    ld  L,A                     ;   
+    ld  L,A                     
     jp  hex1
 
-mul:                                ;=19
+mul:                                
     pop  de                     ; get first value
     pop  hl
     push bc                     ; Preserve the IP
@@ -812,65 +832,6 @@ mul2:
 	push hl                     ; Put the product on the stack - stack bug fixed 2/12/21
 	jp (IY)
 
-div:
-    ld hl,bc                    ; hl = IP
-    pop bc                      ; bc = denominator
-    ex (sp),hl                  ; save IP, hl = numerator  
-    ld a,h
-    xor b
-    push af
-    xor b
-    jp p,absbc
-;absHL
-    xor a  
-    sub l  
-    ld l,a
-    sbc a,a  
-    sub h  
-    ld h,a
-absbc:
-    xor b
-    jp p,$+9
-    xor a  
-    sub c  
-    ld c,a
-    sbc a,a  
-    sub b  
-    ld b,a
-    add hl,hl
-    ld a,15
-    ld de,0
-    ex de,hl
-    jr jumpin
-Loop1:
-    add hl,bc   ;--
-Loop2:
-    dec a       ;4
-    jr z,EndSDiv ;12|7
-jumpin:
-    sla e       ;8
-    rl d        ;8
-    adc hl,hl   ;15
-    sbc hl,bc   ;15
-    jr c,Loop1  ;23-2b
-    inc e       ;--
-    jp Loop2    ;--
-EndSDiv:
-    pop af  
-    jp p,div10
-    xor a  
-    sub e  
-    ld e,a
-    sbc a,a  
-    sub d  
-    ld d,a
-div10:
-    pop bc
-    push de                     ; quotient
-    ld (vRemain),hl             ; remainder
-    jp (iy)
-
-    	                    ;=57                     
 begin:
 loopStart:
     ld (vTemp1),bc              ; save start
@@ -884,12 +845,17 @@ loopStart1:
     ld a,e                      ; is it zero?
     or d
     jr nz,loopStart2
-    inc de                      ; de = TRUE
+    dec de                      ; de = TRUE
     ld (vElse),de
-    jp (iy)                     ; yes continue after skip    
-
+    jr loopStart4               ; yes continue after skip    
 loopStart2:
-    ld hl,bc                    ; rpush loop frame
+    ld a,2                      ; is it TRUE
+    add a,e
+    add a,d
+    jr nz,loopStart3                
+    ld de,1                     ; yes make it 1
+loopStart3:    
+    ld hl,bc
     call rpush                  ; rpush loop end
     dec bc                      ; IP points to ")"
     ld hl,(vTemp1)              ; restore start
@@ -898,9 +864,9 @@ loopStart2:
     call rpush                  ; rpush limit
     ld hl,-1                    ; hl = count = -1 
     call rpush                  ; rpush count
-loopStart3:    
+loopstart4:    
     jp (iy)
-
+    
 again:
 loopEnd:    
     ld e,(ix+2)                 ; de = limit
@@ -908,13 +874,15 @@ loopEnd:
     ld a,e                      ; a = lsb(limit)
     or d                        ; if limit 0 exit loop
     jr z,loopEnd4                  
+    inc de                      ; is limit -2
     inc de
     ld a,e                      ; a = lsb(limit)
     or d                        ; if limit 0 exit loop
     jr z,loopEnd2               ; yes, loop again
-    dec de                      ; restore de
-    dec de                      ; dec limit
-    ld (ix+2),e                 ; update frame 
+    dec de
+    dec de
+    dec de
+    ld (ix+2),e                  
     ld (ix+3),d
 loopEnd2:
     ld e,(ix+0)                 ; inc counter
@@ -932,7 +900,7 @@ loopEnd4:
     ld de,2*4                   ; rpop frame
     add ix,de
     jp (iy)
-
+    
 ; **************************************************************************
 ; Page 6 Alt primitives
 ; **************************************************************************
@@ -952,8 +920,13 @@ anop_:
 
 bmode_:
     ld hl,vByteMode
+toggle:
     ld a,(hl)
-    xor $01
+    cpl
+    ld (hl),a
+    inc hl
+    ld a,(hl)
+    cpl
     ld (hl),a
     jp (iy)
 
@@ -998,21 +971,11 @@ editDef_:
     call editDef
     jp (IY)
 
-else_:
-    ld hl,(vElse)
-    push hl
-    jp (iy)
-
-false_:
-    ld hl,FALSE
-    push hl
-    jp (iy)
-
 prompt_:
     call prompt
     jp (IY)
 
-go_:				    ;\^
+go_:				    
     pop de
 go1:
     ld a,D                      ; skip if destination address is null
@@ -1060,22 +1023,11 @@ outPort_:
     ld C,E
     jp (IY)        
 
-true_:
-    ld hl,TRUE
-    push hl
-    jp (iy)
-
-unlimited_:
-    ld hl,UNLIMITED
-    push hl
-    jp (iy)
-
-
 ;*******************************************************************
 ; Subroutines
 ;*******************************************************************
 
-editDef:                            ;=50 lookup up def based on number
+editDef:                        ; lookup up def based on number
     pop hl                      ; pop ret address
     EX (SP),hl                  ; swap with TOS                  
     ld a,L
@@ -1254,7 +1206,7 @@ arrayEnd1:
     ld (hl),a                   ; write lsb of array item
     inc hl                      ; move to msb of array item
     ld a,(vByteMode)            ; vByteMode=1? 
-    dec a
+    inc a
     jr z,arrayEnd2
     inc de
     ld a,(de)                   ; a = msb of stack item
@@ -1276,56 +1228,72 @@ arrayEnd2:
     ld bc,(vTemp1)              ; restore IP
     jp (iy)
 
-arrIndex:
-    pop hl                              ; hl = index  
-    pop de                              ; de = array
-    ld a,(vByteMode)                   ; a = data width
-    dec a
-    jr z,arrIndex1
-    add hl,hl                           ; if data width = 2 then double 
-arrIndex1:
-    add hl,de                           ; add addr
+div:
+    ld hl,bc                    ; hl = IP
+    pop bc                      ; bc = denominator
+    ex (sp),hl                  ; save IP, hl = numerator  
+    ld a,h
+    xor b
+    push af
+    xor b
+    jp p,absbc
+;absHL
+    xor a  
+    sub l  
+    ld l,a
+    sbc a,a  
+    sub h  
+    ld h,a
+absbc:
+    xor b
+    jp p,$+9
+    xor a  
+    sub c  
+    ld c,a
+    sbc a,a  
+    sub b  
+    ld b,a
+    add hl,hl
+    ld a,15
+    ld de,0
+    ex de,hl
+    jr jumpin
+Loop1:
+    add hl,bc   ;--
+Loop2:
+    dec a       ;4
+    jr z,EndSDiv ;12|7
+jumpin:
+    sla e       ;8
+    rl d        ;8
+    adc hl,hl   ;15
+    sbc hl,bc   ;15
+    jr c,Loop1  ;23-2b
+    inc e       ;--
+    jp Loop2    ;--
+EndSDiv:
+    pop af  
+    jp p,div10
+    xor a  
+    sub e  
+    ld e,a
+    sbc a,a  
+    sub d  
+    ld d,a
+div10:
+    pop bc
+    push de                     ; quotient
+    ld (vRemain),hl             ; remainder
+    jp (iy)
+
+false_:
+    ld hl,FALSE
     push hl
     jp (iy)
 
-altVar:
-    cp "i"
-    ld l,0
-    jp z,loopVar
-    cp "j"
-    ld l,8
-    jr z,loopVar
-    sub "a" 
-    add a,a
-    ld h,msb(altVars)
-    ld l,A
-    push hl
-    jp (IY)                    
-
-loopVar:    
-    ld h,0
-    ld d,ixh
-    ld e,ixl
-    add hl,de
+true_:
+    ld hl,TRUE
     push hl
     jp (iy)
-
-comment:
-    inc bc                      ; point to next char
-    ld a,(bc)
-    CP "\r"                     ; terminate at cr 
-    jr NZ,comment
-    dec bc
-    jp   (IY) 
-
-altCode:
-    ld hl,altCodes
-    sub "A"
-    add a,L
-    ld L,A
-    ld a,(hl)                   ;       get low jump address
-    ld hl,page6
-    ld L,A                      
-    jp (hl)                     ;       Jump to routine
 
 

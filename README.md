@@ -1,4 +1,4 @@
-# MINT Language 1.3
+# MINT Language 2.0
 
 MINT is a minimalist character-based interpreter but one which aims at fast performance, readability and ease of use. It is written for the Z80 microprocessor and is 2K.
 
@@ -161,17 +161,6 @@ places it on top.
 
 The code prints `70 60 70`
 
-### <a name='rotate'></a>Rotate
-
-The `~` or "rotate" operator rotates the top three elements of the stack, bringing
-the third element to the top.
-
-```
-80 90 100 rot . . .
-```
-
-The code prints `100 80 90`
-
 ## <a name='basic-arithmetic-operations'></a>Basic arithmetic operations
 
 ```
@@ -213,8 +202,8 @@ system variable.
 
 MINT uses numbers to define boolean values.
 
-- false is represented by the number `0` or `/F`
-- true is represented by the number `1` or `/T`
+- false is represented by the number `0` or `/f`
+- true is represented by the number `1` or `/t`
 
 ```
 3 0 = .
@@ -420,9 +409,9 @@ is ten it will be repeated ten times. If the number is -1 then the loop will rep
 0(this code will not be executed but skipped)
 1(this code will be execute once)
 10(this code will execute 10 times)
-/F(this code will not be executed but skipped)
-/T(this code will be execute once)
-/U(this code will be execute forever)
+/f(this code will not be executed but skipped)
+/t(this code will be execute once)
+/u(this code will be execute forever)
 ```
 
 This code following prints ten x's.
@@ -659,21 +648,20 @@ commands from the keyboard.
 | ^      | 16-bit bitwise XOR   | a b -- c |
 | {      | shift left           | --       |
 | }      | shift right          | --       |
-| /F     | false condition      | -- b     |
-| /T     | true condition       | -- b     |
+| /f     | false condition      | -- b     |
+| /t     | true condition       | -- b     |
 
 Note: logical NOT can be achieved with 0=
 
 ### <a name='stack-operations'></a>Stack Operations
 
-| Symbol | Description                                                          | Effect         |
-| ------ | -------------------------------------------------------------------- | -------------- |
-| '      | drop the top member of the stack DROP                                | a a -- a       |
-| "      | duplicate the top member of the stack DUP                            | a -- a a       |
-| ~      | rotate the top 3 members of the stack ROT                            | a b c -- b c a |
-| %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a   |
-| $      | swap the top 2 members of the stack SWAP                             | a b -- b a     |
-| \D     | stack depth                                                          | -- val         |
+| Symbol | Description                                                          | Effect       |
+| ------ | -------------------------------------------------------------------- | ------------ |
+| '      | drop the top member of the stack DROP                                | a a -- a     |
+| "      | duplicate the top member of the stack DUP                            | a -- a a     |
+| %      | over - take the 2nd member of the stack and copy to top of the stack | a b -- a b a |
+| $      | swap the top 2 members of the stack SWAP                             | a b -- b a   |
+| \D     | stack depth                                                          | -- val       |
 
 ### <a name='input-&-output-operations'></a>Input & Output Operations
 
@@ -709,7 +697,7 @@ NOTE:
 | /i     | loop counter variable                  | -- adr |
 | /j     | outer loop counter variable            | -- adr |
 | /W     | if false break out of loop             | b --   |
-| /E     | else condition                         | -- b   |
+| /e     | else condition                         | -- b   |
 
 NOTE 1: a loop with a boolean value for a loop limit (i.e. 0 or 1) is a conditionally executed block of code
 
@@ -731,9 +719,6 @@ the "else" condition.
 | Symbol | Description               | Effect     |
 | ------ | ------------------------- | ---------- |
 | !      | STORE a value to memory   | val adr -- |
-| @      | FETCH a value from memory | adr -- val |
-| /!     | STORE a byte to memory    | val adr -- |
-| /@     | FETCH a byte from memory  | -- val     |
 
 ### <a name='array-operations'></a>Array Operations
 
@@ -749,7 +734,7 @@ the "else" condition.
 
 | Symbol | Description                        | Effect |
 | ------ | ---------------------------------- | ------ |
-| /c     | carry flag variable                | -- adr |
+| /c     | carry variable                     | -- adr |
 | /h     | heap pointer variable              | -- adr |
 | /k     | text input buffer pointer variable | -- adr |
 | /s     | data stack start variable          | -- adr |

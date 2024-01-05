@@ -23,20 +23,21 @@ testsStart:
     test "10", 10
     test "#10", $10
     test "#FF", $FF
-    test "2 3=", 0
-    test "3 3=", 1
-    test "2 3<", 1
-    test "3 3<", 0
-    test "3 3>", 0
-    test "4 3>", 1
+    test "2 3=", FALSE
+    test "3 3=", TRUE
+    test "2 3<", TRUE
+    test "3 3<", FALSE
+    test "3 3>", FALSE
+    test "4 3>", TRUE
+    test "0~", TRUE
     test "1 2+", 3
     test "123 456+", 123+456
     test "64 128+", 64+128
     test "5 3-", 2
     test "-1 2+",1
     test "-1 1+",0
-    test "#FFFF 1 + /c@ +", 1
-    test "0 1 - /c@ +", 0
+    test "#FFFF 1 + /c +", 1
+    test "0 1 - /c +", 0
     test "3 5&", 1
     test "3 5|", 7
     test "1{", 2
@@ -47,40 +48,36 @@ testsStart:
     test "1 2 3+*", 5
     test "1 2 /D", 2
     test "7 2/", 3
-    test "7 2/' /r@", 1
+    test "7 2/' /r", 1
     test "1 1/", 1
     test "-1 1/", -1
     test "1 -1/", -1
     test "-1 -1/", 1
     test "3 5$ -", 2
     test "2 3%++", 7
-    test "1 2 3~''", 2
-    test "1 2 3~+*", 8
-    test "2a!a@",2
-    test "3x! 1 x@+x! x@", 4
-    test "3x! -1 x@+x! x@", 2
+    test "2a!a",2
+    test "3x! 1 x+x! x", 4
+    test "3x! -1 x+x! x", 2
     test ":X1; X", 1
     test ":A100;A", 100
-    test ":Aa!; 3A a@", 3
-    test ":Aa!;:Ba@;4AB", 4
+    test ":Aa!; 3A a", 3
+    test ":Aa!;:Ba;4AB", 4
     test "::2; /G", 2
     test "[]", heap+2
     test "[1]", heap+2
     test "[]/S", 0
     test "[3]/S", 1
-    test "[3]@", 3
-    test "[1 2 3]1?@", 2
-    test "[1 [2]] 1?@ 0?@", 2
-    test "/h@[1]'/h@$-", 4
-    test "/h@[1 2 3]'/h@$-", 8
-    test "/B[3]@/B", 3
-    test "/B[3]0?@/B", 3
+    test "[3]0?", 3
+    test "[1 2 3]1?", 2
+    test "[1 [2]] 1? 0?", 2
+    test "/h[1]'/h$-", 4
+    test "/h[1 2 3]'/h$-", 8
     test "/B[3]/B/S", 1
-    test "/B[1 2 3]@/B", 1
-    test "/B[1 2 3]0?@/B", 1
-    test "/B[1 2 3]1?@/B", 2
-    test "/h@/B[1 2 3]'/B/h@$-", 5
-    test "/h@/B[1]'/B/h@$-", 3
+    test "/B[3]0?/B", 3
+    test "/B[1 2 3]0?/B", 1
+    test "/B[1 2 3]1?/B", 2
+    test "/h/B[1 2 3]'/B/h$-", 5
+    test "/h/B[1]'/B/h$-", 3
     test "0 0(1+)", 0
     test "0 1(1+)", 1
     test "0 2(1+)", 2
@@ -88,22 +85,22 @@ testsStart:
     test "0 1(1(1+))", 1
     test "0 2(1(1+))", 2
     test "0 2(2(1+))", 4
-    test "0 1(/i@+)", 0
-    test "0 0(/i@+)", 0
-    test "0 5(/i@+)", 10
-    test "0 /U(/i@5</W 1+)", 5
-    test "0 /U(1+/i@4</W)", 5
-    test "0t! 10(1 t@+t!) t@",10
-    test "0t! 2(2(/i@ /j@ + t@ + t! )) t@", 4
-    test "/F(100)/E(200)",200
-    test "/T(100)/E(200)",100
-    test "0t! 10(t@1+t!) t@",10
-    test "0t! 2(2(/i@ /j@ + t@ + t! )) t@", 4
-    test "0t! 10(/i@ 5</W /i@ 1 t@+t!) t@",5
-    test "0t! [1 2 3] a! a@/S (a@ /i@?@ t@+t!) t@", 6
+    test "0 1(/i+)", 0
+    test "0 0(/i+)", 0
+    test "0 5(/i+)", 10
+    test "0 /u(/i5</W 1+)", 5
+    test "0 /u(1+/i4</W)", 5
+    test "0t! 10(1 t+t!) t",10
+    test "0t! 2(2(/i /j + t + t! )) t", 4
+    test "/f(100)/e(200)",200
+    test "/t(100)/e(200)",100
+    test "0t! 10(t1+t!) t",10
+    test "0t! 2(2(/i /j + t + t! )) t", 4
+    test "0t! 10(/i 5</W /i 1 t+t!) t",5
+    test "0t! [1 2 3] a! a/S (a /i? t+t!) t", 6
     test ":: 1 ; /G", 1
-    test "[:: 10 ;] 0?@ /G", 10
-    test "[:: 10 ; :: 20 ; :: 30 ;] 2?@ /G",30
+    test "[:: 10 ;] 0? /G", 10
+    test "[:: 10 ; :: 20 ; :: 30 ;] 2? /G",30
     test "1 2 /D", 2
 
     CALL enter
