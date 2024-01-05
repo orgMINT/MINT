@@ -244,19 +244,19 @@ waitchar4:
     dec bc
 
 NEXT:                           
-    inc bc                      ;       Increment the IP
-    ld a, (bc)                  ;       Get the next character and dispatch
+    inc bc                      ; Increment the IP
+    ld a,(bc)                   ; Get the next character and dispatch
     or a                        ; is it NUL?       
     jr z,exit
     cp CTRL_C
     jr z,etx
     sub "!"
     jr c,NEXT
-    ld L,A                      ;       Index into table
-    ld H,msb(opcodes)           ;       Start address of jump table         
-    ld L,(hl)                   ;       get low jump address
-    ld H,msb(page4)             ;       Load H with the 1st page address
-    jp (hl)                     ;       Jump to routine
+    ld L,A                      ; Index into table
+    ld H,msb(opcodes)           ; Start address of jump table         
+    ld L,(hl)                   ; get low jump address
+    ld H,msb(page4)             ; Load H with the 1st page address
+    jp (hl)                     ; Jump to routine
 
 exit:
     inc bc			; store offests into a table of bytes, smaller
@@ -330,29 +330,24 @@ initOps2a:
     DJNZ initOps2a
     jr initOps1
 
-lookupRef:
-    ld D,0
-lookupRef0:
-    CP "a"
-    jr NC,lookupRef2
 lookupRef1:
-    SUB "A"
-    ld E,0
+    sub "A"
+    ld e,0
     jr lookupRef3        
 lookupRef2:
-    SUB "a"
-    ld E,26*2
+    sub "a"
+    ld e,26*2
 lookupRef3:
-    add a,A
-    add a,E
+    add a,a
+    add a,e
     ld hl,VARS
-    add a,L
-    ld L,A
+    add a,l
+    ld l,a
     ld a,0
-    ADC a,H
-    ld H,A
-    XOR A
-    or E                        ; sets Z flag if A-Z
+    ADC a,h
+    ld h,a
+    XOR a
+    or e                        ; sets Z flag if A-Z
     ret
 
 printhex:                           
@@ -469,12 +464,22 @@ writeChar:
     inc hl
     jp putchar
 
+toggle:
+    ld a,(hl)
+    cpl
+    ld (hl),a
+    inc hl
+    ld a,(hl)
+    cpl
+    ld (hl),a
+    jp (iy)
+
 enter:                              
     ld hl,bc
     call rpush                      ; save Instruction Pointer
     pop bc
     dec bc
-    jp (IY)                    
+    jp (iy)                    
 
 carry:                              
     ld hl,0
@@ -496,27 +501,27 @@ underscore_:
     jp (IY)
 
 amper_:        
-    pop     de          ;     Bitwise and the top 2 elements of the stack
-    pop     hl          
-    ld      a,E         
-    and     L           
-    ld      L,A         
-    ld      a,D         
-    and     H           
+    pop de                  ;     Bitwise and the top 2 elements of the stack
+    pop hl          
+    ld a,E         
+    and L           
+    ld L,A         
+    ld a,D         
+    and H           
 and1:
-    ld      H,A         
-    push    hl          
-    jp (IY)           
+    ld h,a         
+    push hl          
+    jp (iy)           
     
                         
 pipe_: 		 
-    pop     de             ; Bitwise or the top 2 elements of the stack
-    pop     hl
-    ld      a,E
-    or      L
-    ld      L,A
-    ld      a,D
-    or      H
+    pop de                  ; Bitwise or the top 2 elements of the stack
+    pop hl
+    ld a,E
+    or L
+    ld L,A
+    ld a,D
+    or h
     jr and1
 
 caret_:		 
@@ -634,7 +639,7 @@ sub1:
     pop hl                  
 sub2:   
     and A                   
-    Sbc hl,de            
+    sbc hl,de            
     push hl                 
     jp carry               
                               
@@ -795,9 +800,9 @@ hex1:
     ld a,(bc)		            ; Get the character which is a numeral
     BIT 6,A                     ; is it uppercase alpha?
     jp Z, hex2                  ; no a decimal
-    SUB 7                       ; sub 7  to make $A - $F
+    sub 7                       ; sub 7  to make $A - $F
 hex2:
-    SUB $30                     ; Form decimal digit
+    sub $30                     ; Form decimal digit
     jp C,num2
     CP $0F+1
     jp NC,num2
@@ -918,6 +923,7 @@ alloc_:
 aNop_:
     jp (iy)    
 
+; returns the size of an array
 ; a -- n
 arrSize_:
 arrSize:
@@ -931,15 +937,7 @@ arrSize:
 
 bmode_:
     ld hl,vByteMode
-toggle:
-    ld a,(hl)
-    cpl
-    ld (hl),a
-    inc hl
-    ld a,(hl)
-    cpl
-    ld (hl),a
-    jp (iy)
+    jp toggle
 
 break_:
 while_:
@@ -961,7 +959,7 @@ depth:
     EX de,hl
     ld hl,DSTACK
     or A
-    Sbc hl,de
+    sbc hl,de
     jp shr1
 
 printChar_:
@@ -1043,8 +1041,8 @@ editDef:                        ; lookup up def based on number
     EX (SP),hl                  ; swap with TOS                  
     ld a,L
     EX AF,AF'
-    ld a,L
-    call lookupRef
+    ld a,l
+    call lookupRef1
     ld E,(hl)
     inc hl
     ld D,(hl)
@@ -1067,7 +1065,7 @@ editDef2:
 editDef3:        
     ld de,TIB
     or A
-    Sbc hl,de
+    sbc hl,de
     ld (vTIBPtr),hl
     ret
 
@@ -1133,8 +1131,8 @@ def:                                ; Create a colon definition
     push de
     jr def1
 def0:    
-    ld (vLastDef),A
-    call lookupRef
+    ld (vLastDef),a
+    call lookupRef1
     ld de,(vHeapPtr)            ; start of defintion
     ld (hl),E                   ; Save low byte of address in CFA
     inc hl              
@@ -1299,11 +1297,11 @@ div10:
 
 false_:
     ld hl,FALSE
-    push hl
-    jp (iy)
+    jr true1
 
 true_:
     ld hl,TRUE
+true1:
     push hl
     jp (iy)
 
