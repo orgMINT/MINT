@@ -50,13 +50,13 @@
 macros:
 
 reedit_:
-    db "/z/L;"			; remembers last line edited
+    db "/z/Z;"			; remembers last line edited
 
 edit_:
-    .cstr "`?`/K/P/L;"
+    .cstr "`?`/K/P/Z;"
 
 list_:
-    .cstr "/N26(/i65+/L/k0>(/N))/P;"
+    .cstr "/N26(/i65+/Z/k0>(/N))/P;"
 
 printStack_:
     .cstr "`=> `/s2- /D1-(",$22,",2-)'/N/P;"        
@@ -122,7 +122,7 @@ iAltCodes:
     db     lsb(inPort_)     ;I      input from port
     db     lsb(aNop_)       ;J
     db     lsb(key_)        ;K      read a char from input
-    db     lsb(editDef_)    ;L      edit line
+    db     lsb(aNop_)       ;L      
     db     lsb(aNop_)       ;M
     db     lsb(newln_)      ;N      prints a newline to output
     db     lsb(outPort_)    ;O      output to port
@@ -136,7 +136,7 @@ iAltCodes:
     db     lsb(while_)      ;W      conditional break from loop
     db     lsb(exec_)       ;X      execute machine code 
     db     lsb(aNop_)       ;Y
-    db     lsb(aNop_)       ;Z
+    db     lsb(editDef_)    ;Z      edit line
 
     ENDDAT 
 

@@ -735,7 +735,7 @@ commands from the keyboard.
 | Symbol | Description   | Effect |
 | ------ | ------------- | ------ |
 | /N     | prints a CRLF | --     |
-| /L     | edit command  | --     |
+| /Z     | edit command  | --     |
 | /P     | print prompt  | --     |
 
 ### <a name='control-keys'></a>Control keys
