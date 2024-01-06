@@ -1,8 +1,7 @@
 DSIZE       EQU $80
 RSIZE       EQU $80
 TIBSIZE     EQU $100		; 256 bytes , along line!
-
-VARS_SIZE      EQU 26*2*2	; A..Z, a..z words
+VARS_SIZE   equ 26*2
 
 .ORG RAMSTART
 
@@ -37,6 +36,10 @@ altCodes:
             DS 26
 
             .align $100
+
+vars:       DS VARS_SIZE
+defs:       DS VARS_SIZE
+
 altVars:
             DS 2                ; a
 vByteMode:  DS 2                ; b
@@ -64,7 +67,5 @@ vUnlimited: DS 2                ; u
             DS 2                ; x     
             DS 2                ; y
 vLastDef:   DS 2                ; z
-
-VARS:       DS VARS_SIZE
 
 HEAP:         

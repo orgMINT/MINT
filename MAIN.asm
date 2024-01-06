@@ -278,12 +278,13 @@ init:
     ld IX,RSTACK
     ld IY,NEXT		; IY provides a faster jump to NEXT
 
-    ld hl,altVars               ; init altVars to 0 
-    ld b,26 * 2
-init1:
+    ld hl,vars              
+    ld de,hl
+    inc de
     ld (hl),0
-    inc hl
-    djnz init1
+    ld bc,VARS_SIZE * 3         ; init vars, defs and altVars
+    LDIR
+
     ld hl,TRUE                  ; hl = TRUE
     ld (vTrue),hl
     dec hl                      ; hl = Unlimited
@@ -294,13 +295,6 @@ init1:
     ld (vLastDef),hl
     ld hl,HEAP
     ld (vHeapPtr),hl
-
-    ld hl,VARS              ; init namespaces to 0 using LDIR
-    ld de,hl
-    inc de
-    ld (hl),0
-    ld bc,VARS_SIZE
-    LDIR
 
 initOps:
     ld hl, iOpcodes
@@ -330,17 +324,14 @@ initOps2a:
     DJNZ initOps2a
     jr initOps1
 
-lookupRef1:
+lookupRef0:
+    ld hl,defs
     sub "A"
-    ld e,0
-    jr lookupRef3        
-lookupRef2:
+    jr lookupRef1        
+lookupRef:
     sub "a"
-    ld e,26*2
-lookupRef3:
+lookupRef1:
     add a,a
-    add a,e
-    ld hl,VARS
     add a,l
     ld l,a
     ld a,0
@@ -549,7 +540,7 @@ plus_:                           ; add the top 2 members of the stack
                              
 call_:
     ld a,(bc)
-    call lookupRef1
+    call lookupRef0
     ld E,(hl)
     inc hl
     ld D,(hl)
@@ -666,22 +657,6 @@ lt1_:
     jp c,true_
     jp false_
     
-var_:
-    ld a,(bc)
-    call lookupRef2
-var1:
-    ld (vPointer),hl
-    ld d,0
-    ld e,(hl)
-    ld a,(vByteMode)                   
-    inc a                       ; is it byte?
-    jr z,var2
-    inc hl
-    ld d,(hl)
-var2:
-    push de
-    jp (iy)
-    
 grave_:                         
 str:                                                      
     inc bc
@@ -704,6 +679,23 @@ arrDef:
     call rpush
     jp (iy)
 
+var_:
+    ld a,(bc)
+    ld hl,vars
+    call lookupRef
+var1:
+    ld (vPointer),hl
+    ld d,0
+    ld e,(hl)
+    ld a,(vByteMode)                   
+    inc a                       ; is it byte?
+    jr z,var2
+    inc hl
+    ld d,(hl)
+var2:
+    push de
+    jp (iy)
+    
 num_:   
     jp num
 rparen_: 
@@ -751,18 +743,16 @@ altVar:
     cp "j"
     ld l,8
     jr z,loopVar
-    sub "a" 
-    add a,a
-    ld h,msb(altVars)
-    ld l,A
-    jp var1                    
+    ld hl,altVars
+    call lookupRef
+    jr var1                    
 
 loopVar:    
     ld h,0
     ld d,ixh
     ld e,ixl
     add hl,de
-    jp var1
+    jr var1
 
 comment:
     inc bc                      ; point to next char
@@ -791,7 +781,7 @@ arrAccess:
     add hl,hl                   ; if data width = 2 then double 
 arrAccess1:
     add hl,de                   ; hl = addr
-    jp var1
+    jr var1
 
 hex:
     ld hl,0	    		        ; Clear hl to accept the number
@@ -1042,7 +1032,7 @@ editDef:                        ; lookup up def based on number
     ld a,L
     EX AF,AF'
     ld a,l
-    call lookupRef1
+    call lookupRef0
     ld E,(hl)
     inc hl
     ld D,(hl)
@@ -1132,7 +1122,7 @@ def:                                ; Create a colon definition
     jr def1
 def0:    
     ld (vLastDef),a
-    call lookupRef1
+    call lookupRef0
     ld de,(vHeapPtr)            ; start of defintion
     ld (hl),E                   ; Save low byte of address in CFA
     inc hl              
