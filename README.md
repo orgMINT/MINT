@@ -650,7 +650,7 @@ commands from the keyboard.
 
 | Symbol | Description          | Effect   |
 | ------ | -------------------- | -------- |
-| />     | 16-bit comparison GT | n n -- b |
+| >      | 16-bit comparison GT | n n -- b |
 | <      | 16-bit comparison LT | n n -- b |
 | =      | 16 bit comparison EQ | n n -- b |
 | &      | 16-bit bitwise AND   | n n -- b |
