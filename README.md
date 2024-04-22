@@ -469,11 +469,11 @@ When the loop ends `t` prints 4.
 ## <a name='conditional-code'></a>Conditional code
 
 MINT's looping mechanism can also be used to execute code conditionally. In MINT boolean `false` is represented
-by 0 or `/F` and `true` is represented by 1 or `/T`.
+by 0 or `/f` and `true` is represented by 1 or `/t`.
 
 ```
-/F(this code will not be executed but skipped)
-/T(this code will be execute once)
+/f(this code will not be executed but skipped)
+/t(this code will be execute once)
 ```
 
 The following tests if `x` is less that 5.
