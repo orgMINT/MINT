@@ -372,7 +372,7 @@ the first item of the inner array with `0?` and prints the result (which is 2).
 ### <a name='byte-arrays'></a>Byte arrays
 
 MINT by default declares arrays of 16 bit words however it is also possible to declare
-and array of 8 bit byte values using `/[`
+and array of 8 bit byte values using `/B` which toggle MINT in and out of `byte mode`.
 
 ```
  /B  [1 2 3] /B
