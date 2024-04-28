@@ -14,9 +14,10 @@
 
 testsStart:
 
-    ; CALL printStr
-    ; .cstr "Done!!\r\n"
-    ; HALT
+    test "1(`1`)", 0
+    CALL enter
+    .cstr "`Done!`"
+    HALT
 
     test "1", 1
     test "0", 0

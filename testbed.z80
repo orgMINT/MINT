@@ -1,0 +1,27 @@
+    ; comment out this .engine line if you want to single-step
+    ; through the code of your test
+    .engine mycomputer
+
+    .include "constants.asm"
+    .include "test.fast.mac.asm"
+    
+    .include "IOSerial.asm"
+    
+    JP testsStart
+    
+    .include "MAIN.asm"
+    .include "ram.asm"
+    
+    .org $4000
+
+testsStart:
+
+    ; write your string containing a line of MINT code 
+    ; followed by the expected value of the top of stack after running it
+    test "3 2 *", 6
+
+    ; if the tests succeed, "Done!" while be printed       
+    CALL enter
+    .cstr "`Done!`"
+    HALT
+    
