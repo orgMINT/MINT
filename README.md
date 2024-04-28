@@ -103,7 +103,7 @@ The `,` operator prints numbers to the console in hexadecimal.
 
 ### <a name='printing-text'></a>Printing text
 
-MINT allows the user to easily print literal text by using /` quotes.
+MINT allows the user to easily print literal text by using \` quotes.
 
 For example
 
@@ -679,7 +679,7 @@ commands from the keyboard.
 | ------ | ---------------------------------------------- | ------ |
 | .      | print the number on the stack as a decimal     | n --   |
 | ,      | print the number on the stack as a hexadecimal | n --   |
-| /`     | print the literal string between /` and /`     | --     |
+| \`     | print the literal string between \` and \`     | --     |
 | /C     | prints a character to output                   | n --   |
 | /K     | read a char from input                         | -- n   |
 | /O     | output to an I/O port                          | n p -- |
