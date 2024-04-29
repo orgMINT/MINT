@@ -14,11 +14,6 @@
 
 testsStart:
 
-    test "1(`1`)", 0
-    CALL enter
-    .cstr "`Done!`"
-    HALT
-
     test "1", 1
     test "0", 0
     test "10", 10
@@ -107,7 +102,6 @@ testsStart:
     
     test "1 2 /D", 2
 
-    CALL enter
-    .cstr "`Done!`"
+    print "Done!"
     HALT
     
