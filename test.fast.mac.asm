@@ -30,3 +30,8 @@ expect%%M:
     .cstr code1
     expect code1,val1
 .endm
+
+.macro print,msg1
+    CALL printStr
+    .cstr "\r\n",msg1,"\r\n"
+.endm

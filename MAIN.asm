@@ -182,11 +182,11 @@ interpret4:
 
 waitchar:   
     call getchar            ; loop around waiting for character from serial port
-    CP $20			; compare to space
+    cp $20			; compare to space
     jr NC,waitchar1		; if >= space, if below 20 set cary flag
-    CP $0                   ; is it end of string? null end of string
+    cp $0                   ; is it end of string? null end of string
     jr Z,waitchar4
-    CP '\r'                 ; carriage return? ascii 13
+    cp '\r'                 ; carriage return? ascii 13
     jr Z,waitchar3		; if anything else its macro/control 
     cp CTRL_H
     jr z,backSpace
@@ -377,33 +377,30 @@ printhex3:
 ; **************************************************************************             
 
 nesting:                        
-    CP '`'
+    cp '`'
     jr NZ,nesting1
-    BIT 7,E
-    jr Z,nesting1a
-    RES 7,E
-    ret
-nesting1a: 
-    SET 7,E
+    ld a,$80
+    xor e
+    ld e,a
     ret
 nesting1:
     BIT 7,E             
     ret NZ             
-    CP ':'
+    cp ':'
     jr Z,nesting2
-    CP '['
+    cp '['
     jr Z,nesting2
-    CP '('
+    cp '('
     jr NZ,nesting3
 nesting2:
     inc E
     ret
 nesting3:
-    CP ';'
+    cp ';'
     jr Z,nesting4
-    CP ']'
+    cp ']'
     jr Z,nesting4
-    CP ')'
+    cp ')'
     ret NZ
 nesting4:
     dec E
@@ -664,7 +661,7 @@ str:
 str1:            
     ld a, (bc)
     inc bc
-    CP "`"                      ; ` is the string terminator
+    cp "`"                      ; ` is the string terminator
     jr Z,str2
     call putchar
     jr str1
@@ -757,7 +754,7 @@ loopVar:
 comment:
     inc bc                      ; point to next char
     ld a,(bc)
-    CP "\r"                     ; terminate at cr 
+    cp "\r"                     ; terminate at cr 
     jr NZ,comment
     dec bc
     jp   (IY) 
@@ -794,7 +791,7 @@ hex1:
 hex2:
     sub $30                     ; Form decimal digit
     jp C,num2
-    CP $0F+1
+    cp $0F+1
     jp NC,num2
     add hl,hl                   ; 2X ; Multiply digit(s) in hl by 16
     add hl,hl                   ; 4X
@@ -983,7 +980,7 @@ go1:
     ld hl,bc
     inc bc                      ; read next char from source
     ld a,(bc)                   ; if ; to tail call optimise
-    CP ";"                      ; by jumping to rather than calling destination
+    cp ";"                      ; by jumping to rather than calling destination
     jr Z,go2
     call rpush                  ; save Instruction Pointer
 go2:
@@ -1050,7 +1047,7 @@ editDef1:
 editDef2:        
     ld a,(de)
     call writeChar
-    CP ";"
+    cp ";"
     jr NZ,editDef1
 editDef3:        
     ld de,TIB
@@ -1133,7 +1130,7 @@ def1:                               ; Skip to end of definition
     inc bc                      ; Point to next character
     ld (de),A
     inc de
-    CP ";"                      ; Is it a semicolon 
+    cp ";"                      ; Is it a semicolon 
     jr Z, def2                  ; end the definition
     jr  def1                    ; get the next element
 def2:    

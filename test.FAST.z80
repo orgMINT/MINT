@@ -101,8 +101,10 @@ testsStart:
     test "0t! 10(/i 5</W /i 1 t+t!) t",5
     test "0t! [1 2 3] a! a/S (a /i? t+t!) t", 6
     test ":: 1 ; /G", 1
+    test ":: 1+ ; a! 3 a /G",4
     test "[:: 10 ;] 0? /G", 10
     test "[:: 10 ; :: 20 ; :: 30 ;] 2? /G",30
+    
     test "1 2 /D", 2
 
     CALL enter

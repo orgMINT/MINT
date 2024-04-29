@@ -18,10 +18,9 @@ testsStart:
 
     ; write your string containing a line of MINT code 
     ; followed by the expected value of the top of stack after running it
-    test "3 2 *", 6
-
+    test "0t! /u(/i 4 < /W t 1+ t!) t ", 4
+    
     ; if the tests succeed, "Done!" while be printed       
-    CALL enter
-    .cstr "`Done!`"
+    print "Done!"
     HALT
     
