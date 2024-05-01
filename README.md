@@ -729,19 +729,19 @@ commands from the keyboard.
 
 ### <a name='system-variables'></a>System variables
 
-| Symbol | Description                        | Effect |
-| ------ | ---------------------------------- | ------ |
-| /c     | carry variable                     | -- n   |
-| /e     | else condition                     | -- b   |
-| /f     | false condition                    | -- b   |
-| /h     | heap pointer variable              | -- a   |
-| /i     | loop variable                      | -- n   |
-| /j     | outer loop variable                | -- n   |
-| /k     | text input buffer pointer variable | -- a   |
-| /p     | address of last accessed variable  | -- a   |
-| /s     | stack start                        | -- a   |
-| /t     | true condition                     | -- b   |
-| /u     | unlimited loop                     | -- b   |
+| Symbol | Description                       | Effect |
+| ------ | --------------------------------- | ------ |
+| /c     | carry variable                    | -- n   |
+| /e     | else condition                    | -- b   |
+| /f     | false constant                    | -- b   |
+| /h     | heap pointer variable             | -- a   |
+| /i     | loop variable                     | -- n   |
+| /j     | outer loop variable               | -- n   |
+| /k     | address of text input buffer      | -- a   |
+| /p     | address of last accessed variable | -- a   |
+| /s     | address of start of stack         | -- a   |
+| /t     | true constant                     | -- b   |
+| /u     | unlimited loop constant           | -- b   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
