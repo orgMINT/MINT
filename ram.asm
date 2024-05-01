@@ -56,7 +56,7 @@ vTIBPtr:    DS 2                ; k
             DS 2                ; m  
             DS 2                ; n
             DS 2                ; o
-vPointer:   DS 2                ; p
+            DS 2                ; p
             DS 2                ; q
 vRemain:    DS 2                ; r     
 vStkStart:  DS 2                ; s
@@ -67,5 +67,7 @@ vUnlimited: DS 2                ; u
             DS 2                ; x     
             DS 2                ; y
 vLastDef:   DS 2                ; z
+
+vPointer:   DS 2                ; 
 
 HEAP:         

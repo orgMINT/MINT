@@ -132,7 +132,7 @@ iAltCodes:
     db     lsb(arrSize_)    ;S      array size
     db     lsb(aNop_)       ;T      
     db     lsb(aNop_)       ;U      
-    db     lsb(aNop_)       ;V
+    db     lsb(varAccess_)  ;V      address of last access
     db     lsb(while_)      ;W      conditional break from loop
     db     lsb(exec_)       ;X      execute machine code 
     db     lsb(aNop_)       ;Y
@@ -920,10 +920,6 @@ arrSize:
     push de
     jp (iy)
 
-bmode_:
-    ld a,$FF
-    jp setByteMode
-
 break_:
 while_:
 while:
@@ -1016,6 +1012,14 @@ outPort_:
     OUT (C),L
     ld C,E
     jp (IY)        
+
+varAccess_:
+    ld hl,vPointer
+    ld e,(hl)
+    inc hl
+    ld d,(hl)
+    push de
+    jp (iy)
 
 ;*******************************************************************
 ; Subroutines

@@ -706,9 +706,11 @@ commands from the keyboard.
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
-| Symbol | Description             | Effect |
-| ------ | ----------------------- | ------ |
-| !      | STORE a value to memory | n a -- |
+| Symbol | Description                       | Effect |
+| ------ | --------------------------------- | ------ |
+| a..z   | variable access                   | -- n   |
+| !      | STORE a value to memory           | n a -- |
+| /V     | address of last access.           | -- a   |
 
 ### <a name='array-operations'></a>Array Operations
 
@@ -740,10 +742,10 @@ commands from the keyboard.
 | /i     | loop variable                     | -- n   |
 | /j     | outer loop variable               | -- n   |
 | /k     | address of text input buffer      | -- a   |
-| /p     | address of last accessed variable | -- a   |
 | /s     | address of start of stack         | -- a   |
 | /t     | true constant                     | -- b   |
 | /u     | unlimited loop constant           | -- b   |
+| /z     | name of last defined function     | -- c   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
