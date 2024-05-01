@@ -40,9 +40,12 @@ MINT is a minimalist character-based interpreter but one which aims at fast perf
   - [Logical Operators](#logical-operators-1)
   - [Stack Operations](#stack-operations)
   - [Input & Output Operations](#input-&-output-operations)
+  - [Functions](#functions)
   - [Loops and conditional execution](#loops-and-conditional-execution)
   - [Memory and Variable Operations](#memory-and-variable-operations)
   - [Array Operations](#array-operations)
+  - [Byte Mode Operations](#byte-mode)
+  - [System variables](#system-variables)
   - [Miscellaneous](#miscellaneous)
   - [Utility commands](#utility-commands)
   - [Control keys](#control-keys)
@@ -372,23 +375,23 @@ the first item of the inner array with `0?` and prints the result (which is 2).
 ### <a name='byte-arrays'></a>Byte arrays
 
 MINT by default declares arrays of 16 bit words however it is also possible to declare
-and array of 8 bit byte values using `/B` which toggle MINT in and out of `byte mode`.
+and array of 8 bit byte values using `\` which toggle MINT in and out of `byte mode`.
 
 ```
- /B  [1 2 3] /B
+ \[1 2 3]
 ```
 
 The size of a byte array can be determined with the `/S` operator.
 The following code prints 3.
 
 ```
- /B  [1 2 3]/S /B   .
+ \[1 2 3]/S .
 ```
 
 The following prints 2
 
 ```
- /B  [1 2 3] 1? /B   .
+ \[1 2 3] 1\?   .
 ```
 
 ### <a name='memory-allocation'></a>Memory allocation
@@ -644,7 +647,6 @@ commands from the keyboard.
 | /      | 16-bit by 8-bit division DIV              | n n -- n |
 | +      | 16-bit integer addition ADD               | n n -- n |
 | \*     | 8-bit by 8-bit integer multiplication MUL | n n -- n |
-| /c     | carry variable                            | -- n     |
 
 ### <a name='logical-operators-1'></a>Logical Operators
 
@@ -659,8 +661,6 @@ commands from the keyboard.
 | ~      | 16-bit NOT           | n -- n   |
 | {      | shift left           | n -- n   |
 | }      | shift right          | --       |
-| /f     | false condition      | -- b     |
-| /t     | true condition       | -- b     |
 
 ### <a name='stack-operations'></a>Stack Operations
 
@@ -671,7 +671,6 @@ commands from the keyboard.
 | %      | over - take the 2nd member of the stack and copy to top of the stack | m n -- m n m |
 | $      | swap the top 2 members of the stack SWAP                             | m n -- n m   |
 | /D     | stack depth                                                          | -- n         |
-| /s     | stack start                                                          | -- a         |
 
 ### <a name='input-&-output-operations'></a>Input & Output Operations
 
@@ -684,7 +683,8 @@ commands from the keyboard.
 | /K     | read a char from input                         | -- n   |
 | /O     | output to an I/O port                          | n p -- |
 | /I     | input from a I/O port                          | p -- n |
-| /k     | text input buffer pointer variable             | -- a   |
+
+### <a name='functions'></a>Functions
 
 | Symbol | Description                     | Effect |
 | ------ | ------------------------------- | ------ |
@@ -700,19 +700,13 @@ commands from the keyboard.
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| /i     | loop variable                          | -- n   |
-| /j     | outer loop variable                    | -- n   |
 | /W     | if false break out of loop             | b --   |
-| /e     | else condition                         | -- b   |
-| /u     | unlimited loop                         | -- b   |
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
-| Symbol | Description                       | Effect |
-| ------ | --------------------------------- | ------ |
-| !      | STORE a value to memory           | n a -- |
-| /p     | address of last accessed variable | -- a   |
-| /h     | heap pointer variable             | -- a   |
+| Symbol | Description             | Effect |
+| ------ | ----------------------- | ------ |
+| !      | STORE a value to memory | n a -- |
 
 ### <a name='array-operations'></a>Array Operations
 
@@ -723,6 +717,31 @@ commands from the keyboard.
 | ?      | get array item            | a n -- n |
 | /S     | array size                | a -- n   |
 | /A     | allocate heap memory      | n -- a   |
+
+### <a name='byte-mode'></a>Byte Mode Operations
+
+| Symbol | Description                   | Effect   |
+| ------ | ----------------------------- | -------- |
+| \\     | put MINT into byte mode       | --       |
+| \\!    | STORE a byte to memory        | b a --   |
+| \\[    | begin a byte array definition | --       |
+| \\?    | get byte array item           | a n -- b |
+
+### <a name='system-variables'></a>System variables
+
+| Symbol | Description                        | Effect |
+| ------ | ---------------------------------- | ------ |
+| /c     | carry variable                     | -- n   |
+| /e     | else condition                     | -- b   |
+| /f     | false condition                    | -- b   |
+| /h     | heap pointer variable              | -- a   |
+| /i     | loop variable                      | -- n   |
+| /j     | outer loop variable                | -- n   |
+| /k     | text input buffer pointer variable | -- a   |
+| /p     | address of last accessed variable  | -- a   |
+| /s     | stack start                        | -- a   |
+| /t     | true condition                     | -- b   |
+| /u     | unlimited loop                     | -- b   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 

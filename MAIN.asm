@@ -112,10 +112,10 @@ iAltCodes:
 
     LITDAT 26
     db     lsb(alloc_)      ;A      allocate some heap memory
-    db     lsb(bmode_)      ;B      toggle byte mode  
+    db     lsb(aNop_)       ;B        
     db     lsb(printChar_)  ;C      print a char
     db     lsb(depth_)      ;D      depth of stack
-    db     lsb(aNop_)       ;E      else condition
+    db     lsb(aNop_)       ;E      
     db     lsb(false_)      ;F      false condition
     db     lsb(go_)         ;G      go execute mint code
     db     lsb(aNop_)       ;H
@@ -130,14 +130,13 @@ iAltCodes:
     db     lsb(aNop_)       ;Q
     db     lsb(aNop_)       ;R
     db     lsb(arrSize_)    ;S      array size
-    db     lsb(aNop_)       ;T      true condition
-    db     lsb(aNop_)       ;U      unlimited endless loops
+    db     lsb(aNop_)       ;T      
+    db     lsb(aNop_)       ;U      
     db     lsb(aNop_)       ;V
     db     lsb(while_)      ;W      conditional break from loop
     db     lsb(exec_)       ;X      execute machine code 
     db     lsb(aNop_)       ;Y
     db     lsb(editDef_)    ;Z      edit line
-
     ENDDAT 
 
 backSpace:
@@ -452,16 +451,6 @@ writeChar:
     inc hl
     jp putchar
 
-toggle:
-    ld a,(hl)
-    cpl
-    ld (hl),a
-    inc hl
-    ld a,(hl)
-    cpl
-    ld (hl),a
-    jp (iy)
-
 enter:                              
     ld hl,bc
     call rpush                      ; save Instruction Pointer
@@ -475,6 +464,16 @@ carry:
     ld (vCarry),hl
     jp (iy)              
 
+setByteMode:
+    ld a,$FF
+    jr assignByteMode
+resetByteMode:
+    xor a
+assignByteMode:
+    ld (vByteMode),a
+    ld (vByteMode+1),a
+    jp (iy)
+
 ; **********************************************************************			 
 ; Page 4 primitive routines 
 ; **********************************************************************
@@ -484,9 +483,42 @@ page4:
 quote_:                          ; Discard the top member of the stack
     pop     hl
 at_:
-bslash_:   
 underscore_: 
     jp (IY)
+
+bslash_:
+    jr setByteMode
+
+var_:
+    ld a,(bc)
+    ld hl,vars
+    call lookupRef
+var1:
+    ld (vPointer),hl
+    ld d,0
+    ld e,(hl)
+    ld a,(vByteMode)                   
+    inc a                       ; is it byte?
+    jr z,var2
+    inc hl
+    ld d,(hl)
+var2:
+    push de
+    jr resetByteMode
+
+bang_:                      ; Store the value at the address placed on the top of the stack
+assign:
+    pop hl                  ; discard value of last accessed variable
+    pop de                  ; new value
+    ld hl,(vPointer)
+    ld (hl),e          
+    ld a,(vByteMode)                   
+    inc a                   ; is it byte?
+    jr z,assign1
+    inc hl              
+    ld (hl),d          
+assign1:
+    jr resetByteMode
 
 amper_:        
     pop de                  ;     Bitwise and the top 2 elements of the stack
@@ -500,8 +532,7 @@ and1:
     ld h,a         
     push hl          
     jp (iy)           
-    
-                        
+
 pipe_: 		 
     pop de                  ; Bitwise or the top 2 elements of the stack
     pop hl
@@ -593,20 +624,6 @@ shr1:
     push hl
     jp (IY)                 
 
-bang_:                      ; Store the value at the address placed on the top of the stack
-assign:
-    pop hl                  ; discard value of last accessed variable
-    pop de                  ; new value
-    ld hl,(vPointer)
-    ld (hl),e          
-    ld a,(vByteMode)                   
-    inc a                   ; is it byte?
-    jr z,assign1
-    inc hl              
-    ld (hl),d          
-assign1:
-    jp (IY)            
-                              
 ; $ swap                    ; a b -- b a Swap the top 2 elements of the stack
 dollar_:        
     pop hl
@@ -676,23 +693,6 @@ arrDef:
     call rpush
     jp (iy)
 
-var_:
-    ld a,(bc)
-    ld hl,vars
-    call lookupRef
-var1:
-    ld (vPointer),hl
-    ld d,0
-    ld e,(hl)
-    ld a,(vByteMode)                   
-    inc a                       ; is it byte?
-    jr z,var2
-    inc hl
-    ld d,(hl)
-var2:
-    push de
-    jp (iy)
-    
 num_:   
     jp num
 rparen_: 
@@ -703,7 +703,7 @@ colon_:
     jp def
 lparen_: 
     jp begin
-
+    
 question_:
     jr arrAccess
 hash_:
@@ -723,8 +723,6 @@ alt:
     jr nc,alt1
     cp "a"
     jr nc,altVar
-    cp BSLASH
-    jr z,comment
     cp "Z"+1
     jr nc,alt1
     cp "A"
@@ -742,14 +740,14 @@ altVar:
     jr z,loopVar
     ld hl,altVars
     call lookupRef
-    jr var1                    
+    jp var1                    
 
 loopVar:    
     ld h,0
     ld d,ixh
     ld e,ixl
     add hl,de
-    jr var1
+    jp var1
 
 comment:
     inc bc                      ; point to next char
@@ -778,7 +776,7 @@ arrAccess:
     add hl,hl                   ; if data width = 2 then double 
 arrAccess1:
     add hl,de                   ; hl = addr
-    jr var1
+    jp var1
 
 hex:
     ld hl,0	    		        ; Clear hl to accept the number
@@ -923,8 +921,8 @@ arrSize:
     jp (iy)
 
 bmode_:
-    ld hl,vByteMode
-    jp toggle
+    ld a,$FF
+    jp setByteMode
 
 break_:
 while_:
@@ -1222,7 +1220,7 @@ arrayEnd2:
     push hl                     ; return array[0]
     ld (vHeapPtr),de            ; move heap* to end of array
     ld bc,(vTemp1)              ; restore IP
-    jp (iy)
+    jp resetByteMode
 
 div:
     ld hl,bc                    ; hl = IP
