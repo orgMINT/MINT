@@ -375,7 +375,7 @@ the first item of the inner array with `0?` and prints the result (which is 2).
 ### <a name='byte-arrays'></a>Byte arrays
 
 MINT by default declares arrays of 16 bit words however it is also possible to declare
-and array of 8 bit byte values using `\` which toggle MINT in and out of `byte mode`.
+and array of 8 bit byte values by using `\` which puts MINT into `byte mode`. 
 
 ```
  \[1 2 3]
@@ -385,7 +385,7 @@ The size of a byte array can be determined with the `/S` operator.
 The following code prints 3.
 
 ```
- \[1 2 3]/S .
+ \[1 2 3] /S .
 ```
 
 The following prints 2
@@ -393,6 +393,8 @@ The following prints 2
 ```
  \[1 2 3] 1\?   .
 ```
+
+Note: MINT will leave byte mode (and return to normal word mode) after it executes a `]`, `?` or `!`  
 
 ### <a name='memory-allocation'></a>Memory allocation
 
