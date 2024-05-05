@@ -218,7 +218,7 @@ prints `0`
 0 0 = .
 ```
 
-prints `1`
+prints `-1`
 
 MINT has a set of bitwise logical operators that can be used to manipulate bits. These operators are:
 
