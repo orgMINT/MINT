@@ -1151,13 +1151,13 @@
 04DD                NUM_:        
 04DD   C3 3E 07               JP   num   
 04E0                RPAREN_:      
-04E0   C3 C0 05               JP   again   ; close loop
+04E0   C3 C4 05               JP   again   ; close loop
 04E3                RBRACK_:      
 04E3   C3 6E 07               JP   arrEnd   
 04E6                COLON_:      
 04E6   C3 11 07               JP   def   
 04E9                LPAREN_:      
-04E9   C3 86 05               JP   begin   
+04E9   C3 8A 05               JP   begin   
 04EC                QUESTION_:      
 04EC   18 50                  JR   arrAccess   
 04EE                HASH_:       
@@ -1246,97 +1246,100 @@
 0566   6F                     LD   L,A   
 0567   C3 4E 05               JP   hex1   
 056A                MUL:         
-056A   D1                     POP   de   ; get first value
-056B   E1                     POP   hl   
-056C   C5                     PUSH   bc   ; Preserve the IP
-056D   44                     LD   B,H   ; bc = 2nd value
-056E   4D                     LD   C,L   
-056F   21 00 00               LD   hl,0   
-0572   3E 10                  LD   a,16   
-0574                MUL2:        
+056A   D1                     POP   de   ; de = 2nd arg
+056B   E1                     POP   hl   ; hl = 1st arg
+056C   C5                     PUSH   bc   ; save IP
+056D   7D                     LD   a,l   
+056E   4C                     LD   c,h   
+056F   06 10                  LD   b,16   
+0571   21 00 00               LD   hl,0   
+0574                MUL1:        
 0574   29                     ADD   hl,hl   
-0575   CB 13                  RL   E   
-0577   CB 12                  RL   D   
-0579   30 04                  JR   NC,$+6   
-057B   09                     ADD   hl,bc   
-057C   30 01                  JR   NC,$+3   
-057E   13                     INC   de   
-057F   3D                     DEC   A   
-0580   20 F2                  JR   NZ,mul2   
-0582   C1                     POP   bc   ; Restore the IP
-0583   E5                     PUSH   hl   ; Put the product on the stack - stack bug fixed 2/12/21
-0584   FD E9                  JP   (iy)   
-0586                BEGIN:       
-0586                LOOPSTART:      
-0586   ED 43 02 0A            LD   (vTemp1),bc   ; save start
-058A   1E 01                  LD   e,1   ; skip to loop end, nesting = 1
-058C                LOOPSTART1:      
-058C   03                     INC   bc   
-058D   0A                     LD   a,(bc)   
-058E   CD 5B 03               CALL   nesting   ; affects zero flag
-0591   20 F9                  JR   nz,loopStart1   
-0593   D1                     POP   de   ; de = limit
-0594   7B                     LD   a,e   ; is it zero?
-0595   B2                     OR   d   
-0596   20 07                  JR   nz,loopStart2   
-0598   1B                     DEC   de   ; de = TRUE
-0599   ED 53 9E 0C            LD   (vElse),de   
-059D   18 1F                  JR   loopStart4   ; yes continue after skip
-059F                LOOPSTART2:      
-059F   3E 02                  LD   a,2   ; is it TRUE
-05A1   83                     ADD   a,e   
-05A2   82                     ADD   a,d   
-05A3   20 03                  JR   nz,loopStart3   
-05A5   11 01 00               LD   de,1   ; yes make it 1
-05A8                LOOPSTART3:      
-05A8   60 69                  LD   hl,bc   
-05AA   CD A2 03               CALL   rpush   ; rpush loop end
-05AD   0B                     DEC   bc   ; IP points to ")"
-05AE   2A 02 0A               LD   hl,(vTemp1)   ; restore start
-05B1   CD A2 03               CALL   rpush   ; rpush start
-05B4   EB                     EX   de,hl   ; hl = limit
-05B5   CD A2 03               CALL   rpush   ; rpush limit
-05B8   21 FF FF               LD   hl,-1   ; hl = count = -1
-05BB   CD A2 03               CALL   rpush   ; rpush count
-05BE                LOOPSTART4:      
-05BE   FD E9                  JP   (iy)   
-05C0                AGAIN:       
-05C0                LOOPEND:      
-05C0   DD 5E 02               LD   e,(ix+2)   ; de = limit
-05C3   DD 56 03               LD   d,(ix+3)   
-05C6   7B                     LD   a,e   ; a = lsb(limit)
-05C7   B2                     OR   d   ; if limit 0 exit loop
-05C8   28 2B                  JR   z,loopEnd4   
-05CA   13                     INC   de   ; is limit -2
-05CB   13                     INC   de   
-05CC   7B                     LD   a,e   ; a = lsb(limit)
-05CD   B2                     OR   d   ; if limit 0 exit loop
-05CE   28 09                  JR   z,loopEnd2   ; yes, loop again
-05D0   1B                     DEC   de   
-05D1   1B                     DEC   de   
-05D2   1B                     DEC   de   
-05D3   DD 73 02               LD   (ix+2),e   
-05D6   DD 72 03               LD   (ix+3),d   
-05D9                LOOPEND2:      
-05D9   DD 5E 00               LD   e,(ix+0)   ; inc counter
-05DC   DD 56 01               LD   d,(ix+1)   
-05DF   13                     INC   de   
-05E0   DD 73 00               LD   (ix+0),e   
-05E3   DD 72 01               LD   (ix+1),d   
-05E6                LOOPEND3:      
-05E6   11 00 00               LD   de,FALSE   ; if clause ran then vElse = FALSE
-05E9   ED 53 9E 0C            LD   (vElse),de   
-05ED   DD 4E 04               LD   c,(ix+4)   ; IP = start
-05F0   DD 46 05               LD   b,(ix+5)   
-05F3   FD E9                  JP   (iy)   
-05F5                LOOPEND4:      
-05F5   11 08 00               LD   de,2*4   ; rpop frame
-05F8   DD 19                  ADD   ix,de   
-05FA   FD E9                  JP   (iy)   
-05FC                             ; **************************************************************************
-05FC                             ; Page 6 Alt primitives
-05FC                             ; **************************************************************************
-05FC                          ALIGN   $100   
+0575   17                     RLA      
+0576   CB 11                  RL   c   
+0578   30 07                  JR   nc,mul2   
+057A   19                     ADD   hl,de   
+057B   CE 00                  ADC   a,0   
+057D   D2 81 05               JP   nc,mul2   
+0580   0C                     INC   c   
+0581                MUL2:        
+0581   10 F1                  DJNZ   mul1   
+0583   EB                     EX   de,hl   ; de = lsw result
+0584   61                     LD   h,c   
+0585   6F                     LD   l,a   ; hl = msw result
+0586   C1                     POP   bc   ; restore IP
+0587   C3 F8 07               JP   divExit   ; pushes lsw, puts msw in vRemain
+058A                BEGIN:       
+058A                LOOPSTART:      
+058A   ED 43 02 0A            LD   (vTemp1),bc   ; save start
+058E   1E 01                  LD   e,1   ; skip to loop end, nesting = 1
+0590                LOOPSTART1:      
+0590   03                     INC   bc   
+0591   0A                     LD   a,(bc)   
+0592   CD 5B 03               CALL   nesting   ; affects zero flag
+0595   20 F9                  JR   nz,loopStart1   
+0597   D1                     POP   de   ; de = limit
+0598   7B                     LD   a,e   ; is it zero?
+0599   B2                     OR   d   
+059A   20 07                  JR   nz,loopStart2   
+059C   1B                     DEC   de   ; de = TRUE
+059D   ED 53 9E 0C            LD   (vElse),de   
+05A1   18 1F                  JR   loopStart4   ; yes continue after skip
+05A3                LOOPSTART2:      
+05A3   3E 02                  LD   a,2   ; is it TRUE
+05A5   83                     ADD   a,e   
+05A6   82                     ADD   a,d   
+05A7   20 03                  JR   nz,loopStart3   
+05A9   11 01 00               LD   de,1   ; yes make it 1
+05AC                LOOPSTART3:      
+05AC   60 69                  LD   hl,bc   
+05AE   CD A2 03               CALL   rpush   ; rpush loop end
+05B1   0B                     DEC   bc   ; IP points to ")"
+05B2   2A 02 0A               LD   hl,(vTemp1)   ; restore start
+05B5   CD A2 03               CALL   rpush   ; rpush start
+05B8   EB                     EX   de,hl   ; hl = limit
+05B9   CD A2 03               CALL   rpush   ; rpush limit
+05BC   21 FF FF               LD   hl,-1   ; hl = count = -1
+05BF   CD A2 03               CALL   rpush   ; rpush count
+05C2                LOOPSTART4:      
+05C2   FD E9                  JP   (iy)   
+05C4                AGAIN:       
+05C4                LOOPEND:      
+05C4   DD 5E 02               LD   e,(ix+2)   ; de = limit
+05C7   DD 56 03               LD   d,(ix+3)   
+05CA   7B                     LD   a,e   ; a = lsb(limit)
+05CB   B2                     OR   d   ; if limit 0 exit loop
+05CC   28 2B                  JR   z,loopEnd4   
+05CE   13                     INC   de   ; is limit -2
+05CF   13                     INC   de   
+05D0   7B                     LD   a,e   ; a = lsb(limit)
+05D1   B2                     OR   d   ; if limit 0 exit loop
+05D2   28 09                  JR   z,loopEnd2   ; yes, loop again
+05D4   1B                     DEC   de   
+05D5   1B                     DEC   de   
+05D6   1B                     DEC   de   
+05D7   DD 73 02               LD   (ix+2),e   
+05DA   DD 72 03               LD   (ix+3),d   
+05DD                LOOPEND2:      
+05DD   DD 5E 00               LD   e,(ix+0)   ; inc counter
+05E0   DD 56 01               LD   d,(ix+1)   
+05E3   13                     INC   de   
+05E4   DD 73 00               LD   (ix+0),e   
+05E7   DD 72 01               LD   (ix+1),d   
+05EA                LOOPEND3:      
+05EA   11 00 00               LD   de,FALSE   ; if clause ran then vElse = FALSE
+05ED   ED 53 9E 0C            LD   (vElse),de   
+05F1   DD 4E 04               LD   c,(ix+4)   ; IP = start
+05F4   DD 46 05               LD   b,(ix+5)   
+05F7   FD E9                  JP   (iy)   
+05F9                LOOPEND4:      
+05F9   11 08 00               LD   de,2*4   ; rpop frame
+05FC   DD 19                  ADD   ix,de   
+05FE   FD E9                  JP   (iy)   
+0600                             ; **************************************************************************
+0600                             ; Page 6 Alt primitives
+0600                             ; **************************************************************************
+0600                          ALIGN   $100   
 0600                PAGE6:       
 0600                             ; allocates raw heap memory in bytes (ignores byte mode)
 0600                             ; n -- a
@@ -1368,7 +1371,7 @@
 0616   20 09                  JR   nz,while2   
 0618   DD 4E 06               LD   c,(ix+6)   ; IP = )
 061B   DD 46 07               LD   b,(ix+7)   
-061E   C3 F5 05               JP   loopEnd4   
+061E   C3 F9 05               JP   loopEnd4   
 0621                WHILE2:      
 0621   FD E9                  JP   (iy)   
 0623                DEPTH_:      
@@ -1710,6 +1713,7 @@
 07F6   57                     LD   d,a   
 07F7                DIV10:       
 07F7   C1                     POP   bc   
+07F8                DIVEXIT:      
 07F8   D5                     PUSH   de   ; quotient
 07F9   22 8A 0C               LD   (vRemain),hl   ; remainder
 07FC   FD E9                  JP   (iy)   
@@ -1753,30 +1757,30 @@
 0C68                ALTVARS:      
 0C68                          DS   2   ; a
 0C6A                VBYTEMODE:   DS   2   ; b
-0C6C                VCARRY:   DS   2   ; c
+0C6C                VCARRY:   DS   2   ; c carry variable
 0C6E                          DS   2   ; d
 0C70                          DS   2   ; e
 0C72                          DS   2   ; f
 0C74                          DS   2   ; g
-0C76                VHEAPPTR:   DS   2   ; h
-0C78                          DS   2   ; i
-0C7A                          DS   2   ; j
-0C7C                VTIBPTR:   DS   2   ; k
+0C76                VHEAPPTR:   DS   2   ; h heap pointer variable
+0C78                          DS   2   ; i loop variable
+0C7A                          DS   2   ; j outer loop variable
+0C7C                VTIBPTR:   DS   2   ; k address of text input buffer
 0C7E                          DS   2   ; l
 0C80                          DS   2   ; m
 0C82                          DS   2   ; n
 0C84                          DS   2   ; o
 0C86                          DS   2   ; p
 0C88                          DS   2   ; q
-0C8A                VREMAIN:   DS   2   ; r
-0C8C                VSTKSTART:   DS   2   ; s
+0C8A                VREMAIN:   DS   2   ; r remainder of last division
+0C8C                VSTKSTART:   DS   2   ; s address of start of stack
 0C8E                          DS   2   ; t
 0C90                          DS   2   ; u
 0C92                          DS   2   ; v
 0C94                          DS   2   ; w
 0C96                          DS   2   ; x
 0C98                          DS   2   ; y
-0C9A                VLASTDEF:   DS   2   ; z
+0C9A                VLASTDEF:   DS   2   ; z name of last defined function
 0C9C                VPOINTER:   DS   2   ; 
 0C9E                VELSE:    DS   2   ; 
 0CA0                HEAP:        
@@ -1871,7 +1875,7 @@ RXCHAR:             0078 DEFINED AT LINE 310 IN IOSerial.asm
                     > USED AT LINE 314 IN IOSerial.asm
 GETCHAR:            0081 DEFINED AT LINE 434 IN IOSerial.asm
                     > USED AT LINE 183 IN MAIN.asm
-                    > USED AT LINE 1000 IN MAIN.asm
+                    > USED AT LINE 1002 IN MAIN.asm
 PUTCHAR:            0085 DEFINED AT LINE 438 IN IOSerial.asm
                     > USED AT LINE 220 IN MAIN.asm
                     > USED AT LINE 362 IN MAIN.asm
@@ -1879,16 +1883,16 @@ PUTCHAR:            0085 DEFINED AT LINE 438 IN IOSerial.asm
                     > USED AT LINE 448 IN MAIN.asm
                     > USED AT LINE 589 IN MAIN.asm
                     > USED AT LINE 687 IN MAIN.asm
-                    > USED AT LINE 956 IN MAIN.asm
-                    > USED AT LINE 1084 IN MAIN.asm
-                    > USED AT LINE 1125 IN MAIN.asm
+                    > USED AT LINE 958 IN MAIN.asm
+                    > USED AT LINE 1086 IN MAIN.asm
+                    > USED AT LINE 1127 IN MAIN.asm
 RESET:              008B DEFINED AT LINE 444 IN IOSerial.asm
                     > USED AT LINE 103 IN IOSerial.asm
 TRUE:               00-1 DEFINED AT LINE 13 IN MAIN.asm
                     > USED AT LINE 478 IN MAIN.asm
 FALSE:              0000 DEFINED AT LINE 14 IN MAIN.asm
                     > USED AT LINE 474 IN MAIN.asm
-                    > USED AT LINE 888 IN MAIN.asm
+                    > USED AT LINE 890 IN MAIN.asm
 UNLIMITED:          00-1 DEFINED AT LINE 15 IN MAIN.asm
 CTRL_C:             0003 DEFINED AT LINE 17 IN MAIN.asm
                     > USED AT LINE 250 IN MAIN.asm
@@ -1962,8 +1966,8 @@ INITOPS2A:          0323 DEFINED AT LINE 316 IN MAIN.asm
                     > USED AT LINE 319 IN MAIN.asm
 LOOKUPREF0:         0329 DEFINED AT LINE 322 IN MAIN.asm
                     > USED AT LINE 578 IN MAIN.asm
-                    > USED AT LINE 1052 IN MAIN.asm
-                    > USED AT LINE 1142 IN MAIN.asm
+                    > USED AT LINE 1054 IN MAIN.asm
+                    > USED AT LINE 1144 IN MAIN.asm
 LOOKUPREF:          0330 DEFINED AT LINE 326 IN MAIN.asm
                     > USED AT LINE 501 IN MAIN.asm
                     > USED AT LINE 746 IN MAIN.asm
@@ -1979,7 +1983,7 @@ PRINTHEX3:          0350 DEFINED AT LINE 356 IN MAIN.asm
 NESTING:            035B DEFINED AT LINE 374 IN MAIN.asm
                     > USED AT LINE 174 IN MAIN.asm
                     > USED AT LINE 221 IN MAIN.asm
-                    > USED AT LINE 836 IN MAIN.asm
+                    > USED AT LINE 838 IN MAIN.asm
 NESTING1:           0364 DEFINED AT LINE 381 IN MAIN.asm
                     > USED AT LINE 376 IN MAIN.asm
 NESTING2:           0373 DEFINED AT LINE 390 IN MAIN.asm
@@ -1992,10 +1996,10 @@ NESTING4:           0380 DEFINED AT LINE 400 IN MAIN.asm
                     > USED AT LINE 397 IN MAIN.asm
 PROMPT:             0382 DEFINED AT LINE 404 IN MAIN.asm
                     > USED AT LINE 158 IN MAIN.asm
-                    > USED AT LINE 978 IN MAIN.asm
+                    > USED AT LINE 980 IN MAIN.asm
 CRLF:               038B DEFINED AT LINE 409 IN MAIN.asm
                     > USED AT LINE 233 IN MAIN.asm
-                    > USED AT LINE 1015 IN MAIN.asm
+                    > USED AT LINE 1017 IN MAIN.asm
 PRINTSTR:           0392 DEFINED AT LINE 414 IN MAIN.asm
                     > USED AT LINE 147 IN MAIN.asm
                     > USED AT LINE 154 IN MAIN.asm
@@ -2008,20 +2012,20 @@ PUTSTR:             039D DEFINED AT LINE 424 IN MAIN.asm
 RPUSH:              03A2 DEFINED AT LINE 430 IN MAIN.asm
                     > USED AT LINE 452 IN MAIN.asm
                     > USED AT LINE 697 IN MAIN.asm
-                    > USED AT LINE 853 IN MAIN.asm
-                    > USED AT LINE 856 IN MAIN.asm
+                    > USED AT LINE 855 IN MAIN.asm
                     > USED AT LINE 858 IN MAIN.asm
                     > USED AT LINE 860 IN MAIN.asm
-                    > USED AT LINE 992 IN MAIN.asm
+                    > USED AT LINE 862 IN MAIN.asm
+                    > USED AT LINE 994 IN MAIN.asm
 RPOP:               03AD DEFINED AT LINE 437 IN MAIN.asm
                     > USED AT LINE 263 IN MAIN.asm
                     > USED AT LINE 614 IN MAIN.asm
-                    > USED AT LINE 1202 IN MAIN.asm
+                    > USED AT LINE 1204 IN MAIN.asm
 RPOP2:              03B7 DEFINED AT LINE 442 IN MAIN.asm
 WRITECHAR:          03B8 DEFINED AT LINE 445 IN MAIN.asm
-                    > USED AT LINE 1061 IN MAIN.asm
                     > USED AT LINE 1063 IN MAIN.asm
-                    > USED AT LINE 1069 IN MAIN.asm
+                    > USED AT LINE 1065 IN MAIN.asm
+                    > USED AT LINE 1071 IN MAIN.asm
 ENTER:              03BD DEFINED AT LINE 450 IN MAIN.asm
                     > USED AT LINE 210 IN MAIN.asm
 CARRY:              03C6 DEFINED AT LINE 457 IN MAIN.asm
@@ -2032,17 +2036,17 @@ SETBYTEMODE:        03D0 DEFINED AT LINE 463 IN MAIN.asm
 RESETBYTEMODE:      03D4 DEFINED AT LINE 466 IN MAIN.asm
                     > USED AT LINE 513 IN MAIN.asm
                     > USED AT LINE 527 IN MAIN.asm
-                    > USED AT LINE 1245 IN MAIN.asm
+                    > USED AT LINE 1247 IN MAIN.asm
 ASSIGNBYTEMODE:     03D5 DEFINED AT LINE 468 IN MAIN.asm
                     > USED AT LINE 465 IN MAIN.asm
 FALSE_:             03DD DEFINED AT LINE 473 IN MAIN.asm
                     > USED AT LINE 661 IN MAIN.asm
                     > USED AT LINE 676 IN MAIN.asm
-                    > USED AT LINE 951 IN MAIN.asm
+                    > USED AT LINE 953 IN MAIN.asm
 TRUE_:              03E2 DEFINED AT LINE 477 IN MAIN.asm
                     > USED AT LINE 660 IN MAIN.asm
                     > USED AT LINE 675 IN MAIN.asm
-                    > USED AT LINE 1028 IN MAIN.asm
+                    > USED AT LINE 1030 IN MAIN.asm
 TRUE1:              03E5 DEFINED AT LINE 479 IN MAIN.asm
                     > USED AT LINE 475 IN MAIN.asm
 PAGE4:              0400 DEFINED AT LINE 487 IN MAIN.asm
@@ -2087,7 +2091,7 @@ SEMI_:              0480 DEFINED AT LINE 613 IN MAIN.asm
 LBRACE_:            0487 DEFINED AT LINE 619 IN MAIN.asm
 RBRACE_:            048B DEFINED AT LINE 625 IN MAIN.asm
 SHR1:               048C DEFINED AT LINE 627 IN MAIN.asm
-                    > USED AT LINE 948 IN MAIN.asm
+                    > USED AT LINE 950 IN MAIN.asm
 DOLLAR_:            0492 DEFINED AT LINE 633 IN MAIN.asm
 MINUS_:             0496 DEFINED AT LINE 638 IN MAIN.asm
 SUB1:               04A2 DEFINED AT LINE 646 IN MAIN.asm
@@ -2141,136 +2145,141 @@ HEX2:               0557 DEFINED AT LINE 793 IN MAIN.asm
                     > USED AT LINE 791 IN MAIN.asm
 MUL:                056A DEFINED AT LINE 806 IN MAIN.asm
                     > USED AT LINE 716 IN MAIN.asm
-MUL2:               0574 DEFINED AT LINE 815 IN MAIN.asm
+MUL1:               0574 DEFINED AT LINE 814 IN MAIN.asm
                     > USED AT LINE 824 IN MAIN.asm
-BEGIN:              0586 DEFINED AT LINE 829 IN MAIN.asm
+MUL2:               0581 DEFINED AT LINE 823 IN MAIN.asm
+                    > USED AT LINE 818 IN MAIN.asm
+                    > USED AT LINE 821 IN MAIN.asm
+BEGIN:              058A DEFINED AT LINE 831 IN MAIN.asm
                     > USED AT LINE 709 IN MAIN.asm
-LOOPSTART:          0586 DEFINED AT LINE 830 IN MAIN.asm
-LOOPSTART1:         058C DEFINED AT LINE 833 IN MAIN.asm
-                    > USED AT LINE 837 IN MAIN.asm
-LOOPSTART2:         059F DEFINED AT LINE 845 IN MAIN.asm
-                    > USED AT LINE 841 IN MAIN.asm
-LOOPSTART3:         05A8 DEFINED AT LINE 851 IN MAIN.asm
-                    > USED AT LINE 849 IN MAIN.asm
-LOOPSTART4:         05BE DEFINED AT LINE 861 IN MAIN.asm
-                    > USED AT LINE 844 IN MAIN.asm
-AGAIN:              05C0 DEFINED AT LINE 864 IN MAIN.asm
+LOOPSTART:          058A DEFINED AT LINE 832 IN MAIN.asm
+LOOPSTART1:         0590 DEFINED AT LINE 835 IN MAIN.asm
+                    > USED AT LINE 839 IN MAIN.asm
+LOOPSTART2:         05A3 DEFINED AT LINE 847 IN MAIN.asm
+                    > USED AT LINE 843 IN MAIN.asm
+LOOPSTART3:         05AC DEFINED AT LINE 853 IN MAIN.asm
+                    > USED AT LINE 851 IN MAIN.asm
+LOOPSTART4:         05C2 DEFINED AT LINE 863 IN MAIN.asm
+                    > USED AT LINE 846 IN MAIN.asm
+AGAIN:              05C4 DEFINED AT LINE 866 IN MAIN.asm
                     > USED AT LINE 703 IN MAIN.asm
-LOOPEND:            05C0 DEFINED AT LINE 865 IN MAIN.asm
-LOOPEND2:           05D9 DEFINED AT LINE 881 IN MAIN.asm
-                    > USED AT LINE 875 IN MAIN.asm
-LOOPEND3:           05E6 DEFINED AT LINE 887 IN MAIN.asm
-LOOPEND4:           05F5 DEFINED AT LINE 893 IN MAIN.asm
-                    > USED AT LINE 870 IN MAIN.asm
-                    > USED AT LINE 936 IN MAIN.asm
-PAGE6:              0600 DEFINED AT LINE 902 IN MAIN.asm
+LOOPEND:            05C4 DEFINED AT LINE 867 IN MAIN.asm
+LOOPEND2:           05DD DEFINED AT LINE 883 IN MAIN.asm
+                    > USED AT LINE 877 IN MAIN.asm
+LOOPEND3:           05EA DEFINED AT LINE 889 IN MAIN.asm
+LOOPEND4:           05F9 DEFINED AT LINE 895 IN MAIN.asm
+                    > USED AT LINE 872 IN MAIN.asm
+                    > USED AT LINE 938 IN MAIN.asm
+PAGE6:              0600 DEFINED AT LINE 904 IN MAIN.asm
                     > USED AT LINE 770 IN MAIN.asm
-ALLOC_:             0600 DEFINED AT LINE 906 IN MAIN.asm
-ANOP_:              0609 DEFINED AT LINE 912 IN MAIN.asm
-ARRSIZE_:           060B DEFINED AT LINE 917 IN MAIN.asm
-ARRSIZE:            060B DEFINED AT LINE 918 IN MAIN.asm
-BREAK_:             0613 DEFINED AT LINE 927 IN MAIN.asm
-WHILE_:             0613 DEFINED AT LINE 928 IN MAIN.asm
-WHILE:              0613 DEFINED AT LINE 929 IN MAIN.asm
-WHILE2:             0621 DEFINED AT LINE 937 IN MAIN.asm
-                    > USED AT LINE 933 IN MAIN.asm
-DEPTH_:             0623 DEFINED AT LINE 940 IN MAIN.asm
-DEPTH:              0623 DEFINED AT LINE 941 IN MAIN.asm
-FALSEX_:            0631 DEFINED AT LINE 950 IN MAIN.asm
-PRINTCHAR_:         0634 DEFINED AT LINE 953 IN MAIN.asm
-ELSE_:              063B DEFINED AT LINE 959 IN MAIN.asm
-ELSE1:              063E DEFINED AT LINE 961 IN MAIN.asm
-                    > USED AT LINE 1003 IN MAIN.asm
-                    > USED AT LINE 1012 IN MAIN.asm
-                    > USED AT LINE 1032 IN MAIN.asm
-EXEC_:              0641 DEFINED AT LINE 965 IN MAIN.asm
-EXEC1:              0646 DEFINED AT LINE 968 IN MAIN.asm
-                    > USED AT LINE 966 IN MAIN.asm
-EDITDEF_:           0649 DEFINED AT LINE 973 IN MAIN.asm
-PROMPT_:            064E DEFINED AT LINE 977 IN MAIN.asm
-GO_:                0653 DEFINED AT LINE 981 IN MAIN.asm
-GO1:                0654 DEFINED AT LINE 983 IN MAIN.asm
+ALLOC_:             0600 DEFINED AT LINE 908 IN MAIN.asm
+ANOP_:              0609 DEFINED AT LINE 914 IN MAIN.asm
+ARRSIZE_:           060B DEFINED AT LINE 919 IN MAIN.asm
+ARRSIZE:            060B DEFINED AT LINE 920 IN MAIN.asm
+BREAK_:             0613 DEFINED AT LINE 929 IN MAIN.asm
+WHILE_:             0613 DEFINED AT LINE 930 IN MAIN.asm
+WHILE:              0613 DEFINED AT LINE 931 IN MAIN.asm
+WHILE2:             0621 DEFINED AT LINE 939 IN MAIN.asm
+                    > USED AT LINE 935 IN MAIN.asm
+DEPTH_:             0623 DEFINED AT LINE 942 IN MAIN.asm
+DEPTH:              0623 DEFINED AT LINE 943 IN MAIN.asm
+FALSEX_:            0631 DEFINED AT LINE 952 IN MAIN.asm
+PRINTCHAR_:         0634 DEFINED AT LINE 955 IN MAIN.asm
+ELSE_:              063B DEFINED AT LINE 961 IN MAIN.asm
+ELSE1:              063E DEFINED AT LINE 963 IN MAIN.asm
+                    > USED AT LINE 1005 IN MAIN.asm
+                    > USED AT LINE 1014 IN MAIN.asm
+                    > USED AT LINE 1034 IN MAIN.asm
+EXEC_:              0641 DEFINED AT LINE 967 IN MAIN.asm
+EXEC1:              0646 DEFINED AT LINE 970 IN MAIN.asm
+                    > USED AT LINE 968 IN MAIN.asm
+EDITDEF_:           0649 DEFINED AT LINE 975 IN MAIN.asm
+PROMPT_:            064E DEFINED AT LINE 979 IN MAIN.asm
+GO_:                0653 DEFINED AT LINE 983 IN MAIN.asm
+GO1:                0654 DEFINED AT LINE 985 IN MAIN.asm
                     > USED AT LINE 582 IN MAIN.asm
-GO2:                0663 DEFINED AT LINE 993 IN MAIN.asm
-                    > USED AT LINE 991 IN MAIN.asm
-GO3:                0666 DEFINED AT LINE 996 IN MAIN.asm
-                    > USED AT LINE 986 IN MAIN.asm
-KEY_:               0668 DEFINED AT LINE 999 IN MAIN.asm
-INPORT_:            0670 DEFINED AT LINE 1005 IN MAIN.asm
-NEWLN_:             067A DEFINED AT LINE 1014 IN MAIN.asm
-OUTPORT_:           067F DEFINED AT LINE 1018 IN MAIN.asm
-TRUEX_:             0688 DEFINED AT LINE 1027 IN MAIN.asm
-UNLIMIT_:           068B DEFINED AT LINE 1030 IN MAIN.asm
-VARACCESS_:         0690 DEFINED AT LINE 1034 IN MAIN.asm
-EDITDEF:            0699 DEFINED AT LINE 1046 IN MAIN.asm
-                    > USED AT LINE 974 IN MAIN.asm
-EDITDEF1:           06B6 DEFINED AT LINE 1065 IN MAIN.asm
-                    > USED AT LINE 1071 IN MAIN.asm
-EDITDEF2:           06B7 DEFINED AT LINE 1067 IN MAIN.asm
-                    > USED AT LINE 1064 IN MAIN.asm
-EDITDEF3:           06BF DEFINED AT LINE 1072 IN MAIN.asm
-                    > USED AT LINE 1059 IN MAIN.asm
-PRINTDEC:           06C9 DEFINED AT LINE 1080 IN MAIN.asm
+GO2:                0663 DEFINED AT LINE 995 IN MAIN.asm
+                    > USED AT LINE 993 IN MAIN.asm
+GO3:                0666 DEFINED AT LINE 998 IN MAIN.asm
+                    > USED AT LINE 988 IN MAIN.asm
+KEY_:               0668 DEFINED AT LINE 1001 IN MAIN.asm
+INPORT_:            0670 DEFINED AT LINE 1007 IN MAIN.asm
+NEWLN_:             067A DEFINED AT LINE 1016 IN MAIN.asm
+OUTPORT_:           067F DEFINED AT LINE 1020 IN MAIN.asm
+TRUEX_:             0688 DEFINED AT LINE 1029 IN MAIN.asm
+UNLIMIT_:           068B DEFINED AT LINE 1032 IN MAIN.asm
+VARACCESS_:         0690 DEFINED AT LINE 1036 IN MAIN.asm
+EDITDEF:            0699 DEFINED AT LINE 1048 IN MAIN.asm
+                    > USED AT LINE 976 IN MAIN.asm
+EDITDEF1:           06B6 DEFINED AT LINE 1067 IN MAIN.asm
+                    > USED AT LINE 1073 IN MAIN.asm
+EDITDEF2:           06B7 DEFINED AT LINE 1069 IN MAIN.asm
+                    > USED AT LINE 1066 IN MAIN.asm
+EDITDEF3:           06BF DEFINED AT LINE 1074 IN MAIN.asm
+                    > USED AT LINE 1061 IN MAIN.asm
+PRINTDEC:           06C9 DEFINED AT LINE 1082 IN MAIN.asm
                     > USED AT LINE 586 IN MAIN.asm
-PRINTDEC2:          06D8 DEFINED AT LINE 1091 IN MAIN.asm
-                    > USED AT LINE 1082 IN MAIN.asm
-PRINTDEC4:          06FA DEFINED AT LINE 1107 IN MAIN.asm
-                    > USED AT LINE 1095 IN MAIN.asm
+PRINTDEC2:          06D8 DEFINED AT LINE 1093 IN MAIN.asm
+                    > USED AT LINE 1084 IN MAIN.asm
+PRINTDEC4:          06FA DEFINED AT LINE 1109 IN MAIN.asm
                     > USED AT LINE 1097 IN MAIN.asm
                     > USED AT LINE 1099 IN MAIN.asm
                     > USED AT LINE 1101 IN MAIN.asm
-                    > USED AT LINE 1104 IN MAIN.asm
-PRINTDEC5:          06FC DEFINED AT LINE 1109 IN MAIN.asm
-                    > USED AT LINE 1112 IN MAIN.asm
-PRINTDEC6:          070C DEFINED AT LINE 1121 IN MAIN.asm
-                    > USED AT LINE 1116 IN MAIN.asm
-PRINTDEC7:          070D DEFINED AT LINE 1123 IN MAIN.asm
-                    > USED AT LINE 1120 IN MAIN.asm
-DEF:                0711 DEFINED AT LINE 1131 IN MAIN.asm
+                    > USED AT LINE 1103 IN MAIN.asm
+                    > USED AT LINE 1106 IN MAIN.asm
+PRINTDEC5:          06FC DEFINED AT LINE 1111 IN MAIN.asm
+                    > USED AT LINE 1114 IN MAIN.asm
+PRINTDEC6:          070C DEFINED AT LINE 1123 IN MAIN.asm
+                    > USED AT LINE 1118 IN MAIN.asm
+PRINTDEC7:          070D DEFINED AT LINE 1125 IN MAIN.asm
+                    > USED AT LINE 1122 IN MAIN.asm
+DEF:                0711 DEFINED AT LINE 1133 IN MAIN.asm
                     > USED AT LINE 707 IN MAIN.asm
-DEF0:               071F DEFINED AT LINE 1140 IN MAIN.asm
-                    > USED AT LINE 1135 IN MAIN.asm
-DEF1:               072D DEFINED AT LINE 1148 IN MAIN.asm
-                    > USED AT LINE 1139 IN MAIN.asm
-                    > USED AT LINE 1155 IN MAIN.asm
-DEF2:               0737 DEFINED AT LINE 1156 IN MAIN.asm
-                    > USED AT LINE 1154 IN MAIN.asm
-DEF3:               0738 DEFINED AT LINE 1158 IN MAIN.asm
-NUM:                073E DEFINED AT LINE 1162 IN MAIN.asm
+DEF0:               071F DEFINED AT LINE 1142 IN MAIN.asm
+                    > USED AT LINE 1137 IN MAIN.asm
+DEF1:               072D DEFINED AT LINE 1150 IN MAIN.asm
+                    > USED AT LINE 1141 IN MAIN.asm
+                    > USED AT LINE 1157 IN MAIN.asm
+DEF2:               0737 DEFINED AT LINE 1158 IN MAIN.asm
+                    > USED AT LINE 1156 IN MAIN.asm
+DEF3:               0738 DEFINED AT LINE 1160 IN MAIN.asm
+NUM:                073E DEFINED AT LINE 1164 IN MAIN.asm
                     > USED AT LINE 645 IN MAIN.asm
                     > USED AT LINE 701 IN MAIN.asm
-NUM0:               0747 DEFINED AT LINE 1168 IN MAIN.asm
-                    > USED AT LINE 1166 IN MAIN.asm
-NUM1:               0748 DEFINED AT LINE 1170 IN MAIN.asm
-                    > USED AT LINE 1187 IN MAIN.asm
-NUM2:               0760 DEFINED AT LINE 1188 IN MAIN.asm
+NUM0:               0747 DEFINED AT LINE 1170 IN MAIN.asm
+                    > USED AT LINE 1168 IN MAIN.asm
+NUM1:               0748 DEFINED AT LINE 1172 IN MAIN.asm
+                    > USED AT LINE 1189 IN MAIN.asm
+NUM2:               0760 DEFINED AT LINE 1190 IN MAIN.asm
                     > USED AT LINE 795 IN MAIN.asm
                     > USED AT LINE 797 IN MAIN.asm
-                    > USED AT LINE 1173 IN MAIN.asm
                     > USED AT LINE 1175 IN MAIN.asm
-NUM3:               076B DEFINED AT LINE 1196 IN MAIN.asm
-                    > USED AT LINE 1191 IN MAIN.asm
-ARREND:             076E DEFINED AT LINE 1200 IN MAIN.asm
+                    > USED AT LINE 1177 IN MAIN.asm
+NUM3:               076B DEFINED AT LINE 1198 IN MAIN.asm
+                    > USED AT LINE 1193 IN MAIN.asm
+ARREND:             076E DEFINED AT LINE 1202 IN MAIN.asm
                     > USED AT LINE 705 IN MAIN.asm
-ARRAYEND1:          078C DEFINED AT LINE 1217 IN MAIN.asm
-                    > USED AT LINE 1235 IN MAIN.asm
-ARRAYEND2:          079D DEFINED AT LINE 1232 IN MAIN.asm
-                    > USED AT LINE 1216 IN MAIN.asm
-                    > USED AT LINE 1226 IN MAIN.asm
-DIV:                07B7 DEFINED AT LINE 1247 IN MAIN.asm
+ARRAYEND1:          078C DEFINED AT LINE 1219 IN MAIN.asm
+                    > USED AT LINE 1237 IN MAIN.asm
+ARRAYEND2:          079D DEFINED AT LINE 1234 IN MAIN.asm
+                    > USED AT LINE 1218 IN MAIN.asm
+                    > USED AT LINE 1228 IN MAIN.asm
+DIV:                07B7 DEFINED AT LINE 1249 IN MAIN.asm
                     > USED AT LINE 736 IN MAIN.asm
-ABSBC:              07C8 DEFINED AT LINE 1263 IN MAIN.asm
-                    > USED AT LINE 1255 IN MAIN.asm
-LOOP1:              07DB DEFINED AT LINE 1277 IN MAIN.asm
-                    > USED AT LINE 1287 IN MAIN.asm
-LOOP2:              07DC DEFINED AT LINE 1279 IN MAIN.asm
+ABSBC:              07C8 DEFINED AT LINE 1265 IN MAIN.asm
+                    > USED AT LINE 1257 IN MAIN.asm
+LOOP1:              07DB DEFINED AT LINE 1279 IN MAIN.asm
                     > USED AT LINE 1289 IN MAIN.asm
-JUMPIN:             07DF DEFINED AT LINE 1282 IN MAIN.asm
-                    > USED AT LINE 1276 IN MAIN.asm
-ENDSDIV:            07ED DEFINED AT LINE 1290 IN MAIN.asm
-                    > USED AT LINE 1281 IN MAIN.asm
-DIV10:              07F7 DEFINED AT LINE 1299 IN MAIN.asm
-                    > USED AT LINE 1292 IN MAIN.asm
+LOOP2:              07DC DEFINED AT LINE 1281 IN MAIN.asm
+                    > USED AT LINE 1291 IN MAIN.asm
+JUMPIN:             07DF DEFINED AT LINE 1284 IN MAIN.asm
+                    > USED AT LINE 1278 IN MAIN.asm
+ENDSDIV:            07ED DEFINED AT LINE 1292 IN MAIN.asm
+                    > USED AT LINE 1283 IN MAIN.asm
+DIV10:              07F7 DEFINED AT LINE 1301 IN MAIN.asm
+                    > USED AT LINE 1294 IN MAIN.asm
+DIVEXIT:            07F8 DEFINED AT LINE 1303 IN MAIN.asm
+                    > USED AT LINE 829 IN MAIN.asm
 DSIZE:              0080 DEFINED AT LINE 1 IN ram.asm
                     > USED AT LINE 13 IN ram.asm
 RSIZE:              0080 DEFINED AT LINE 2 IN ram.asm
@@ -2286,8 +2295,8 @@ TIB:                0800 DEFINED AT LINE 8 IN ram.asm
                     > USED AT LINE 216 IN MAIN.asm
                     > USED AT LINE 225 IN MAIN.asm
                     > USED AT LINE 242 IN MAIN.asm
-                    > USED AT LINE 1058 IN MAIN.asm
-                    > USED AT LINE 1073 IN MAIN.asm
+                    > USED AT LINE 1060 IN MAIN.asm
+                    > USED AT LINE 1075 IN MAIN.asm
 RSTACK:             0980 DEFINED AT LINE 11 IN ram.asm
                     > USED AT LINE 277 IN MAIN.asm
 DSTACK:             0A00 DEFINED AT LINE 14 IN ram.asm
@@ -2295,18 +2304,18 @@ DSTACK:             0A00 DEFINED AT LINE 14 IN ram.asm
                     > USED AT LINE 269 IN MAIN.asm
                     > USED AT LINE 272 IN MAIN.asm
                     > USED AT LINE 287 IN MAIN.asm
-                    > USED AT LINE 945 IN MAIN.asm
+                    > USED AT LINE 947 IN MAIN.asm
 STACK:              0A00 DEFINED AT LINE 15 IN ram.asm
                     > USED AT LINE 445 IN IOSerial.asm
 TBPTR:              0A00 DEFINED AT LINE 16 IN ram.asm
 VTEMP1:             0A02 DEFINED AT LINE 17 IN ram.asm
-                    > USED AT LINE 831 IN MAIN.asm
-                    > USED AT LINE 855 IN MAIN.asm
-                    > USED AT LINE 1201 IN MAIN.asm
-                    > USED AT LINE 1244 IN MAIN.asm
-VTEMP2:             0A04 DEFINED AT LINE 18 IN ram.asm
+                    > USED AT LINE 833 IN MAIN.asm
+                    > USED AT LINE 857 IN MAIN.asm
                     > USED AT LINE 1203 IN MAIN.asm
-                    > USED AT LINE 1237 IN MAIN.asm
+                    > USED AT LINE 1246 IN MAIN.asm
+VTEMP2:             0A04 DEFINED AT LINE 18 IN ram.asm
+                    > USED AT LINE 1205 IN MAIN.asm
+                    > USED AT LINE 1239 IN MAIN.asm
 RST08:              0A06 DEFINED AT LINE 20 IN ram.asm
                     > USED AT LINE 107 IN IOSerial.asm
                     > USED AT LINE 447 IN IOSerial.asm
@@ -2355,39 +2364,39 @@ VBYTEMODE:          0C6A DEFINED AT LINE 45 IN ram.asm
                     > USED AT LINE 506 IN MAIN.asm
                     > USED AT LINE 521 IN MAIN.asm
                     > USED AT LINE 777 IN MAIN.asm
-                    > USED AT LINE 1224 IN MAIN.asm
+                    > USED AT LINE 1226 IN MAIN.asm
 VCARRY:             0C6C DEFINED AT LINE 46 IN ram.asm
                     > USED AT LINE 460 IN MAIN.asm
 VHEAPPTR:           0C76 DEFINED AT LINE 51 IN ram.asm
                     > USED AT LINE 292 IN MAIN.asm
-                    > USED AT LINE 908 IN MAIN.asm
-                    > USED AT LINE 911 IN MAIN.asm
-                    > USED AT LINE 1137 IN MAIN.asm
-                    > USED AT LINE 1143 IN MAIN.asm
-                    > USED AT LINE 1159 IN MAIN.asm
-                    > USED AT LINE 1210 IN MAIN.asm
-                    > USED AT LINE 1239 IN MAIN.asm
-                    > USED AT LINE 1243 IN MAIN.asm
+                    > USED AT LINE 910 IN MAIN.asm
+                    > USED AT LINE 913 IN MAIN.asm
+                    > USED AT LINE 1139 IN MAIN.asm
+                    > USED AT LINE 1145 IN MAIN.asm
+                    > USED AT LINE 1161 IN MAIN.asm
+                    > USED AT LINE 1212 IN MAIN.asm
+                    > USED AT LINE 1241 IN MAIN.asm
+                    > USED AT LINE 1245 IN MAIN.asm
 VTIBPTR:            0C7C DEFINED AT LINE 54 IN ram.asm
                     > USED AT LINE 161 IN MAIN.asm
                     > USED AT LINE 208 IN MAIN.asm
                     > USED AT LINE 212 IN MAIN.asm
                     > USED AT LINE 241 IN MAIN.asm
-                    > USED AT LINE 1076 IN MAIN.asm
+                    > USED AT LINE 1078 IN MAIN.asm
 VREMAIN:            0C8A DEFINED AT LINE 61 IN ram.asm
-                    > USED AT LINE 1302 IN MAIN.asm
+                    > USED AT LINE 1305 IN MAIN.asm
 VSTKSTART:          0C8C DEFINED AT LINE 62 IN ram.asm
                     > USED AT LINE 288 IN MAIN.asm
 VLASTDEF:           0C9A DEFINED AT LINE 69 IN ram.asm
                     > USED AT LINE 290 IN MAIN.asm
-                    > USED AT LINE 1141 IN MAIN.asm
+                    > USED AT LINE 1143 IN MAIN.asm
 VPOINTER:           0C9C DEFINED AT LINE 71 IN ram.asm
                     > USED AT LINE 503 IN MAIN.asm
                     > USED AT LINE 519 IN MAIN.asm
-                    > USED AT LINE 1035 IN MAIN.asm
+                    > USED AT LINE 1037 IN MAIN.asm
 VELSE:              0C9E DEFINED AT LINE 72 IN ram.asm
-                    > USED AT LINE 843 IN MAIN.asm
-                    > USED AT LINE 889 IN MAIN.asm
-                    > USED AT LINE 960 IN MAIN.asm
+                    > USED AT LINE 845 IN MAIN.asm
+                    > USED AT LINE 891 IN MAIN.asm
+                    > USED AT LINE 962 IN MAIN.asm
 HEAP:               0CA0 DEFINED AT LINE 74 IN ram.asm
                     > USED AT LINE 291 IN MAIN.asm

@@ -803,28 +803,30 @@ hex2:
     ld  L,A                     
     jp  hex1
 
-mul:                                
-    pop  de                     ; get first value
-    pop  hl
-    push bc                     ; Preserve the IP
-    ld B,H                      ; bc = 2nd value
-    ld C,L
-    
+mul:
+    pop de                      ; de = 2nd arg
+    pop hl                      ; hl = 1st arg
+    push bc                     ; save IP
+    ld a,l
+    ld c,h
+    ld b,16
     ld hl,0
-    ld a,16
-mul2:
+mul1:
     add hl,hl
-    RL E
-    RL D
-    jr NC,$+6
-    add hl,bc
-    jr NC,$+3
-    inc de
-    dec A
-    jr NZ,mul2
-	pop bc			    ; Restore the IP
-	push hl                     ; Put the product on the stack - stack bug fixed 2/12/21
-	jp (iy)
+    rla
+    rl c
+    jr nc,mul2
+    add hl,de
+    adc a,0
+    jp nc,mul2
+    inc c
+mul2:
+    djnz mul1
+    ex de,hl                    ; de = lsw result
+    ld h,c
+    ld l,a                      ; hl = msw result
+    pop bc                      ; restore IP
+	jp divExit                  ; pushes lsw, puts msw in vRemain 
 
 begin:
 loopStart:
@@ -1298,6 +1300,7 @@ EndSDiv:
     ld d,a
 div10:
     pop bc
+divExit:
     push de                     ; quotient
     ld (vRemain),hl             ; remainder
     jp (iy)

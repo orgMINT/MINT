@@ -744,6 +744,7 @@ commands from the keyboard.
 | /i     | loop variable                     | -- n   |
 | /j     | outer loop variable               | -- n   |
 | /k     | address of text input buffer      | -- a   |
+| /r     | remainder of last division        | -- n   |
 | /s     | address of start of stack         | -- a   |
 | /z     | name of last defined function     | -- c   |
 
