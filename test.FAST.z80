@@ -85,12 +85,12 @@ testsStart:
     test "0 1(/i+)", 0
     test "0 0(/i+)", 0
     test "0 5(/i+)", 10
-    test "0 /u(/i5</W 1+)", 5
-    test "0 /u(1+/i4</W)", 5
+    test "0 /U(/i5</W 1+)", 5
+    test "0 /U(1+/i4</W)", 5
     test "0t! 10(1 t+t!) t",10
     test "0t! 2(2(/i /j + t + t! )) t", 4
-    test "/f(100)/e(200)",200
-    test "/t(100)/e(200)",100
+    test "/F(100)/E(200)",200
+    test "/T(100)/E(200)",100
     test "0t! 10(t1+t!) t",10
     test "0t! 2(2(/i /j + t + t! )) t", 4
     test "0t! 10(/i 5</W /i 1 t+t!) t",5

@@ -45,8 +45,8 @@ altVars:
 vByteMode:  DS 2                ; b
 vCarry:     DS 2                ; c
             DS 2                ; d
-vElse:      DS 2                ; e
-vFalse:     DS 2                ; f
+            DS 2                ; e
+            DS 2                ; f
             DS 2                ; g
 vHeapPtr:   DS 2                ; h
             DS 2                ; i
@@ -60,8 +60,8 @@ vTIBPtr:    DS 2                ; k
             DS 2                ; q
 vRemain:    DS 2                ; r     
 vStkStart:  DS 2                ; s
-vTrue:      DS 2                ; t
-vUnlimited: DS 2                ; u
+            DS 2                ; t
+            DS 2                ; u
             DS 2                ; v
             DS 2                ; w
             DS 2                ; x     
@@ -69,5 +69,6 @@ vUnlimited: DS 2                ; u
 vLastDef:   DS 2                ; z
 
 vPointer:   DS 2                ; 
+vElse:      DS 2                ; 
 
 HEAP:         

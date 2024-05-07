@@ -115,8 +115,8 @@ iAltCodes:
     db     lsb(aNop_)       ;B        
     db     lsb(printChar_)  ;C      print a char
     db     lsb(depth_)      ;D      depth of stack
-    db     lsb(aNop_)       ;E      
-    db     lsb(false_)      ;F      false condition
+    db     lsb(else_)       ;E      else
+    db     lsb(falsex_)     ;F      false condition
     db     lsb(go_)         ;G      go execute mint code
     db     lsb(aNop_)       ;H
     db     lsb(inPort_)     ;I      input from port
@@ -130,8 +130,8 @@ iAltCodes:
     db     lsb(aNop_)       ;Q
     db     lsb(aNop_)       ;R
     db     lsb(arrSize_)    ;S      array size
-    db     lsb(aNop_)       ;T      
-    db     lsb(aNop_)       ;U      
+    db     lsb(truex_)      ;T      true condition
+    db     lsb(unlimit_)    ;U      unlimited loop
     db     lsb(varAccess_)  ;V      address of last access
     db     lsb(while_)      ;W      conditional break from loop
     db     lsb(exec_)       ;X      execute machine code 
@@ -284,10 +284,6 @@ init:
     ld bc,VARS_SIZE * 3         ; init vars, defs and altVars
     LDIR
 
-    ld hl,TRUE                  ; hl = TRUE
-    ld (vTrue),hl
-    dec hl                      ; hl = Unlimited
-    ld (vUnlimited),hl
     ld hl,dStack
     ld (vStkStart),hl
     ld hl,65
@@ -474,6 +470,16 @@ assignByteMode:
     ld (vByteMode+1),a
     jp (iy)
 
+false_:
+    ld hl,FALSE
+    jr true1
+
+true_:
+    ld hl,TRUE
+true1:
+    push hl
+    jp (iy)
+
 ; **********************************************************************			 
 ; Page 4 primitive routines 
 ; **********************************************************************
@@ -484,7 +490,7 @@ quote_:                          ; Discard the top member of the stack
     pop     hl
 at_:
 underscore_: 
-    jp (IY)
+    jp (iy)
 
 bslash_:
     jr setByteMode
@@ -580,7 +586,7 @@ dot_:
 dot2:
     ld a,' '           
     call putChar
-    jp (IY)
+    jp (iy)
 
 comma_:                          ; print hexadecimal
     pop     hl
@@ -591,7 +597,7 @@ dquote_:
     pop     hl              ; Duplicate the top member of the stack
     push    hl
     push    hl
-    jp (IY)
+    jp (iy)
 
     jp NEXT             ; hardwire white space to always go to NEXT (important for arrays)
 
@@ -601,19 +607,19 @@ percent_:
     push de
     push hl
     push de              ; and push it to top of stack
-    jp (IY)        
+    jp (iy)        
 
 semi_:
     call rpop               ; Restore Instruction pointer
     ld bc,hl                
-    jp (IY)             
+    jp (iy)             
 
 ;  Left shift { is multiply by 2		
 lbrace_:   
     pop hl                  ; Duplicate the top member of the stack
     add hl,hl
     push hl                 ; shift left fallthrough into plus_     
-    jp (IY)                 
+    jp (iy)                 
 
 			;  Right shift } is a divide by 2		
 rbrace_:    
@@ -622,14 +628,14 @@ shr1:
     SRL H
     RR L
     push hl
-    jp (IY)                 
+    jp (iy)                 
 
 ; $ swap                    ; a b -- b a Swap the top 2 elements of the stack
 dollar_:        
     pop hl
     EX (SP),hl
     push hl
-    jp (IY)
+    jp (iy)
     
 minus_:       		        ; Subtract the value 2nd on stack from top of stack 
     inc bc                  ; check if sign of a number
@@ -820,7 +826,7 @@ mul2:
     jr NZ,mul2
 	pop bc			    ; Restore the IP
 	push hl                     ; Put the product on the stack - stack bug fixed 2/12/21
-	jp (IY)
+	jp (iy)
 
 begin:
 loopStart:
@@ -943,15 +949,24 @@ depth:
     sbc hl,de
     jp shr1
 
+falsex_:
+    jp false_
+
 printChar_:
     pop hl
     ld a,L
     call putchar
-    jp (IY)
+    jp (iy)
+
+else_:
+    ld hl,(vElse)
+else1:
+    push hl
+    jp (iy)
 
 exec_:
     call exec1
-    jp (IY)
+    jp (iy)
 exec1:
     pop hl
     EX (SP),hl
@@ -959,11 +974,11 @@ exec1:
 
 editDef_:
     call editDef
-    jp (IY)
+    jp (iy)
 
 prompt_:
     call prompt
-    jp (IY)
+    jp (iy)
 
 go_:				    
     pop de
@@ -981,28 +996,26 @@ go2:
     ld bc,de
     dec bc
 go3:
-    jp (IY)                     
+    jp (iy)                     
 
 key_:
     call getchar
     ld H,0
     ld L,A
-    push hl
-    jp (IY)
+    jr else1
 
-inPort_:			    ; \<
+inPort_:			    
     pop hl
     ld a,C
     ld C,L
     IN L,(C)
     ld H,0
     ld C,A
-    push hl
-    jp (IY)        
+    jr else1
 
 newln_:
     call crlf
-    jp (IY)        
+    jp (iy)        
 
 outPort_:
     pop hl
@@ -1011,7 +1024,14 @@ outPort_:
     pop hl
     OUT (C),L
     ld C,E
-    jp (IY)        
+    jp (iy)        
+
+truex_:
+    jp true_
+
+unlimit_:
+    ld hl,-2
+    jr else1
 
 varAccess_:
     ld hl,vPointer
@@ -1139,7 +1159,7 @@ def2:
     dec bc
 def3:
     ld (vHeapPtr),de            ; bump heap ptr to after definiton
-    jp (IY)       
+    jp (iy)       
 
 num:
 	ld hl,$0000				    ; Clear hl to accept the number
@@ -1284,14 +1304,7 @@ div10:
     ld (vRemain),hl             ; remainder
     jp (iy)
 
-false_:
-    ld hl,FALSE
-    jr true1
-
-true_:
-    ld hl,TRUE
-true1:
-    push hl
-    jp (iy)
-
-
+; *******************************************************************************
+; *********  END OF MAIN   ******************************************************
+; *******************************************************************************
+; *******************************************************************************

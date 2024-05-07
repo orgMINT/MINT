@@ -205,8 +205,8 @@ system variable.
 
 MINT uses numbers to define boolean values.
 
-- false is represented by the number `0` or `/f`
-- true is represented by the number `1` or `/t`
+- false is represented by the number `0` or `/F`
+- true is represented by the number `1` or `/T`
 
 ```
 3 0 = .
@@ -423,9 +423,9 @@ is ten it will be repeated ten times. If the number is -1 then the loop will rep
 0(this code will not be executed but skipped)
 1(this code will be execute once)
 10(this code will execute 10 times)
-/f(this code will not be executed but skipped)
-/t(this code will be execute once)
-/u(this code will be execute forever)
+/F(this code will not be executed but skipped)
+/T(this code will be execute once)
+/U(this code will be execute forever)
 ```
 
 This code following prints ten x's.
@@ -474,11 +474,11 @@ When the loop ends `t` prints 4.
 ## <a name='conditional-code'></a>Conditional code
 
 MINT's looping mechanism can also be used to execute code conditionally. In MINT boolean `false` is represented
-by 0 or `/f` and `true` is represented by 1 or `/t`.
+by 0 or `/F` and `true` is represented by 1 or `/T`.
 
 ```
-/f(this code will not be executed but skipped)
-/t(this code will be execute once)
+/F(this code will not be executed but skipped)
+/T(this code will be execute once)
 ```
 
 The following tests if `x` is less that 5.
@@ -492,7 +492,7 @@ The syntax for a MINT IF-THEN-ELSE or "if...else" operator in MINT is and
 extension of the loop syntax.
 
 ```
-boolean (code-block-then) /e (code-block-else)
+boolean (code-block-then) /E (code-block-else)
 ```
 
 If the condition is true, then code-block-then is executed. Otherwise, code-block-else is executed.
@@ -503,7 +503,7 @@ Here is an example of a "if...else" operator in MINT:
 10 x !
 20 y !
 
-x y > ( `x is greater than y` ) /e ( `y is greater than x` )
+x y > ( `x is greater than y` ) /E ( `y is greater than x` )
 
 ```
 
@@ -517,7 +517,7 @@ code conditionally prints text straight to the console.
 ```
 18 a !
 
-`This person` a 17 > (`can`) /e (`cannot`) `vote`
+`This person` a 17 > (`can`) /E (`cannot`) `vote`
 ```
 
 In this example, the variable a is assigned the value 18. The "if...else" operator
@@ -702,7 +702,11 @@ commands from the keyboard.
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
+| /U     | unlimited loop constant           | -- b   |
 | /W     | if false break out of loop             | b --   |
+| /E     | else condition                         | -- b   |
+| /F     | false constant                         | -- b   |
+| /T     | true constant                          | -- b   |
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
@@ -736,15 +740,11 @@ commands from the keyboard.
 | Symbol | Description                       | Effect |
 | ------ | --------------------------------- | ------ |
 | /c     | carry variable                    | -- n   |
-| /e     | else condition                    | -- b   |
-| /f     | false constant                    | -- b   |
 | /h     | heap pointer variable             | -- a   |
 | /i     | loop variable                     | -- n   |
 | /j     | outer loop variable               | -- n   |
 | /k     | address of text input buffer      | -- a   |
 | /s     | address of start of stack         | -- a   |
-| /t     | true constant                     | -- b   |
-| /u     | unlimited loop constant           | -- b   |
 | /z     | name of last defined function     | -- c   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
