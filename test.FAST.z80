@@ -42,6 +42,7 @@ testsStart:
     test "1 2 3 ' +", 3
     test "2 3*", 6
     test "1 2 3+*", 5
+    test "#8001 2 * /r +", 3
     test "1 2 /D", 2
     test "7 2/", 3
     test "7 2/' /r", 1

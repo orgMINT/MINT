@@ -1833,37 +1833,37 @@
 4000                             ; write your string containing a line of MINT code 
 4000                             ; followed by the expected value of the top of stack after running it
 4000                             ; test "0t! /u(/i 4 < /W t 1+ t!) t ", 4
-4000                          ;*Macro unroll:  test "2 2 *", 4
+4000                          ;*Macro unroll:  test "#8001 2 * /r +", 4
 4000   31 00 0A               LD   SP,DSTACK   
 4003   CD DE 02               CALL   init   
 4006   CD BD 03               CALL   enter   
-4009   32 20 32 20 2A 00      .CSTR   "2 2 *"   
-400F                          ;*Macro unroll:  expect "2 2 *",4
-400F   E1                     POP   HL   
-4010   E5                     PUSH   HL   
-4011   11 04 00               LD   DE,4   
-4014   B7                     OR   A   
-4015   ED 52                  SBC   HL,DE   
-4017   7D                     LD   A,L   
-4018   B4                     OR   H   
-4019   E1                     POP   hl   
-401A   28 32                  JR   Z,expectM_0_1823S31   
-401C   CD 92 03               CALL   printStr   
-401F   0D 0A 0D 0A 32 20 32 20 2A 0D 0A 41 63 74 75 61 6C 3A 20 00 .CSTR   "\r\n\r\n","2 2 *","\r\nActual: "   
-4033   CD C9 06               CALL   printdec   
-4036   CD 92 03               CALL   printStr   
-4039   0D 0A 45 78 70 65 63 74 65 64 3A 20 00 .CSTR   "\r\nExpected: "   
-4046   21 04 00               LD   HL,4   
-4049   CD C9 06               CALL   printdec   
-404C   76                     HALT      
-404D   00                     .CSTR      
-404E                EXPECTM_0_1823S31:      
-404E                             ; 
-404E                             ; if the tests succeed, "Done!" while be printed       
-404E                          ;*Macro unroll:  print "Done!"
-404E   CD 92 03               CALL   printStr   
-4051   0D 0A 44 6F 6E 65 21 0D 0A 00 .CSTR   "\r\n","Done!","\r\n"   
-405B   76                     HALT      
+4009   23 38 30 30 31 20 32 20 2A 20 2F 72 20 2B 00 .CSTR   "#8001 2 * /r +"   
+4018                          ;*Macro unroll:  expect "#8001 2 * /r +",4
+4018   E1                     POP   HL   
+4019   E5                     PUSH   HL   
+401A   11 04 00               LD   DE,4   
+401D   B7                     OR   A   
+401E   ED 52                  SBC   HL,DE   
+4020   7D                     LD   A,L   
+4021   B4                     OR   H   
+4022   E1                     POP   hl   
+4023   28 3B                  JR   Z,expectM_0_1823S31   
+4025   CD 92 03               CALL   printStr   
+4028   0D 0A 0D 0A 23 38 30 30 31 20 32 20 2A 20 2F 72 20 2B 0D 0A 41 63 74 75 61 6C 3A 20 00 .CSTR   "\r\n\r\n","#8001 2 * /r +","\r\nActual: "   
+4045   CD C9 06               CALL   printdec   
+4048   CD 92 03               CALL   printStr   
+404B   0D 0A 45 78 70 65 63 74 65 64 3A 20 00 .CSTR   "\r\nExpected: "   
+4058   21 04 00               LD   HL,4   
+405B   CD C9 06               CALL   printdec   
+405E   76                     HALT      
+405F   00                     .CSTR      
+4060                EXPECTM_0_1823S31:      
+4060                             ; 
+4060                             ; if the tests succeed, "Done!" while be printed       
+4060                          ;*Macro unroll:  print "Done!"
+4060   CD 92 03               CALL   printStr   
+4063   0D 0A 44 6F 6E 65 21 0D 0A 00 .CSTR   "\r\n","Done!","\r\n"   
+406D   76                     HALT      
 
 
 TEC_1:              0001 DEFINED AT LINE 1 IN constants.asm
@@ -2489,5 +2489,5 @@ HEAP:               0CA0 DEFINED AT LINE 74 IN ram.asm
                     > USED AT LINE 291 IN MAIN.asm
 TESTSSTART:         4000 DEFINED AT LINE 17
                     > USED AT LINE 10
-EXPECTM_0_1823S31:  404E DEFINED AT LINE 23
+EXPECTM_0_1823S31:  4060 DEFINED AT LINE 23
                     > USED AT LINE 10

@@ -18,9 +18,8 @@ testsStart:
 
     ; write your string containing a line of MINT code 
     ; followed by the expected value of the top of stack after running it
-    ; test "0t! /u(/i 4 < /W t 1+ t!) t ", 4
-    test "2 2 *", 4
-    
+    test "0t! /u(/i 4 < /W t 1+ t!) t ", 4
+
     ; if the tests succeed, "Done!" while be printed       
     print "Done!"
     HALT
