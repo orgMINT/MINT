@@ -536,6 +536,7 @@ amper_:
     and H           
 and1:
     ld h,a         
+and2:
     push hl          
     jp (iy)           
 
@@ -618,8 +619,7 @@ semi_:
 lbrace_:   
     pop hl                  ; Duplicate the top member of the stack
     add hl,hl
-    push hl                 ; shift left fallthrough into plus_     
-    jp (iy)                 
+    jr and2                 ; shift left fallthrough into plus_     
 
 			;  Right shift } is a divide by 2		
 rbrace_:    
@@ -627,15 +627,13 @@ rbrace_:
 shr1:
     SRL H
     RR L
-    push hl
-    jp (iy)                 
+    jr and2
 
 ; $ swap                    ; a b -- b a Swap the top 2 elements of the stack
 dollar_:        
     pop hl
     EX (SP),hl
-    push hl
-    jp (iy)
+    jr and2
     
 minus_:       		        ; Subtract the value 2nd on stack from top of stack 
     inc bc                  ; check if sign of a number
