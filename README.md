@@ -181,6 +181,14 @@ In this program the numbers `5` and `4` are operands to the operator `*` which
 multiplies them together. The `.` operator prints the result of the
 multiplication.
 
+NOTE: For multiplications that result in a value greater than #FFFF, the `overflow` of the 
+last multiplication operation is available in the /r system variable.
+
+```
+/r .
+```
+
+
 ```
 10 20 - .
 ```
@@ -737,16 +745,16 @@ commands from the keyboard.
 
 ### <a name='system-variables'></a>System variables
 
-| Symbol | Description                       | Effect |
-| ------ | --------------------------------- | ------ |
-| /c     | carry variable                    | -- n   |
-| /h     | heap pointer variable             | -- a   |
-| /i     | loop variable                     | -- n   |
-| /j     | outer loop variable               | -- n   |
-| /k     | address of text input buffer      | -- a   |
-| /r     | remainder of last division        | -- n   |
-| /s     | address of start of stack         | -- a   |
-| /z     | name of last defined function     | -- c   |
+| Symbol | Description                                        | Effect |
+| ------ | -------------------------------------------------- | ------ |
+| /c     | carry variable                                     | -- n   |
+| /h     | heap pointer variable                              | -- a   |
+| /i     | loop variable                                      | -- n   |
+| /j     | outer loop variable                                | -- n   |
+| /k     | address of text input buffer                       | -- a   |
+| /r     | remainder/overflow of last division/multiplication | -- n   |
+| /s     | address of start of stack                          | -- a   |
+| /z     | name of last defined function                      | -- c   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
