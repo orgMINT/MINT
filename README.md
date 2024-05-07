@@ -181,13 +181,12 @@ In this program the numbers `5` and `4` are operands to the operator `*` which
 multiplies them together. The `.` operator prints the result of the
 multiplication.
 
-NOTE: For multiplications that result in a value greater than #FFFF, the `overflow` of the 
+NOTE: For multiplications that result in a value greater than #FFFF, the `overflow` of the
 last multiplication operation is available in the /r system variable.
 
 ```
 /r .
 ```
-
 
 ```
 10 20 - .
@@ -383,7 +382,7 @@ the first item of the inner array with `0?` and prints the result (which is 2).
 ### <a name='byte-arrays'></a>Byte arrays
 
 MINT by default declares arrays of 16 bit words however it is also possible to declare
-and array of 8 bit byte values by using `\` which puts MINT into `byte mode`. 
+and array of 8 bit byte values by using `\` which puts MINT into `byte mode`.
 
 ```
  \[1 2 3]
@@ -402,7 +401,7 @@ The following prints 2
  \[1 2 3] 1\?   .
 ```
 
-Note: MINT will leave byte mode (and return to normal word mode) after it executes a `]`, `?` or `!`  
+Note: MINT will leave byte mode (and return to normal word mode) after it executes a `]`, `?` or `!`
 
 ### <a name='memory-allocation'></a>Memory allocation
 
@@ -710,7 +709,7 @@ commands from the keyboard.
 | ------ | -------------------------------------- | ------ |
 | (      | BEGIN a loop which will repeat n times | n --   |
 | )      | END a loop code block                  | --     |
-| /U     | unlimited loop constant           | -- b   |
+| /U     | unlimited loop constant                | -- b   |
 | /W     | if false break out of loop             | b --   |
 | /E     | else condition                         | -- b   |
 | /F     | false constant                         | -- b   |
@@ -718,11 +717,11 @@ commands from the keyboard.
 
 ### <a name='memory-and-variable-operations'></a>Memory and Variable Operations
 
-| Symbol | Description                       | Effect |
-| ------ | --------------------------------- | ------ |
-| a..z   | variable access                   | -- n   |
-| !      | STORE a value to memory           | n a -- |
-| /V     | address of last access.           | -- a   |
+| Symbol | Description             | Effect |
+| ------ | ----------------------- | ------ |
+| a..z   | variable access         | -- n   |
+| !      | STORE a value to memory | n a -- |
+| /V     | address of last access. | -- a   |
 
 ### <a name='array-operations'></a>Array Operations
 
