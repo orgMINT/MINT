@@ -744,16 +744,16 @@ commands from the keyboard.
 
 ### <a name='system-variables'></a>System variables
 
-| Symbol | Description                        | Effect |
-| ------ | ---------------------------------- | ------ |
-| /c     | carry variable                     | -- n   |
-| /h     | heap pointer variable              | -- a   |
-| /i     | loop variable                      | -- n   |
-| /j     | outer loop variable                | -- n   |
-| /k     | address of text input buffer       | -- a   |
-| /r     | remainder/overflow of last div/mul | -- n   |
-| /s     | address of start of stack          | -- a   |
-| /z     | name of last defined function      | -- c   |
+| Symbol | Description                              | Effect |
+| ------ | ---------------------------------------- | ------ |
+| /c     | carry variable                           | -- n   |
+| /h     | heap pointer variable                    | -- a   |
+| /i     | loop variable                            | -- n   |
+| /j     | outer loop variable                      | -- n   |
+| /k     | (internal) offset into text input buffer | -- a   |
+| /r     | remainder/overflow of last div/mul       | -- n   |
+| /s     | address of start of stack                | -- a   |
+| /z     | (internal) name of last defined function | -- c   |
 
 ### <a name='miscellaneous'></a>Miscellaneous
 
