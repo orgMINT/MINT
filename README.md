@@ -777,3 +777,91 @@ commands from the keyboard.
 | ^L     | list definitions  |
 | ^R     | re-edit           |
 | ^S     | print stack       |
+
+
+# Appendix
+
+# MINT with machine code, handling interrupts
+
+
+Let's break this down to make it more understandable, step by step, with an emphasis on integrating MINT with machine code, handling interrupts, and managing the stack correctly.
+
+### Summary of Key Ideas
+
+1. **Machine Code Routine and MINT:**
+   John is explaining how you can write a machine code routine that enters the MINT environment (a high-level interpreted language). This routine can execute MINT code (like reading from the 9511 port), handle an interrupt, and then return control back to the machine code.
+
+2. **Software Interrupt (RST 38):**
+   The `RST 38` instruction is a software interrupt. It behaves similarly to a hardware interrupt but is triggered manually in code. This is the first step to testing your interrupt handling routine before moving to actual hardware interrupts.
+
+3. **Stack Management in MINT:**
+   MINT uses two stacks:
+   - **Data Stack:** Used for storing intermediate values.
+   - **Return Stack:** Used for storing return addresses when jumping between subroutines.
+
+   When you combine MINT with machine code, you need to carefully manage what's on the stack, especially since MINT's data stack also acts as its program stack. This can get tricky when handling interrupts and returning from routines.
+
+### Step-by-Step Breakdown
+
+1. **Step 1: Test with RST 38 (Software Interrupt)**
+   - The first thing John suggests is to write a routine that is triggered by the `RST 38` instruction. This simulates what happens during a hardware interrupt but is controlled by your software.
+   
+   ```assembly
+   RST 38H    ; Trigger interrupt manually
+   ; Interrupt service routine at $38 is called
+   ```
+
+   This will help you test whether you can handle an interrupt and safely return to your main program.
+
+2. **Step 2: Return from the Interrupt Safely**
+   - After the interrupt, you need to ensure you can return to the main machine code routine properly. This involves restoring the program counter (PC) and stack state, making sure nothing is left on the stack that could cause problems later.
+
+   - If MINT leaves something on the stack after an interrupt, you must pop those values off and store them in variables or registers temporarily so that the return address is properly restored.
+
+3. **Step 3: Execute MINT Code in the Interrupt Routine**
+   - Once you’ve tested the `RST 38` routine and confirmed it returns safely, the next step is to try running a MINT routine within the interrupt handler.
+   
+   Example:
+   ```forth
+   call enter .cstr "3 2 + a !" ret  ; MINT code that adds 3 + 2, stores in 'a', and returns
+   ```
+
+   This MINT routine does not return anything on the stack. Instead, it stores the result in a variable (`a`). This keeps the stack clean and simplifies returning from the interrupt.
+
+4. **Step 4: Triggering with a Hardware Interrupt**
+   - Once you’ve successfully handled a software interrupt (`RST 38`), you can move to triggering interrupts using hardware. This could involve reading from the 9511 math chip or handling other hardware events.
+
+5. **Handling MINT's Data and Return Stacks in Machine Code**
+   - In MINT, the **data stack** doubles as the **program stack** (holding both data and return addresses). For machine code, it’s crucial to keep track of what MINT leaves on the stack when returning from a routine. You may need to pop extra data left on the stack to access the return address.
+   
+   - The idea is to ensure that the stack is clean when returning to machine code, so it doesn’t crash the program by accidentally jumping to the wrong address.
+
+### What You Need to Do:
+1. **Write a test routine triggered by `RST 38`.** This will simulate the interrupt mechanism and help you debug whether you can safely return to your main program.
+
+2. **Execute a MINT routine inside the interrupt handler** that doesn’t return any values on the stack (e.g., `3 2 + a !` to store a result in a variable instead of returning it on the stack).
+
+3. **Ensure stack cleanliness** by managing what’s left on the stack and making sure your return address is accessible.
+
+4. **Move to hardware interrupts** once the software interrupt mechanism works reliably.
+
+### Example Process:
+
+```assembly
+; Machine code routine
+RST 38H    ; Simulate interrupt
+; Jump to ISR at $38
+...
+; Handle the interrupt, call MINT
+...
+; Return to machine code
+```
+
+In MINT:
+```forth
+: test-routine 3 2 + a ! ; Simple routine that adds 3 and 2, and stores in 'a'
+```
+
+Test the routine in the ISR, ensure no values are left on the stack, and confirm proper return to the main machine code.
+
+Let me know if you need further clarification on any part of this!
