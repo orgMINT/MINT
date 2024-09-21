@@ -778,3 +778,189 @@ where "A" represents any uppcase letter
 | ^L     | list definitions  |
 | ^R     | re-edit           |
 | ^S     | print stack       |
+
+## Algorithm Examples
+
+### 1. Fibonacci Sequence
+
+A loop that prints the first 10 numbers of the Fibonacci sequence.
+
+```mint
+0 a !        // Initialize a to 0
+1 b !        // Initialize b to 1
+10 (         // Loop 10 times
+  a .        // Print a
+  a b + c !  // c = a + b
+  b a !      // a = b
+  c b !      // b = c
+)
+```
+
+---
+
+### 2. Factorial Function
+
+A recursive function that calculates the factorial of a number.
+
+```mint
+:F
+  "           // Duplicate n
+  1 >         // Check if n > 1
+  (           // If true
+    " 1 - F * // n * factorial(n - 1)
+  ) /E        // Else
+  1           // Return 1
+;
+5 F .         // Calculate factorial of 5, prints: 120
+```
+
+---
+
+### 3. Sieve of Eratosthenes
+
+A simple implementation of the Sieve of Eratosthenes to find prime numbers up to 30.
+
+```mint
+30 l !        // Set limit
+0 p !         // Initialize p to 0 (current number)
+l 2 (         // Loop from 2 to limit
+  /T f !      // Set flag assuming number is prime
+  p .         // Print current prime
+  p 2 * l < ( // Mark multiples of p up to the limit
+    p i = f /F !   // Set flag to false if number is divisible
+  )
+)
+```
+
+---
+
+### 4. Greatest Common Divisor (GCD) using Euclidean Algorithm
+
+This program finds the GCD of two numbers using the Euclidean algorithm.
+
+```mint
+:A a b !      // Store two numbers in a and b
+b 0 >         // While b > 0
+(             // Repeat
+  a b % a !   // a = a mod b
+  a b !
+)
+a .           // Print the GCD
+```
+
+---
+
+### 5. Merge Sort
+
+A basic merge sort algorithm to sort a list of numbers.
+
+```mint
+:M            // Merge sort function
+  l s 1 > (   // If list length is greater than 1
+    l s 2 / M !  // Split the list in half and sort
+    l r m l !   // Merge sorted halves into l
+  ) /E l .      // Print sorted list
+;
+```
+
+---
+
+### 6. Binary Search
+
+A binary search algorithm that searches for a value in a sorted array.
+
+```mint
+:B
+  l h !                  // Initialize low and high indices
+  l h <= (               // While low <= high
+    m l h + 2 / !        // Find the middle index
+    m a ? t = (          // If value at m is target
+      m .                // Print index
+    ) /E m a ? t < (     // If target is smaller, search left half
+      m 1 - h !
+    ) /E l m 1 + !
+  )
+;
+```
+
+---
+
+### 7. Quick Sort
+
+An implementation of the Quick Sort algorithm.
+
+```mint
+:Q l s > 1 (  // If list length is greater than 1
+  l p c !     // Choose a pivot element
+  l s p p !   // Partition list around pivot
+  s Q ! p Q ! // Recursively sort partitions
+)
+;
+```
+
+---
+
+### 8. Tower of Hanoi
+
+A recursive solution to the Tower of Hanoi problem.
+
+```mint
+:H
+  n 1 = (              // If there is only 1 disk
+    f t m !            // Move from source to destination
+  ) /E (
+    n 1 - f t s H !    // Move n-1 disks from source to spare
+    f t m !            // Move nth disk to destination
+    s t f H !          // Move n-1 disks from spare to destination
+  )
+;
+3 H .                  // Solve Tower of Hanoi with 3 disks
+```
+
+---
+
+### 9. Insertion Sort
+
+An implementation of the insertion sort algorithm.
+
+```mint
+:I l s 2 > (    // If list has more than 1 element
+  l i 1 to s (  // Loop through the list
+    k l i !     // Assign key
+    j i 1 - (   // Move elements greater than key
+      k < l j > (
+        l j 1 + j !
+      )
+    )
+  )
+;
+```
+
+---
+
+### 10. Dijkstra's Algorithm (Shortest Path)
+
+An implementation of Dijkstra's algorithm to find the shortest path in a graph.
+
+```mint
+:M
+  g loop unvisited (        // Loop through all unvisited nodes
+    n g distance < (        // If this node has a smaller distance
+      n g !                 // Update n to be the new minimum
+    )
+  )
+  n !                      // Return the node with the minimum distance
+;
+
+:D
+  g s d !                  // Initialize graph and start node
+  d ! v /F !               // Initialize distances and visited nodes
+  g l u (                  // Loop through unvisited nodes
+    M c !                  // Get node with minimum distance using M
+    n u !                  // Update distances of neighboring nodes
+  )
+  d .                      // Print shortest path
+;
+```
+
+---
