@@ -796,6 +796,13 @@ A loop that prints the first 10 numbers of the Fibonacci sequence.
 )
 ```
 
+- `0 a ! 1 b !` initializes both `a` and `b` in one line: `a = 0` and `b = 1`.
+- The loop runs 10 times, printing `a` and updating `a` and `b` in a single line.
+- `a .` prints the current Fibonacci number.
+- `a b + b a !` updates `a` and `b`:
+  - `a b +` computes `a + b` and assigns it to `b`.
+  - `b a !` assigns the old value of `b` (before the addition) to `a`.
+
 ### 2. Factorial Function
 
 A recursive function that calculates the factorial of a number.
@@ -813,34 +820,56 @@ A recursive function that calculates the factorial of a number.
 5 F .         // Calculate factorial of 5, prints: 120
 ```
 
+- This function recursively calculates the factorial of a number `n`.
+- If `n > 1`, it calls itself with `n - 1` and multiplies `n` by the result.
+- If `n` is 1 or less, it returns 1, which is the base case to stop recursion.
+
 ### 3. Sieve of Eratosthenes
 
 A simple implementation of the Sieve of Eratosthenes to find prime numbers up to 30.
 
 ```mint
-30 l !        // Set limit
-0 p !         // Initialize p to 0 (current number)
-l 2 (         // Loop from 2 to limit
-  /T f !      // Set flag assuming number is prime
-  p .         // Print current prime
-  p 2 * l < ( // Mark multiples of p up to the limit
-    p i = f /F !   // Set flag to false if number is divisible
+30 l !              // Set limit to 30
+0 p !               // Initialize p to 0 (current number)
+l 2 - (             // Loop from 2 to the limit
+  /T f !            // Set flag assuming number is prime
+  p 1 + p !         // Increment p
+  p .               // Print the current number
+  l p 2 * < (       // For multiples of p within the limit
+    p i = f /F !    // Set flag to false if number is divisible
   )
 )
 ```
+
+- This implementation of the Sieve of Eratosthenes finds prime numbers up to 30.
+- The variable `l` is the limit, and `p` iterates through numbers starting from 2.
+- For each number `p`, the algorithm checks if it is prime and prints it.
+- The multiples of each prime number are marked as non-prime by setting the flag `f` to false.
 
 ### 4. Greatest Common Divisor (GCD) using Euclidean Algorithm
 
 This program finds the GCD of two numbers using the Euclidean algorithm.
 
 ```mint
-:A a b !      // Store two numbers in a and b
-b 0 >         // While b > 0
-(             // Repeat
+:A b ! a !    // Pop two numbers from the stack in LIFO order (b first, then a)
+/U (          // Begin an unlimited loop
+  b 0 = /W    // If b equals 0, break the loop
   a b % a !   // a = a mod b
-  a b !
+  a b !       // Swap: b = old a, repeat
 )
 a .           // Print the GCD
+;
+```
+
+- **`b ! a !`**: This pops the two numbers from the stack in LIFO order. The first number passed becomes `b` and the second becomes `a`.
+- The loop continues with the Euclidean algorithm until `b` becomes `0`, at which point the loop breaks, and the GCD stored in `a` is printed.
+
+### Example:
+
+To find the GCD of 30 and 20, you would call the function like this:
+
+```mint
+30 20 A       // Call the GCD function with 30 and 20, prints GCD: 10
 ```
 
 ### 5. Merge Sort
@@ -848,14 +877,30 @@ a .           // Print the GCD
 A basic merge sort algorithm to sort a list of numbers.
 
 ```mint
-:M            // Merge sort function
-  l s 1 > (   // If list length is greater than 1
-    l s 2 / M !  // Split the list in half and sort
-    l r m l !   // Merge sorted halves into l
-  ) /E (       // Else condition wrapped in parentheses
-    l .        // Print sorted list
+:S l !        // Store the list passed from the stack into variable l
+l /S (        // Get the size of the list and loop that many times
+  /U (        // Start an unlimited loop for swapping
+    0 s !     // Set swap flag to 0
+    l /S 1 - ( // Iterate over the list (size - 1 times)
+      l i ? l i 1 + ? > (    // Compare adjacent elements
+        l i ? l i 1 + swap!  // Swap them if out of order
+        1 s !               // Set swap flag to 1
+      )
+    )
+    s 0 = /W   // Break the loop if no swaps occurred
   )
+)
 ;
+```
+
+- **`l !`**: This line stores the list (or array) passed from the stack into the variable `l`.
+- **`l /S`**: Retrieves the size of the list.
+- The bubble sort logic proceeds as before, but now `l` is fetched from the stack, ensuring proper stack-based operations.
+
+### Example of Calling the Function:
+
+```mint
+[5 3 8 4 2] S  // Calls the bubble sort function on the list [5, 3, 8, 4, 2]
 ```
 
 ### 6. Binary Search
@@ -863,22 +908,31 @@ A basic merge sort algorithm to sort a list of numbers.
 A binary search algorithm that searches for a value in a sorted array.
 
 ```mint
-:B
-  l h !                  // Initialize low and high indices
-  l h <= (               // While low <= high
-    m l h + 2 / !        // Find the middle index
-    m a ? t = (          // If value at m is target
-      m .                // Print index
-    ) /E (               // Else block for equality wrapped in parentheses
-      m a ? t < (        // If target is smaller, search left half
-        m 1 - h !
-      ) /E (             // Else block for smaller condition wrapped
-        l m 1 + !
-      )
+:B h ! l !             // Pop high and low indices from the stack (LIFO order)
+l h <= (               // While low <= high
+  m l h + 2 / !        // Find the middle index
+  m a ? t = (          // If value at m is target
+    m .                // Print index
+  ) /E (               // Else block for equality wrapped in parentheses
+    m a ? t < (        // If target is smaller, search left half
+      m 1 - h !
+    ) /E (             // Else block for greater condition wrapped
+      l m 1 + !
     )
   )
+)
 ;
+```
 
+- **`h ! l !`**: Pops the high (`h`) and low (`l`) indices from the stack in the correct LIFO order. When the function is called, you push the high value first, followed by the low value.
+- The binary search logic proceeds as normal:
+  - **Find the middle**: `m l h + 2 / !` calculates the middle index.
+  - **Compare**: If the middle value matches the target, print the index. Otherwise, adjust the search range accordingly (either update `l` or `h`).
+
+### Example of Calling the Function:
+
+```mint
+0 9 B       // Searches in a sorted array from index 0 to 9
 ```
 
 ### 7. Quick Sort
