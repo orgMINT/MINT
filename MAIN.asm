@@ -1130,10 +1130,10 @@ printDec7:
 ; Page 5 primitive routines continued
 ;*******************************************************************
 
-def:                                ; Create a colon definition
+def:                            ; Create a colon definition
     inc bc
     ld  a,(bc)                  ; Get the next character
-    cp ":"                      ; is it anonymous
+    cp "@"                      ; is it anonymous
     jr nz,def0
     inc bc
     ld de,(vHeapPtr)            ; return start of definition

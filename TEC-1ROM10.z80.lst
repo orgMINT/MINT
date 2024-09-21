@@ -126,7 +126,7 @@
 0000                          .ORG   ROMSTART   
 0000                             ;reset
 0000                RSTVEC:      
-0000   C3 99 00               JP   RESET   
+0000   C3 96 00               JP   RESET   
 0003                             ; 
 0003                RST1:        
 0008                          .ORG   ROMSTART+$08   
@@ -475,41 +475,41 @@
 008B   26 00                  LD   h,0   
 008D   22 92 0C               LD   (vIntID),hl   
 0090   CD BD 03               CALL   enter   
-0093   2F 66 2F 47 00         .CSTR   "/f/G"   
-0098   C9                     RET      
-0099                             ; 
-0099                RESET:       
-0099   31 00 0A               LD   SP,stack   
-009C   21 5F 00               LD   HL,IntRet   
-009F   22 06 0A               LD   (RST08),HL   
-00A2   22 08 0A               LD   (RST10),HL   
-00A5   22 0A 0A               LD   (RST18),HL   
-00A8   22 0C 0A               LD   (RST20),HL   
-00AB   22 0E 0A               LD   (RST28),HL   
-00AE   22 10 0A               LD   (RST30),HL   
-00B1   22 14 0A               LD   (INTVEC),HL   
-00B4   22 16 0A               LD   (NMIVEC),HL   
-00B7                             ; 
-00B7   21 78 00               LD   HL,RXDATA   
-00BA   22 18 0A               LD   (GETCVEC),HL   
-00BD   21 6B 00               LD   HL,TXDATA   
-00C0   22 1A 0A               LD   (PUTCVEC),HL   
-00C3                             ; 
-00C3                          IF   TEC_1   
-00C3                          IF   BITBANG = 0   
-00C3                             ; 
-00C3   3E 03                  LD   a,MRESET   
-00C5   D3 80                  OUT   (CONTROL),a   ;reset the ACIA
-00C7                             ; 
-00C7                          ENDIF      
-00C7                          ENDIF      
-00C7                             ; 
-00C7   CD 50 00               CALL   PWRUP   
-00CA   ED 56                  IM   1   
-00CC   FB                     EI      
-00CD                             ; 
-00CD                          IF   TEC_1   
-00CD                          IF   BITBANG   
+0093   5A 00                  .CSTR   "Z"   
+0095   C9                     RET      
+0096                             ; 
+0096                RESET:       
+0096   31 00 0A               LD   SP,stack   
+0099   21 5F 00               LD   HL,IntRet   
+009C   22 06 0A               LD   (RST08),HL   
+009F   22 08 0A               LD   (RST10),HL   
+00A2   22 0A 0A               LD   (RST18),HL   
+00A5   22 0C 0A               LD   (RST20),HL   
+00A8   22 0E 0A               LD   (RST28),HL   
+00AB   22 10 0A               LD   (RST30),HL   
+00AE   22 14 0A               LD   (INTVEC),HL   
+00B1   22 16 0A               LD   (NMIVEC),HL   
+00B4                             ; 
+00B4   21 78 00               LD   HL,RXDATA   
+00B7   22 18 0A               LD   (GETCVEC),HL   
+00BA   21 6B 00               LD   HL,TXDATA   
+00BD   22 1A 0A               LD   (PUTCVEC),HL   
+00C0                             ; 
+00C0                          IF   TEC_1   
+00C0                          IF   BITBANG = 0   
+00C0                             ; 
+00C0   3E 03                  LD   a,MRESET   
+00C2   D3 80                  OUT   (CONTROL),a   ;reset the ACIA
+00C4                             ; 
+00C4                          ENDIF      
+00C4                          ENDIF      
+00C4                             ; 
+00C4   CD 50 00               CALL   PWRUP   
+00C7   ED 56                  IM   1   
+00C9   FB                     EI      
+00CA                             ; 
+00CA                          IF   TEC_1   
+00CA                          IF   BITBANG   
                                  ; 
                                  ;inline serial initialisation
                               LD   A,$40   
@@ -518,59 +518,59 @@
                               LD   HL,B4800   
                               LD   (BAUD),HL   
                                  ; 
-00CD                          ELSE      ;6850      
-00CD                             ; 
-00CD   3E 12                  LD   a,RTSLID+F8N2+DIV_64   
-00CF   D3 80                  OUT   (CONTROL),a   ;initialise ACIA  8 bit word, No parity 2 stop divide by 64 for 115200 baud
+00CA                          ELSE      ;6850      
+00CA                             ; 
+00CA   3E 12                  LD   a,RTSLID+F8N2+DIV_64   
+00CC   D3 80                  OUT   (CONTROL),a   ;initialise ACIA  8 bit word, No parity 2 stop divide by 64 for 115200 baud
+00CE                             ; 
+00CE                          ENDIF      
+00CE                          ENDIF      
+00CE                             ; 
+00CE                             ; 
+00CE                             ; 
+00CE   C3 18 02               JP   start   ; into #180 of the prog
 00D1                             ; 
-00D1                          ENDIF      
-00D1                          ENDIF      
+00D1                             ; *************************************************************************
 00D1                             ; 
+00D1                             ;       MINT 2.0 Minimal Interpreter for the Z80
 00D1                             ; 
+00D1                             ;       John Hardy and Ken Boak
+00D1                             ;       incorporates bit-bang serial routines by Craig Jones
 00D1                             ; 
-00D1   C3 18 02               JP   start   ; into #180 of the prog
-00D4                             ; 
-00D4                             ; *************************************************************************
-00D4                             ; 
-00D4                             ;       MINT 2.0 Minimal Interpreter for the Z80
-00D4                             ; 
-00D4                             ;       John Hardy and Ken Boak
-00D4                             ;       incorporates bit-bang serial routines by Craig Jones
-00D4                             ; 
-00D4                             ;       GNU GENERAL PUBLIC LICENSE                   Version 3, 29 June 2007
-00D4                             ; 
-00D4                             ;       see the LICENSE file in this repo for more information
-00D4                             ; 
-00D4                             ; *****************************************************************************
-00D4                TRUE:     EQU   -1   
-00D4                FALSE:    EQU   0   
-00D4                UNLIMITED:   EQU   -1   
-00D4                CTRL_C:   EQU   3   
-00D4                CTRL_E:   EQU   5   
-00D4                CTRL_H:   EQU   8   
-00D4                CTRL_L:   EQU   12   
-00D4                CTRL_R:   EQU   18   
-00D4                CTRL_S:   EQU   19   
-00D4                BSLASH:   EQU   $5c   
-00D4                .macro LITDAT,len
-00D4                             ; 
-00D4                 db len
-00D4                .endm
-00D4                 
-00D4                .macro REPDAT,len,data
-00D4                             ; 
-00D4                 db (len | $80)
-00D4                 db data
-00D4                .endm
-00D4                 
-00D4                .macro ENDDAT,
-00D4                             ; 
-00D4                 db 0
-00D4                .endm
-00D4                 
-00D4                             ; **************************************************************************
-00D4                             ; Page 0  Initialisation
-00D4                             ; **************************************************************************		
+00D1                             ;       GNU GENERAL PUBLIC LICENSE                   Version 3, 29 June 2007
+00D1                             ; 
+00D1                             ;       see the LICENSE file in this repo for more information
+00D1                             ; 
+00D1                             ; *****************************************************************************
+00D1                TRUE:     EQU   -1   
+00D1                FALSE:    EQU   0   
+00D1                UNLIMITED:   EQU   -1   
+00D1                CTRL_C:   EQU   3   
+00D1                CTRL_E:   EQU   5   
+00D1                CTRL_H:   EQU   8   
+00D1                CTRL_L:   EQU   12   
+00D1                CTRL_R:   EQU   18   
+00D1                CTRL_S:   EQU   19   
+00D1                BSLASH:   EQU   $5c   
+00D1                .macro LITDAT,len
+00D1                             ; 
+00D1                 db len
+00D1                .endm
+00D1                 
+00D1                .macro REPDAT,len,data
+00D1                             ; 
+00D1                 db (len | $80)
+00D1                 db data
+00D1                .endm
+00D1                 
+00D1                .macro ENDDAT,
+00D1                             ; 
+00D1                 db 0
+00D1                .endm
+00D1                 
+00D1                             ; **************************************************************************
+00D1                             ; Page 0  Initialisation
+00D1                             ; **************************************************************************		
 0180                          .ORG   ROMSTART + $180   ; 0+180 put mint code from here	
 0180                             ; **************************************************************************
 0180                             ; Macros must be written in Mint and end with ;
@@ -1560,7 +1560,7 @@
 0711                DEF:         ; Create a colon definition
 0711   03                     INC   bc   
 0712   0A                     LD   a,(bc)   ; Get the next character
-0713   FE 3A                  CP   ":"   ; is it anonymous
+0713   FE 40                  CP   "@"   ; is it anonymous
 0715   20 08                  JR   nz,def0   
 0717   03                     INC   bc   
 0718   ED 5B 76 0C            LD   de,(vHeapPtr)   ; return start of definition
@@ -1911,7 +1911,7 @@ ISR:                008B DEFINED AT LINE 448 IN IOSerial.asm
                     > USED AT LINE 128 IN IOSerial.asm
                     > USED AT LINE 133 IN IOSerial.asm
                     > USED AT LINE 196 IN IOSerial.asm
-RESET:              0099 DEFINED AT LINE 455 IN IOSerial.asm
+RESET:              0096 DEFINED AT LINE 455 IN IOSerial.asm
                     > USED AT LINE 103 IN IOSerial.asm
 TRUE:               00-1 DEFINED AT LINE 13 IN MAIN.asm
                     > USED AT LINE 478 IN MAIN.asm

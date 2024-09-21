@@ -449,7 +449,7 @@ ISR:
         ld h,0
     	ld (vIntID),hl
     	call enter
-    	.cstr "/f/G"
+    	.cstr "Z"
     	ret
 
 RESET:   

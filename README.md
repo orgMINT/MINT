@@ -610,7 +610,7 @@ arguments `3` and `7`, which results in `10` being printed (the sum of the two a
 ### <a name='anonymous-functions'></a>Anonymous functions
 
 MINT code is not restricted to upper case variables. Functions an be declared without a
-variable(i.e. anonymously) by using the `::` operator. A function declared this way puts
+variable(i.e. anonymously) by using the `:@` operator. A function declared this way puts
 the address of the function on the stack.
 
 A function at an address can be executed with the `/G` operator.
@@ -622,7 +622,7 @@ The next line pushs the number 3 on the stack and executes the function in `a`.
 The function adds 1 and prints 4 to the console.
 
 ```
-:: 1+ ; a!
+:@ 1+ ; a!
 3 a /G .
 ```
 
@@ -631,7 +631,7 @@ This code declares an array containing 3 anonymous functions. The next line acce
 index 2 and runs it. "two" is printed to the console.
 
 ```
-[:: `zero` ; :: `one` ; :: `two` ;] b!
+[:@ `zero` ; :@ `one` ; :@ `two` ;] b!
 b 2? /G
 ```
 
@@ -699,7 +699,7 @@ commands from the keyboard.
 | ------ | ------------------------------- | ------ |
 | ;      | end of user definition END      | --     |
 | :      | define a new command DEF        | --     |
-| ::     | define an anonymous command DEF | -- a   |
+| :@     | define an anonymous command DEF | -- a   |
 | /G     | execute mint code at address    | a -- ? |
 | /X     | execute machine code at address | a -- ? |
 
