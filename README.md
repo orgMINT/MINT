@@ -891,7 +891,7 @@ To find the GCD of 30 and 20, you would call the function like this:
 30 20 A       // Call the GCD function with 30 and 20, prints GCD: 10
 ```
 
-### Bubble Sort
+### 5. Bubble Sort
 
 ```
 :S l !                        // Store the list passed from the stack into variable l
