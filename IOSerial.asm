@@ -101,48 +101,49 @@ LF:      .EQU   0AH
 ;reset
 RSTVEC:
         JP	RESET
-;RST 1
+
+rst1:
     	.ORG	ROMSTART+$08
-    	PUSH	HL
-    	LD	HL,(RST08)
-    	JP	(HL)
+    	ld l,1
+    	jp ISR
     
-;RST 2
+rst2:
         .ORG ROMSTART+$10
-    	PUSH	HL
-    	LD	HL,(RST10)
-    	JP	(HL)
+    	ld l,2
+    	jp ISR
 
-;RST 3
+rst3:
         .ORG ROMSTART+$18 
-    	PUSH	HL
-    	LD	HL,(RST18)
-    	JP	(HL)
+    	ld l,3
+    	jp ISR
     
-;RST 4
+rst4:
         .ORG ROMSTART+$20
-    	PUSH	HL
-    	LD	HL,(RST20)
-    	JP	(HL)
+    	ld l,4
+    	jp ISR
 
-;RST 5
+rst5:
     	.ORG ROMSTART+$28
-    	PUSH	HL
-    	LD	HL,(RST28)
-    	JP	(HL)
+    	ld l,5
+    	jp ISR
 
-;RST 6
+rst6:
     	.ORG ROMSTART+$30
-        PUSH	HL
-    	LD	HL,(RST30)
-    	JP	(HL)
+    	ld l,6
+    	jp ISR
 
 ;RST 7 Interrupt
     	.ORG	ROMSTART+$38
-    	PUSH	HL
-    	LD	HL,(INTVEC)
-    	JP	(HL)
-        RETI
+
+.if  BITBANG
+
+    	ld l,7
+    	jp ISR
+.else 
+
+        ret
+
+.endif
 
         .ORG    ROMSTART+$40
 
@@ -187,9 +188,12 @@ IntRet:
 
 ;RST 8  Non Maskable Interrupt
         .ORG ROMSTART+$66
-        PUSH	HL
-        LD	HL,(NMIVEC)
-        JP	(HL)
+        ; PUSH	HL
+        ; LD	HL,(NMIVEC)
+        ; JP	(HL)
+    	
+    	ld l,8
+    	jp ISR
 
 
 .if  BITBANG
@@ -440,6 +444,13 @@ putchar:
         LD HL,(PUTCVEC)
         EX (SP),HL
         RET
+
+ISR:
+        ld h,0
+    	ld (vIntID),hl
+    	call enter
+    	.cstr "/f/G"
+    	ret
 
 RESET:   
         ld SP,stack

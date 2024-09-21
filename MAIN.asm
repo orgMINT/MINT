@@ -1133,7 +1133,7 @@ printDec7:
 def:                                ; Create a colon definition
     inc bc
     ld  a,(bc)                  ; Get the next character
-    cp ":"                      ; is it anonymouse
+    cp ":"                      ; is it anonymous
     jr nz,def0
     inc bc
     ld de,(vHeapPtr)            ; return start of definition

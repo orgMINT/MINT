@@ -46,7 +46,7 @@ vByteMode:  DS 2                ; b
 vCarry:     DS 2                ; c carry variable
             DS 2                ; d
             DS 2                ; e
-            DS 2                ; f
+vIntFunc:   DS 2                ; f interrupt func
             DS 2                ; g
 vHeapPtr:   DS 2                ; h heap pointer variable
             DS 2                ; i loop variable
@@ -54,7 +54,7 @@ vHeapPtr:   DS 2                ; h heap pointer variable
 vTIBPtr:    DS 2                ; k address of text input buffer
             DS 2                ; l  
             DS 2                ; m  
-            DS 2                ; n
+            DS 2                ; n 
             DS 2                ; o
             DS 2                ; p
             DS 2                ; q
@@ -62,7 +62,7 @@ vRemain:    DS 2                ; r remainder of last division
 vStkStart:  DS 2                ; s address of start of stack
             DS 2                ; t
             DS 2                ; u
-            DS 2                ; v
+vIntID:     DS 2                ; v interrupt id
             DS 2                ; w
             DS 2                ; x     
             DS 2                ; y
