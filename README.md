@@ -796,8 +796,6 @@ A loop that prints the first 10 numbers of the Fibonacci sequence.
 )
 ```
 
----
-
 ### 2. Factorial Function
 
 A recursive function that calculates the factorial of a number.
@@ -808,13 +806,12 @@ A recursive function that calculates the factorial of a number.
   1 >         // Check if n > 1
   (           // If true
     " 1 - F * // n * factorial(n - 1)
-  ) /E        // Else
-  1           // Return 1
+  ) /E (      // Else condition wrapped in parentheses
+    1         // Return 1
+  )
 ;
 5 F .         // Calculate factorial of 5, prints: 120
 ```
-
----
 
 ### 3. Sieve of Eratosthenes
 
@@ -832,8 +829,6 @@ l 2 (         // Loop from 2 to limit
 )
 ```
 
----
-
 ### 4. Greatest Common Divisor (GCD) using Euclidean Algorithm
 
 This program finds the GCD of two numbers using the Euclidean algorithm.
@@ -848,8 +843,6 @@ b 0 >         // While b > 0
 a .           // Print the GCD
 ```
 
----
-
 ### 5. Merge Sort
 
 A basic merge sort algorithm to sort a list of numbers.
@@ -859,11 +852,11 @@ A basic merge sort algorithm to sort a list of numbers.
   l s 1 > (   // If list length is greater than 1
     l s 2 / M !  // Split the list in half and sort
     l r m l !   // Merge sorted halves into l
-  ) /E l .      // Print sorted list
+  ) /E (       // Else condition wrapped in parentheses
+    l .        // Print sorted list
+  )
 ;
 ```
-
----
 
 ### 6. Binary Search
 
@@ -876,14 +869,17 @@ A binary search algorithm that searches for a value in a sorted array.
     m l h + 2 / !        // Find the middle index
     m a ? t = (          // If value at m is target
       m .                // Print index
-    ) /E m a ? t < (     // If target is smaller, search left half
-      m 1 - h !
-    ) /E l m 1 + !
+    ) /E (               // Else block for equality wrapped in parentheses
+      m a ? t < (        // If target is smaller, search left half
+        m 1 - h !
+      ) /E (             // Else block for smaller condition wrapped
+        l m 1 + !
+      )
+    )
   )
 ;
-```
 
----
+```
 
 ### 7. Quick Sort
 
@@ -897,8 +893,6 @@ An implementation of the Quick Sort algorithm.
 )
 ;
 ```
-
----
 
 ### 8. Tower of Hanoi
 
@@ -917,8 +911,6 @@ A recursive solution to the Tower of Hanoi problem.
 3 H .                  // Solve Tower of Hanoi with 3 disks
 ```
 
----
-
 ### 9. Insertion Sort
 
 An implementation of the insertion sort algorithm.
@@ -936,31 +928,29 @@ An implementation of the insertion sort algorithm.
 ;
 ```
 
----
-
 ### 10. Dijkstra's Algorithm (Shortest Path)
 
 An implementation of Dijkstra's algorithm to find the shortest path in a graph.
 
 ```mint
-:M
-  g loop unvisited (        // Loop through all unvisited nodes
-    n g distance < (        // If this node has a smaller distance
-      n g !                 // Update n to be the new minimum
+:N
+  u 0 !            // Initialize u (index) to 0
+  g /S (           // Loop over all nodes in the graph
+    u g ? d < (    // If the node at index u has a smaller distance
+      u g !        // Update u to be the new minimum
     )
+    u 1 + u !      // Increment u
   )
-  n !                      // Return the node with the minimum distance
+  u !              // Return the index of the minimum distance node
 ;
 
 :D
-  g s d !                  // Initialize graph and start node
-  d ! v /F !               // Initialize distances and visited nodes
-  g l u (                  // Loop through unvisited nodes
-    M c !                  // Get node with minimum distance using M
-    n u !                  // Update distances of neighboring nodes
+  g s d !          // Initialize graph and start node
+  d ! v /F !       // Initialize distances and visited nodes
+  g /S (           // Loop over all nodes in the graph
+    N m !          // Get the minimum distance node using N
+    m u !          // Update distances of neighboring nodes
   )
-  d .                      // Print shortest path
+  d .              // Print the shortest path
 ;
 ```
-
----
