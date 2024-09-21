@@ -785,7 +785,7 @@ where "A" represents any uppcase letter
 
 A loop that prints the first 10 numbers of the Fibonacci sequence.
 
-```mint
+```
 0 a !        // Initialize a to 0
 1 b !        // Initialize b to 1
 10 (         // Loop 10 times
@@ -807,7 +807,7 @@ A loop that prints the first 10 numbers of the Fibonacci sequence.
 
 A recursive function that calculates the factorial of a number.
 
-```mint
+```
 :F
   "           // Duplicate n
   1 >         // Check if n > 1
@@ -828,7 +828,7 @@ A recursive function that calculates the factorial of a number.
 
 A simple implementation of the Sieve of Eratosthenes to find prime numbers up to 30.
 
-```mint
+```
 30 l !              // Set limit to 30
 0 p !               // Initialize p to 0 (current number)
 l 2 - (             // Loop from 2 to the limit
@@ -850,7 +850,7 @@ l 2 - (             // Loop from 2 to the limit
 
 This program finds the GCD of two numbers using the Euclidean algorithm.
 
-```mint
+```
 :A b ! a !    // Pop two numbers from the stack in LIFO order (b first, then a)
 /U (          // Begin an unlimited loop
   b 0 = /W    // If b equals 0, break the loop
@@ -868,7 +868,7 @@ a .           // Print the GCD
 
 To find the GCD of 30 and 20, you would call the function like this:
 
-```mint
+```
 30 20 A       // Call the GCD function with 30 and 20, prints GCD: 10
 ```
 
@@ -876,7 +876,7 @@ To find the GCD of 30 and 20, you would call the function like this:
 
 A basic merge sort algorithm to sort a list of numbers.
 
-```mint
+```
 :S l !        // Store the list passed from the stack into variable l
 l /S (        // Get the size of the list and loop that many times
   /U (        // Start an unlimited loop for swapping
@@ -899,7 +899,7 @@ l /S (        // Get the size of the list and loop that many times
 
 ### Example of Calling the Function:
 
-```mint
+```
 [5 3 8 4 2] S  // Calls the bubble sort function on the list [5, 3, 8, 4, 2]
 ```
 
@@ -907,7 +907,7 @@ l /S (        // Get the size of the list and loop that many times
 
 A binary search algorithm that searches for a value in a sorted array.
 
-```mint
+```
 :B h ! l !             // Pop high and low indices from the stack (LIFO order)
 l h <= (               // While low <= high
   m l h + 2 / !        // Find the middle index
@@ -931,7 +931,7 @@ l h <= (               // While low <= high
 
 ### Example of Calling the Function:
 
-```mint
+```
 0 9 B       // Searches in a sorted array from index 0 to 9
 ```
 
@@ -939,72 +939,114 @@ l h <= (               // While low <= high
 
 An implementation of the Quick Sort algorithm.
 
-```mint
-:Q l s > 1 (  // If list length is greater than 1
-  l p c !     // Choose a pivot element
-  l s p p !   // Partition list around pivot
-  s Q ! p Q ! // Recursively sort partitions
+```
+:Q s ! l !       // Pop the list and its size from the stack (LIFO order)
+l s > 1 (        // If list length is greater than 1
+  l p c !        // Choose a pivot element
+  l s p p !      // Partition list around pivot
+  s Q ! p Q !    // Recursively sort partitions
 )
 ;
 ```
 
+- **`s ! l !`**: Pops the list `l` and its size `s` from the stack in the correct LIFO order.
+- **`l s > 1`**: Checks if the list length is greater than 1 to determine whether sorting is necessary.
+- **Recursive Sorting**: It partitions the list around a pivot and recursively sorts both partitions until the base case is reached.
+
+### Example of Calling the Function:
+
+```
+[5 3 8 4 2] 5 Q  // Sort the list [5, 3, 8, 4, 2]
+```
+
 ### 8. Tower of Hanoi
 
-A recursive solution to the Tower of Hanoi problem.
-
-```mint
-:H
-  n 1 = (              // If there is only 1 disk
-    f t m !            // Move from source to destination
-  ) /E (
-    n 1 - f t s H !    // Move n-1 disks from source to spare
-    f t m !            // Move nth disk to destination
-    s t f H !          // Move n-1 disks from spare to destination
-  )
+```
+:H s ! t ! f ! n !      // Pop the number of disks and rods (source, target, spare) from the stack
+n 1 = (                 // If there is only 1 disk
+  f t m !               // Move from source to destination
+) /E (                  // Else
+  n 1 - f t s H !       // Move n-1 disks from source to spare
+  f t m !               // Move nth disk to destination
+  s t f H !             // Move n-1 disks from spare to destination
+)
 ;
-3 H .                  // Solve Tower of Hanoi with 3 disks
+```
+
+- **`s ! t ! f ! n !`**: Pops the number of disks `n`, source rod `f`, target rod `t`, and spare rod `s` from the stack in the correct LIFO order.
+- **Recursive Steps**:
+  - If there's only 1 disk, it moves directly from the source to the destination.
+  - If there are more than 1 disk, it recursively moves `n-1` disks to the spare rod, moves the nth disk to the target, and then moves the `n-1` disks from the spare to the target.
+
+### Example of Calling the Function:
+
+```
+3 f t s H .  // Solve Tower of Hanoi for 3 disks
 ```
 
 ### 9. Insertion Sort
 
 An implementation of the insertion sort algorithm.
 
-```mint
-:I l s 2 > (    // If list has more than 1 element
-  l i 1 to s (  // Loop through the list
-    k l i !     // Assign key
-    j i 1 - (   // Move elements greater than key
-      k < l j > (
-        l j 1 + j !
-      )
+```
+:I l !         // Pop the list from the stack
+l /S s !       // Get the size of the list
+s 2 > (        // If list has more than 1 element
+  s 1 to (     // Loop through the list starting from index 1
+    l i ? k !  // Assign key from list element at index i
+    i 1 - j !  // Initialize j to i - 1
+    j 0 > k l j ? < (  // While j > 0 and key is less than list[j]
+      l j 1 + l j !    // Shift elements to the right
+      j 1 - j !        // Decrement j
     )
+    k l j 1 + !        // Place the key at the correct position
   )
+)
 ;
+```
+
+- **`l !`**: Pop the list from the stack.
+- **`l /S s !`**: Use `/S` to get the size of the list and store it in `s`.
+- **Key and Comparison**: Iterates over the list starting from index 1, compares the current element (`k`) with previous elements, and shifts larger elements to the right until the correct position for `k` is found.
+
+### Example of Calling the Function:
+
+```
+[5 3 8 4 2] I  // Sort the list [5, 3, 8, 4, 2]
 ```
 
 ### 10. Dijkstra's Algorithm (Shortest Path)
 
 An implementation of Dijkstra's algorithm to find the shortest path in a graph.
 
-```mint
-:N
-  u 0 !            // Initialize u (index) to 0
-  g /S (           // Loop over all nodes in the graph
-    u g ? d < (    // If the node at index u has a smaller distance
-      u g !        // Update u to be the new minimum
+```
+:N g !           // Pop the graph from the stack
+  u 0 !          // Initialize u (index) to 0
+  g /S (         // Loop over all nodes in the graph
+    u g ? d < (  // If the node at index u has a smaller distance
+      u g !      // Update u to be the new minimum
     )
-    u 1 + u !      // Increment u
+    u 1 + u !    // Increment u
   )
-  u !              // Return the index of the minimum distance node
+  u !            // Return the index of the minimum distance node
 ;
 
-:D
-  g s d !          // Initialize graph and start node
-  d ! v /F !       // Initialize distances and visited nodes
-  g /S (           // Loop over all nodes in the graph
-    N m !          // Get the minimum distance node using N
-    m u !          // Update distances of neighboring nodes
+:D g ! s ! d !   // Pop the graph, start node, and distances from the stack
+  d ! v /F !     // Initialize distances and visited nodes
+  g /S (         // Loop over all nodes in the graph
+    N m !        // Get the minimum distance node using N
+    m u !        // Update distances of neighboring nodes
   )
-  d .              // Print the shortest path
+  d .            // Print the shortest path
 ;
+```
+
+- **`g ! s ! d !`**: Pops the graph, start node, and distances from the stack in the correct LIFO order.
+- **`N` Function**: Finds the node with the smallest distance by iterating through the graph and updating the index.
+- **`D` Function**: Executes Dijkstra's algorithm to find the shortest path by continuously selecting the node with the smallest distance and updating its neighboring nodes.
+
+### Example of Calling the Function:
+
+```
+graph start distances D   // Call Dijkstra's algorithm with the graph, start node, and distances
 ```
