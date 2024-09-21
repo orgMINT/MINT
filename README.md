@@ -891,30 +891,28 @@ To find the GCD of 30 and 20, you would call the function like this:
 30 20 A       // Call the GCD function with 30 and 20, prints GCD: 10
 ```
 
-### 5. Merge Sort
-
-A basic merge sort algorithm to sort a list of numbers.
+# Bubble Sort
 
 ```
-:S l !        // Store the list passed from the stack into variable l
-l /S (        // Get the size of the list and loop that many times
-  /U (        // Start an unlimited loop for swapping
-    0 s !     // Set swap flag to 0
-    l /S 1 - ( // Iterate over the list (size - 1 times)
-      l i ? l i 1 + ? > (    // Compare adjacent elements
-        l i ? l i 1 + swap!  // Swap them if out of order
-        1 s !               // Set swap flag to 1
+:S l !                        // Store the list passed from the stack into variable l
+l /S (                        // Get the size of the list and loop that many times
+  /U (                        // Start an unlimited loop for swapping
+    0 s !                     // Set swap flag to 0
+    l /S 1 - (                // Iterate over the list (size - 1 times)
+      l i ? l i 1 + ? > (     // Compare adjacent elements
+        l i ? l i 1 + swap!   // Swap them if out of order
+        1 s !                 // Set swap flag to 1
       )
     )
-    s 0 = /W   // Break the loop if no swaps occurred
+    s 0 = /W                  // Break the loop if no swaps occurred
   )
 )
 ;
 ```
 
-- **`l !`**: This line stores the list (or array) passed from the stack into the variable `l`.
-- **`l /S`**: Retrieves the size of the list.
-- The bubble sort logic proceeds as before, but now `l` is fetched from the stack, ensuring proper stack-based operations.
+- **`l !`**: Stores the list (or array) passed from the stack into the variable `l`.
+- **`l /S`**: Retrieves the size of the list and prepares for iteration.
+- **Bubble Sort**: The algorithm loops through the list, comparing adjacent elements and swapping them if they are out of order. The process repeats until no more swaps occur.
 
 ### Example of Calling the Function:
 
