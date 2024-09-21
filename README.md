@@ -786,22 +786,25 @@ where "A" represents any uppcase letter
 A loop that prints the first 10 numbers of the Fibonacci sequence.
 
 ```
-0 a !        // Initialize a to 0
-1 b !        // Initialize b to 1
-10 (         // Loop 10 times
-  a .        // Print a
-  a b + c !  // c = a + b
-  b a !      // a = b
-  c b !      // b = c
+:F n !        // Pop the number of iterations (n) from the stack
+0 a ! 1 b !   // Initialize a = 0, b = 1
+n (           // Loop n times
+  a .         // Print current Fibonacci number
+  a b + c !   // c = a + b
+  b a !       // a = b
+  c b !       // b = c
 )
+;
 ```
 
-- `0 a ! 1 b !` initializes both `a` and `b` in one line: `a = 0` and `b = 1`.
-- The loop runs 10 times, printing `a` and updating `a` and `b` in a single line.
-- `a .` prints the current Fibonacci number.
-- `a b + b a !` updates `a` and `b`:
-  - `a b +` computes `a + b` and assigns it to `b`.
-  - `b a !` assigns the old value of `b` (before the addition) to `a`.
+- **`n !`**: Pops the number of iterations from the stack and assigns it to `n`.
+- The loop runs `n` times, printing `a` and updating `a` and `b` in each iteration.
+
+### Example of Calling the Function:
+
+```
+10 F  // Print the first 10 Fibonacci numbers
+```
 
 ### 2. Factorial Function
 
@@ -829,22 +832,27 @@ A recursive function that calculates the factorial of a number.
 A simple implementation of the Sieve of Eratosthenes to find prime numbers up to 30.
 
 ```
-30 l !              // Set limit to 30
-0 p !               // Initialize p to 0 (current number)
-l 2 - (             // Loop from 2 to the limit
-  /T f !            // Set flag assuming number is prime
-  p 1 + p !         // Increment p
-  p .               // Print the current number
-  l p 2 * < (       // For multiples of p within the limit
-    p i = f /F !    // Set flag to false if number is divisible
+:S l !             // Pop the limit from the stack
+0 p !              // Initialize p to 0 (current number)
+l 2 - (            // Loop from 2 to the limit
+  /T f !           // Set flag assuming number is prime
+  p 1 + p !        // Increment p
+  p .              // Print the current number
+  l p 2 * < (      // For multiples of p within the limit
+    (p i % 0 = ) /F f !   // Set flag to false if p is divisible by i
   )
 )
+;
 ```
 
-- This implementation of the Sieve of Eratosthenes finds prime numbers up to 30.
-- The variable `l` is the limit, and `p` iterates through numbers starting from 2.
-- For each number `p`, the algorithm checks if it is prime and prints it.
-- The multiples of each prime number are marked as non-prime by setting the flag `f` to false.
+- **`/F f !`**: Correctly assigns false to `f` if `p` is divisible by `i`.
+- **Condition**: `(p i % 0 = )` is wrapped in parentheses to ensure the conditional check happens correctly before the assignment.
+
+### Example of Calling the Function:
+
+```
+30 S  // Set the limit to 30 and call the sieve function
+```
 
 ### 4. Greatest Common Divisor (GCD) using Euclidean Algorithm
 
@@ -1019,7 +1027,7 @@ s 2 > (        // If list has more than 1 element
 
 An implementation of Dijkstra's algorithm to find the shortest path in a graph.
 
-```mint
+```
 :N g !           // Pop the graph from the stack
   u 0 !          // Initialize u (index) to 0
   g /S (         // Loop over all nodes in the graph
@@ -1043,7 +1051,7 @@ An implementation of Dijkstra's algorithm to find the shortest path in a graph.
 
 ### Example of Calling the Function:
 
-```mint
+```
 [ 0 7 9 0 0 14 0 0 10 15 0 11 0 6 ] g !  // Graph (Adjacency matrix)
 [ 0 999 999 999 999 ] d !               // Distances (start at 0, others infinity)
 0 s !                                   // Start node is 0
