@@ -695,13 +695,14 @@ commands from the keyboard.
 
 ### <a name='functions'></a>Functions
 
-| Symbol | Description                     | Effect |
-| ------ | ------------------------------- | ------ |
-| ;      | end of user definition END      | --     |
-| :      | define a new command DEF        | --     |
-| :@     | define an anonymous command DEF | -- a   |
-| /G     | execute mint code at address    | a -- ? |
-| /X     | execute machine code at address | a -- ? |
+| Symbol   | Description                     | Effect |
+| -------- | ------------------------------- | ------ |
+| :A ... ; | define a new command DEF        | --     |
+| :@ ... ; | define an anonymous command DEF | -- a   |
+| /G       | execute mint code at address    | a -- ? |
+| /X       | execute machine code at address | a -- ? |
+
+where "A" represents any uppcase letter
 
 ### <a name='loops-and-conditional-execution'></a>Loops and conditional execution
 
