@@ -1019,7 +1019,7 @@ s 2 > (        // If list has more than 1 element
 
 An implementation of Dijkstra's algorithm to find the shortest path in a graph.
 
-```
+```mint
 :N g !           // Pop the graph from the stack
   u 0 !          // Initialize u (index) to 0
   g /S (         // Loop over all nodes in the graph
@@ -1041,12 +1041,17 @@ An implementation of Dijkstra's algorithm to find the shortest path in a graph.
 ;
 ```
 
-- **`g ! s ! d !`**: Pops the graph, start node, and distances from the stack in the correct LIFO order.
-- **`N` Function**: Finds the node with the smallest distance by iterating through the graph and updating the index.
-- **`D` Function**: Executes Dijkstra's algorithm to find the shortest path by continuously selecting the node with the smallest distance and updating its neighboring nodes.
-
 ### Example of Calling the Function:
 
+```mint
+[ 0 7 9 0 0 14 0 0 10 15 0 11 0 6 ] g !  // Graph (Adjacency matrix)
+[ 0 999 999 999 999 ] d !               // Distances (start at 0, others infinity)
+0 s !                                   // Start node is 0
+g s d D                                 // Call Dijkstra's algorithm
 ```
-graph start distances D   // Call Dijkstra's algorithm with the graph, start node, and distances
-```
+
+### Explanation:
+
+- **Graph**: `[ 0 7 9 0 0 14 0 0 10 15 0 11 0 6 ]` represents an adjacency matrix.
+- **Distances**: `[ 0 999 999 999 999 ]` represents the distances from the start node to all other nodes, initialized with infinity (or a large value) except the start node (which is 0).
+- **Start Node**: `s = 0` sets the start node to 0.
