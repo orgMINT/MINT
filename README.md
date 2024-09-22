@@ -872,7 +872,7 @@ This program finds the GCD of two numbers using the Euclidean algorithm.
 ```
 :A b ! a !    // Pop two numbers from the stack in LIFO order (b first, then a)
 /U (          // Begin an unlimited loop
-  b 0 = /W    // If b equals 0, break the loop
+  b 0 = /F = /W  // Break the loop if b equals 0 (continue while b != 0)
   a b % a !   // a = a mod b
   a b !       // Swap: b = old a, repeat
 )
@@ -894,25 +894,39 @@ To find the GCD of 30 and 20, you would call the function like this:
 ### 5. Bubble Sort
 
 ```
-:S l !                        // Store the list passed from the stack into variable l
-l /S (                        // Get the size of the list and loop that many times
-  /U (                        // Start an unlimited loop for swapping
-    0 s !                     // Set swap flag to 0
-    l /S 1 - (                // Iterate over the list (size - 1 times)
-      l i ? l i 1 + ? > (     // Compare adjacent elements
-        l i ? l i 1 + swap!   // Swap them if out of order
-        1 s !                 // Set swap flag to 1
-      )
+:S l !                         // Store the list passed from the stack into variable l
+l /S s !                       // Get the size of the list and store it in s
+/T c !                         // Initialize the continue flag (c) to true
+/U (                           // Start an unlimited loop for swapping
+  c /W                         // Break the loop early if no swaps occurred (c == false)
+  s 1 - (                      // Iterate over the list (size - 1 times)
+    l i ? x !                  // Store l[i] in x
+    l i 1 + ? y !              // Store l[i+1] in y
+    x y > (                    // Compare x and y (l[i] and l[i+1])
+      y l i !                  // Move y (l[i+1]) to l[i]
+      x l i 1 + !              // Move x (l[i]) to l[i+1]
+      /F c !                   // Set the continue flag to false (indicating a swap occurred)
     )
-    s 0 = /W                  // Break the loop if no swaps occurred
   )
 )
 ;
 ```
 
-- **`l !`**: Stores the list (or array) passed from the stack into the variable `l`.
-- **`l /S`**: Retrieves the size of the list and prepares for iteration.
-- **Bubble Sort**: The algorithm loops through the list, comparing adjacent elements and swapping them if they are out of order. The process repeats until no more swaps occur.
+- **Temporary Variables**: `x` stores `l[i]` and `y` stores `l[i+1]` to avoid repetition when swapping elements.
+- **Continue Flag Initialization**: The continue flag `c` is initialized to **true** (`/T c !`) once at the start before the loop begins.
+- **Early Check for Continue Flag**: The loop checks `c /W` early in each pass. If `c == false` (no swaps occurred in the previous pass), the loop terminates early.
+
+### Example of Calling the Function:
+
+```
+[5 3 8 4 2] S  // Calls the bubble sort function on the list [5, 3, 8, 4, 2]
+```
+
+### Example of Calling the Function:
+
+```
+[5 3 8 4 2] S  // Calls the bubble sort function on the list [5, 3, 8, 4, 2]
+```
 
 ### Example of Calling the Function:
 
