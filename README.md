@@ -121,7 +121,7 @@ prints `The value of x is 100`
 
 In MINT, the stack is a central data structure that stores values temporarily.
 It's essential to master stack manipulation to write effective code. Let's explore
-some fundamental operator that help you manage the stack
+some fundamental operators that help you manage the stack
 
 ### <a name='duplicate'></a>Duplicate
 
@@ -151,7 +151,7 @@ The `$` of "swap" operator exchanges the positions of the top two elements on th
 40 50 $ . .
 ```
 
-The code prints `50 40`
+The code prints `40 50`
 
 ### <a name='over'></a>Over
 
@@ -162,7 +162,7 @@ places it on top.
 60 70 % . . .
 ```
 
-The code prints `70 60 70`
+The code prints `60 70 60`
 
 ## <a name='basic-arithmetic-operations'></a>Basic arithmetic operations
 
@@ -170,7 +170,7 @@ The code prints `70 60 70`
 10 20 + .
 ```
 
-This program adds `20` from `10` which results in the value `30`
+This program adds `20` and `10` which results in the value `30`
 The `.` operator prints the sum.
 
 ```
@@ -873,7 +873,7 @@ This program finds the GCD of two numbers using the Euclidean algorithm.
 :A b ! a !    // Pop two numbers from the stack in LIFO order (b first, then a)
 /U (          // Begin an unlimited loop
   b 0 = /W    // If b equals 0, break the loop
-  a b % a !   // a = a mod b
+  a b / /r a !   // a = a mod b 
   a b !       // Swap: b = old a, repeat
 )
 a .           // Print the GCD
