@@ -1,3 +1,6 @@
+Note-   longer than one character labels have been used to show clarity these need to be modified to single letter of your choice
+
+
 # A MINT Tutorial (Updated for MINT Version 2.0)
 
 MINT (Minimal Interpreter) is an **interactive**, stack-based programming language designed for simplicity, efficiency, and ease of use on resource-constrained systems like the Z80 microprocessor. This tutorial introduces you to the updated syntax and features of MINT Version 2.0.
